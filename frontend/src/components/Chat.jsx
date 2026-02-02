@@ -18,6 +18,13 @@ function Chat({ user, token }) {
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [conversationState, setConversationState] = useState('start');
   
+  // Image upload state - Multiple images support
+  const [selectedImages, setSelectedImages] = useState([]);  // Array of {file, preview}
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [uploadedImageUrls, setUploadedImageUrls] = useState([]);  // Array of URLs
+  const [showAttachmentUpload, setShowAttachmentUpload] = useState(false);  // Only show at confirmation
+  const fileInputRef = useRef(null);
+  
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -135,10 +142,17 @@ function Chat({ user, token }) {
     setCurrentButtons([]);
     
     try {
+      // Check if this is a ticket confirmation action - upload images first
+      let imageUrls = [];
+      if (button.action === 'confirm_ticket' && selectedImages.length > 0) {
+        imageUrls = await uploadAllImages();
+      }
+      
       const response = await api.post('/api/chat', {
         action: button.action,
         value: button.value,
-        session_id: sessionId
+        session_id: sessionId,
+        attachment_urls: imageUrls.length > 0 ? imageUrls : undefined
       });
 
       if (response.data.success) {
@@ -160,6 +174,17 @@ function Chat({ user, token }) {
         
         setCurrentButtons(response.data.buttons || []);
         setConversationState(response.data.state || 'end');
+        
+        // Show attachment upload option when at ticket confirmation state
+        const isTicketConfirmation = response.data.buttons?.some(btn => 
+          btn.action === 'confirm_ticket'
+        );
+        setShowAttachmentUpload(isTicketConfirmation);
+        
+        // Clear images after successful ticket creation
+        if (response.data.ticket_id) {
+          clearImages();
+        }
         
         // Handle show_text_input flag from backend (for "need more help" and free text modes)
         if (response.data.show_text_input) {
@@ -249,6 +274,12 @@ function Chat({ user, token }) {
         setCurrentButtons(response.data.buttons || []);
         setConversationState(response.data.state || 'end');
         
+        // Show attachment upload option when at ticket confirmation state
+        const isTicketConfirmation = response.data.buttons?.some(btn => 
+          btn.action === 'confirm_ticket'
+        );
+        setShowAttachmentUpload(isTicketConfirmation);
+        
         // Handle show_text_input flag from backend (for follow-up questions)
         if (response.data.show_text_input) {
           setShowOtherInput(true);
@@ -282,6 +313,98 @@ function Chat({ user, token }) {
     }
   };
 
+  // Handle multiple image selection
+  const handleImageSelect = (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+    
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const maxImages = 5; // Maximum 5 images
+    
+    const currentCount = selectedImages.length;
+    const remainingSlots = maxImages - currentCount;
+    
+    if (remainingSlots <= 0) {
+      alert(`Maximum ${maxImages} images allowed per ticket.`);
+      return;
+    }
+    
+    const validFiles = [];
+    for (const file of files.slice(0, remainingSlots)) {
+      if (!allowedTypes.includes(file.type)) {
+        alert(`Invalid file type: ${file.name}. Please select JPEG, PNG, GIF, or WebP images.`);
+        continue;
+      }
+      if (file.size > maxSize) {
+        alert(`File too large: ${file.name}. Maximum size is 5MB.`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+    
+    // Create previews for valid files
+    validFiles.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImages(prev => [...prev, { file, preview: reader.result }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    // Clear file input for next selection
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // Upload all selected images
+  const uploadAllImages = async () => {
+    if (selectedImages.length === 0) return [];
+    
+    setUploadingImages(true);
+    const uploadedUrls = [];
+    
+    try {
+      for (const { file } of selectedImages) {
+        const formData = new FormData();
+        formData.append('image', file);
+        
+        const response = await api.post('/api/upload/image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (response.data.success) {
+          uploadedUrls.push(response.data.url);
+        }
+      }
+      
+      setUploadedImageUrls(uploadedUrls);
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('Failed to upload some images. Please try again.');
+      return uploadedUrls;
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  // Remove a selected image
+  const removeImage = (index) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Clear all selected images
+  const clearImages = () => {
+    setSelectedImages([]);
+    setUploadedImageUrls([]);
+    setShowAttachmentUpload(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
   // Handle restart
   const handleRestart = () => {
     setSessionId(null);
@@ -289,6 +412,7 @@ function Chat({ user, token }) {
     setShowOtherInput(false);
     setInputMessage('');
     setConversationState('start');
+    clearImages();  // Clear any selected images
     startConversation();
   };
 
@@ -540,6 +664,12 @@ function Chat({ user, token }) {
                     <p key={i}>{line}</p>
                   ))}
                 </div>
+                {/* Show attached image if present */}
+                {message.image && (
+                  <div className="message-image">
+                    <img src={message.image} alt="Attached" />
+                  </div>
+                )}
                 <div className="message-time">
                   {new Date(message.timestamp).toLocaleTimeString()}
                 </div>
@@ -581,6 +711,7 @@ function Chat({ user, token }) {
                 rows="4"
                 autoFocus
               />
+              
               <div className="other-input-actions">
                 <button
                   className="cancel-btn"
@@ -601,6 +732,63 @@ function Chat({ user, token }) {
                   Submit →
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Attachment Upload Section - Only shown at ticket confirmation */}
+        {showAttachmentUpload && (
+          <div className="attachment-upload-container">
+            <div className="attachment-header">
+              <span>📎 Attach Screenshots (Optional)</span>
+              <span className="attachment-hint">Max 5 images, 5MB each</span>
+            </div>
+            
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageSelect}
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              multiple
+              style={{ display: 'none' }}
+              disabled={loading || uploadingImages}
+            />
+            
+            <div className="attachment-content">
+              {selectedImages.length > 0 && (
+                <div className="selected-images-grid">
+                  {selectedImages.map((img, index) => (
+                    <div key={index} className="selected-image-item">
+                      <img src={img.preview} alt={`Attachment ${index + 1}`} />
+                      <button 
+                        className="remove-image-btn"
+                        onClick={() => removeImage(index)}
+                        disabled={loading || uploadingImages}
+                        title="Remove"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              
+              {selectedImages.length < 5 && (
+                <button
+                  className="add-image-btn"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={loading || uploadingImages}
+                >
+                  + Add Image{selectedImages.length > 0 ? ` (${5 - selectedImages.length} left)` : 's'}
+                </button>
+              )}
+              
+              {uploadingImages && (
+                <div className="upload-progress">
+                  <span className="upload-spinner"></span>
+                  <span>Uploading images...</span>
+                </div>
+              )}
             </div>
           </div>
         )}

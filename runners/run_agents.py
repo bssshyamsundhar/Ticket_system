@@ -441,6 +441,127 @@ Remember: You must CALL the confirm_and_create_escalation_ticket tool.
             }
 
         # ------------------------------------------------------------------
+        # STATE: AWAITING CLARIFICATION - Process clarification response
+        # ------------------------------------------------------------------
+        if current_state == ConversationState.AWAITING_CLARIFICATION:
+            logger.info(f"Processing clarification response from user {user_id}")
+            
+            # Store the clarification as refined_query
+            original_issue = conversation_state.get("issue_summary", "")
+            conversation_state["refined_query"] = message
+            
+            # Build enhanced query with original issue + clarification
+            enhanced_message = f"""Original issue: {original_issue}
+            
+User's clarification: {message}
+
+Please search the knowledge base with this additional context and provide a solution."""
+
+            # Change state back to ACTIVE to continue processing
+            conversation_state["state"] = ConversationState.ACTIVE
+            
+            # Now run self-service agent with enhanced context
+            result = await self.run_self_service_agent(
+                user_id=user_id_str,
+                session_id=adk_session_id,
+                user_message=enhanced_message,
+            )
+            
+            response_text = result["response"]
+            
+            # Check if agent still needs clarification or wants to escalate
+            if result["needs_escalation"]:
+                issue_summary = result.get("escalation_issue", original_issue + " - " + message)
+                
+                escalation_result = await self.run_escalation_preview(
+                    user_id=user_id_str,
+                    session_id=adk_session_id,
+                    issue_summary=issue_summary,
+                    user_email=user_email,
+                    refined_query=message,
+                    confidence_score=conversation_state.get("confidence_score"),
+                )
+                
+                db.save_conversation(
+                    user_id=user_id,
+                    session_id=session_id,
+                    message_type='agent',
+                    message_content=response_text + "\n\n" + escalation_result["response"],
+                )
+                
+                conversation_state["state"] = ConversationState.AWAITING_TICKET_CONFIRMATION
+                conversation_state["pending_ticket_data"] = {
+                    "issue_summary": issue_summary,
+                    "refined_query": message,
+                    "confidence_score": conversation_state.get("confidence_score"),
+                }
+                
+                return {
+                    "success": True,
+                    "response": response_text + "\n\n" + escalation_result["response"],
+                    "agent": "escalation",
+                    "awaiting_confirmation": True,
+                    "conversation_state": conversation_state,
+                }
+            
+            # If agent needs more clarification
+            if result["needs_clarification"]:
+                conversation_state["clarification_count"] += 1
+                conversation_state["issue_summary"] = original_issue + " | " + message
+                conversation_state["state"] = ConversationState.AWAITING_CLARIFICATION
+                
+                remaining = config.MAX_CLARIFICATION_ATTEMPTS - conversation_state["clarification_count"]
+                if remaining <= 0:
+                    # Max clarifications reached, force escalation
+                    logger.info(f"Max clarifications reached after response for user {user_id}")
+                    escalation_result = await self.run_escalation_preview(
+                        user_id=user_id_str,
+                        session_id=adk_session_id,
+                        issue_summary=original_issue + " | " + message,
+                        user_email=user_email,
+                        refined_query=message,
+                    )
+                    
+                    conversation_state["state"] = ConversationState.AWAITING_TICKET_CONFIRMATION
+                    conversation_state["pending_ticket_data"] = {
+                        "issue_summary": original_issue + " | " + message,
+                        "refined_query": message,
+                    }
+                    
+                    db.save_conversation(
+                        user_id=user_id,
+                        session_id=session_id,
+                        message_type='agent',
+                        message_content=escalation_result["response"],
+                    )
+                    
+                    return {
+                        "success": True,
+                        "response": escalation_result["response"],
+                        "agent": "escalation",
+                        "awaiting_confirmation": True,
+                        "conversation_state": conversation_state,
+                    }
+                
+                if remaining == 1:
+                    response_text += "\n\n*Note: If I need more details after this, I'll connect you with our support team.*"
+            
+            db.save_conversation(
+                user_id=user_id,
+                session_id=session_id,
+                message_type='agent',
+                message_content=response_text,
+            )
+            
+            return {
+                "success": True,
+                "response": response_text,
+                "agent": "self_service",
+                "conversation_state": conversation_state,
+                "needs_clarification": result["needs_clarification"],
+            }
+
+        # ------------------------------------------------------------------
         # STATE: CHECK FOR MAX CLARIFICATIONS (Force Escalation)
         # ------------------------------------------------------------------
         if conversation_state["clarification_count"] >= config.MAX_CLARIFICATION_ATTEMPTS:
@@ -583,7 +704,7 @@ Remember: You must CALL the confirm_and_create_escalation_ticket tool.
         category: str,
     ) -> Dict[str, Any]:
         """
-        Use the self-service agent to summarize conversation into ticket subject/description.
+        Use the self-service agent to summarize conversation into a concise ticket summary.
         
         Args:
             user_id: User identifier
@@ -594,22 +715,24 @@ Remember: You must CALL the confirm_and_create_escalation_ticket tool.
         Returns:
             Dict with 'subject' and 'description' keys
         """
-        conversation_text = "\n".join([f"User: {msg}" for msg in conversation_history])
+        conversation_text = "\n".join([f"- {msg}" for msg in conversation_history])
         
-        summarize_prompt = f"""You are summarizing an IT support conversation into a ticket.
+        summarize_prompt = f"""Summarize this IT support conversation into a brief ticket.
 
-Conversation:
+User Messages:
 {conversation_text}
 
 Category: {category}
 
-Provide a response in this EXACT format (no extra text, no markdown):
-SUBJECT: [A clear, concise subject line under 100 characters describing the main issue]
-DESCRIPTION: [A well-structured description of the issue including:
-- What the user is trying to do
-- What problem they are experiencing
-- Any relevant details mentioned (OS, software versions, error messages, etc.)
-- Steps they may have already tried]
+IMPORTANT: Be extremely concise. 
+
+Provide a response in this EXACT format (no extra text, no markdown, no explanations):
+SUBJECT: [One brief sentence (max 80 chars) that captures the main issue]
+DESCRIPTION: [1-2 sentences summarizing the problem and key details. Include any error messages, software names, or specific symptoms mentioned. Max 200 characters.]
+
+Example output:
+SUBJECT: Outlook crashes when opening attachments
+DESCRIPTION: User reports Outlook 365 crashing whenever they try to open PDF attachments. Issue started after recent Windows update.
 """
 
         content = types.Content(
@@ -635,12 +758,15 @@ DESCRIPTION: [A well-structured description of the issue including:
             if "SUBJECT:" in final_response and "DESCRIPTION:" in final_response:
                 parts = final_response.split("DESCRIPTION:", 1)
                 subject_part = parts[0].replace("SUBJECT:", "").strip()
-                description_part = parts[1].strip() if len(parts) > 1 else conversation_text
+                description_part = parts[1].strip() if len(parts) > 1 else ""
 
-                subject = subject_part[:100] if subject_part else "Support Request"
-                description = description_part if description_part else conversation_text
+                # Clean up subject - remove quotes, extra spaces
+                subject = subject_part.strip('"\'').strip()[:80] if subject_part else "Support Request"
+                
+                # Clean up description - keep it concise
+                description = description_part.strip('"\'').strip()[:300] if description_part else conversation_text[:300]
 
-            logger.info(f"Agent summarized ticket - Subject: {subject[:50]}...")
+            logger.info(f"Agent summarized ticket - Subject: {subject}")
 
             return {
                 "success": True,
@@ -650,11 +776,12 @@ DESCRIPTION: [A well-structured description of the issue including:
 
         except Exception as e:
             logger.error(f"Summarization failed: {e}")
-            # Fallback
+            # Fallback - create a simple summary
+            first_msg = conversation_history[0] if conversation_history else "Support Request"
             return {
                 "success": False,
-                "subject": conversation_history[0][:100] if conversation_history else "Support Request",
-                "description": conversation_text,
+                "subject": first_msg[:80] if first_msg else "Support Request",
+                "description": f"User reported: {first_msg}" if first_msg else "User requested support",
             }
 
 

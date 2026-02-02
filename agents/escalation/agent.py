@@ -10,8 +10,8 @@ from google.adk.models.lite_llm import LiteLlm
 # new_model = LiteLlm(model="ollama/qwen2.5:3b-instruct",
 #                     api_base="http://localhost:11434/v1")
 new_model = LiteLlm(
-    model="groq/llama-3.3-70b-versatile",
-    api_key=os.environ["GROQ_API_KEY"]
+    model="openrouter/moonshot/moonshot-v1-8k",  # Kimi via OpenRouter
+    api_key=os.environ.get("OPENROUTER_API_KEY", "")
 )
 def create_escalation_agent():
     """

@@ -19,8 +19,10 @@ from db.postgres import db
 from kb.kb_chroma import kb
 from runners.run_agents import orchestrator
 from services.email_service import email_service
+from services.cloudinary_service import cloudinary_service
 import time
 import json
+import base64
 
 # Configure logging
 logging.basicConfig(
@@ -294,6 +296,81 @@ def get_user(user_id):
 # BUTTON-BASED CHAT ENDPOINTS
 # ==========================================
 
+@app.route('/api/upload/image', methods=['POST'])
+@token_required
+def upload_image():
+    """
+    Upload an image to Cloudinary
+    Accepts either multipart/form-data with 'image' file or JSON with base64 'image' data
+    """
+    try:
+        user_id = request.user_id
+        
+        # Handle multipart form data (file upload)
+        if 'image' in request.files:
+            file = request.files['image']
+            if file.filename == '':
+                return jsonify({
+                    "success": False,
+                    "error": "No file selected"
+                }), 400
+            
+            # Read file data
+            file_data = file.read()
+            filename = file.filename
+            content_type = file.content_type or 'image/jpeg'
+            
+            result = cloudinary_service.upload_image(
+                file_data=file_data,
+                filename=filename,
+                content_type=content_type,
+                user_id=user_id
+            )
+        
+        # Handle JSON with base64 encoded image
+        elif request.is_json:
+            data = request.json
+            base64_image = data.get('image')
+            filename = data.get('filename', 'upload.jpg')
+            
+            if not base64_image:
+                return jsonify({
+                    "success": False,
+                    "error": "No image data provided"
+                }), 400
+            
+            result = cloudinary_service.upload_base64_image(
+                base64_data=base64_image,
+                filename=filename,
+                user_id=user_id
+            )
+        else:
+            return jsonify({
+                "success": False,
+                "error": "Invalid request format. Send multipart/form-data or JSON with base64 image"
+            }), 400
+        
+        if result['success']:
+            return jsonify({
+                "success": True,
+                "url": result['url'],
+                "public_id": result.get('public_id'),
+                "message": "Image uploaded successfully"
+            })
+        else:
+            return jsonify({
+                "success": False,
+                "error": result.get('error', 'Upload failed')
+            }), 400
+            
+    except Exception as e:
+        logger.error(f"Error uploading image: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
 @app.route('/api/chat/categories', methods=['GET'])
 @token_required
 def get_chat_categories():
@@ -349,6 +426,7 @@ def create_ticket_from_chat():
         subject = data.get('subject')
         description = data.get('description')
         session_id = data.get('session_id')
+        attachment_urls = data.get('attachment_urls')  # Array of image URLs
         
         if not all([category, subject, description]):
             return jsonify({
@@ -365,7 +443,8 @@ def create_ticket_from_chat():
             subcategory=subcategory,
             subject=subject,
             description=description,
-            session_id=session_id
+            session_id=session_id,
+            attachment_urls=attachment_urls
         )
         
         if ticket:
@@ -415,6 +494,7 @@ def chat():
         action = data.get('action')  # 'select_category', 'select_subcategory', 'free_text', 'create_ticket', 'feedback'
         category = data.get('category')
         subcategory_id = data.get('subcategory_id')
+        attachment_urls = data.get('attachment_urls')  # Array of image URLs for ticket attachments
         
         # Get user_id and email from token
         user_id = request.user_id
@@ -432,8 +512,13 @@ def chat():
             'state': 'initial',
             'selected_category': None,
             'selected_subcategory': None,
-            'issue_description': None
+            'issue_description': None,
+            'attachment_urls': []
         })
+        
+        # Store attachment_urls in conversation state if provided
+        if attachment_urls:
+            conversation_state['attachment_urls'] = attachment_urls
         
         logger.info(f"Chat request: action={action}, state_key={state_key}, current_state={conversation_state.get('state')}")
         
@@ -648,6 +733,7 @@ def chat():
             prepared_ticket = conversation_state.get('prepared_ticket', {})
             solution_data = conversation_state.get('solution_shown', {})
             issue_history = conversation_state.get('issue_history', [])
+            stored_attachment_urls = conversation_state.get('attachment_urls', [])
             
             # Get ticket details from prepared data or fallback
             if prepared_ticket:
@@ -673,7 +759,8 @@ def chat():
                 subcategory=conversation_state.get('selected_subcategory'),
                 subject=subject,
                 description=description,
-                session_id=session_id
+                session_id=session_id,
+                attachment_urls=stored_attachment_urls if stored_attachment_urls else None
             )
             
             if ticket:

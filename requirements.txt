@@ -16,6 +16,10 @@ sqlalchemy==2.0.23
 chromadb==0.4.22
 sentence-transformers==2.2.2
 
+# PyTorch with CUDA support (for GPU acceleration)
+# Install with: pip install torch --index-url https://download.pytorch.org/whl/cu121
+torch>=2.0.0
+
 # Authentication
 PyJWT==2.8.1
 bcrypt==4.1.1
@@ -23,3 +27,6 @@ bcrypt==4.1.1
 # Utilities
 python-dotenv==1.0.0
 pydantic==2.5.0
+
+# Cloudinary for image uploads
+cloudinary==1.36.0

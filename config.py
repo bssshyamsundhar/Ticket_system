@@ -59,6 +59,12 @@ class Config:
     MAX_CLARIFICATION_ATTEMPTS = 2
     KB_CONFIDENCE_THRESHOLD = 0.7
     
+    # Cloudinary Configuration
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME', '')
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY', '')
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET', '')
+    CLOUDINARY_MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+    
     # Application Settings
     APP_NAME = "IT_Support_System"
 

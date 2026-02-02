@@ -328,6 +328,55 @@ const Tickets = () => {
                             <div className="detail-value">{selectedTicket.description}</div>
                         </div>
 
+                        {/* Support both attachmentUrls (array) and legacy attachmentUrl (string) */}
+                        {(selectedTicket.attachmentUrls?.length > 0 || selectedTicket.attachmentUrl) && (
+                            <div className="detail-section">
+                                <label>Attachments ({(selectedTicket.attachmentUrls || [selectedTicket.attachmentUrl].filter(Boolean)).length})</label>
+                                <div className="attachments-grid" style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                                    gap: '12px',
+                                    marginTop: '8px'
+                                }}>
+                                    {(selectedTicket.attachmentUrls || [selectedTicket.attachmentUrl].filter(Boolean)).map((url, index) => (
+                                        <div key={index} className="attachment-item" style={{
+                                            border: '1px solid #e2e8f0',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden',
+                                            background: '#f8fafc'
+                                        }}>
+                                            <img 
+                                                src={url} 
+                                                alt={`Attachment ${index + 1}`}
+                                                style={{
+                                                    width: '100%',
+                                                    height: '120px',
+                                                    objectFit: 'cover',
+                                                    display: 'block'
+                                                }}
+                                            />
+                                            <a 
+                                                href={url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                style={{
+                                                    display: 'block',
+                                                    padding: '8px',
+                                                    color: '#667eea',
+                                                    textDecoration: 'none',
+                                                    fontSize: '12px',
+                                                    textAlign: 'center',
+                                                    borderTop: '1px solid #e2e8f0'
+                                                }}
+                                            >
+                                                🔗 Open #{index + 1}
+                                            </a>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <div className="detail-section">
                             <label>Resolution Notes</label>
                             <textarea

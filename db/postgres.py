@@ -237,7 +237,7 @@ class PostgresDB:
     # Ticket Methods
     # ==========================================
     def create_ticket(self, user_id, user_name, user_email, category, subject, description,
-                      subcategory=None, priority='Medium', session_id=None):
+                      subcategory=None, priority='Medium', session_id=None, attachment_urls=None):
         """Create a new ticket with auto-priority and SLA"""
         ticket_id = generate_id('TKT')
         
@@ -249,12 +249,12 @@ class PostgresDB:
         
         query = """
             INSERT INTO tickets (id, user_id, user_name, user_email, category, subcategory,
-                                 priority, status, subject, description, sla_deadline, chatbot_session_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Open', %s, %s, %s, %s)
+                                 priority, status, subject, description, attachment_urls, sla_deadline, chatbot_session_id)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Open', %s, %s, %s, %s, %s)
             RETURNING *
         """
         result = self.execute_one(query, (ticket_id, user_id, user_name, user_email, category,
-                                          subcategory, priority, subject, description, sla_deadline, session_id))
+                                          subcategory, priority, subject, description, attachment_urls, sla_deadline, session_id))
         
         # Create audit log
         if result:

@@ -85,6 +85,55 @@ function TicketPreview({ ticket, onClose }) {
                 <span className="value">{formatDate(ticket.resolved_at)}</span>
               </div>
             )}
+
+            {/* Support both attachment_urls (array) and legacy attachment_url (string) */}
+            {(ticket.attachment_urls?.length > 0 || ticket.attachment_url) && (
+              <div className="info-section">
+                <span className="label">📎 Attachments:</span>
+                <div className="attachments-grid" style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
+                  gap: '12px',
+                  marginTop: '8px'
+                }}>
+                  {(ticket.attachment_urls || [ticket.attachment_url].filter(Boolean)).map((url, index) => (
+                    <div key={index} className="attachment-preview" style={{
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      overflow: 'hidden',
+                      background: '#f8f9fa'
+                    }}>
+                      <img 
+                        src={url} 
+                        alt={`Attachment ${index + 1}`}
+                        style={{
+                          width: '100%',
+                          height: '120px',
+                          objectFit: 'cover',
+                          display: 'block'
+                        }}
+                      />
+                      <a 
+                        href={url} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        style={{
+                          display: 'block',
+                          padding: '8px',
+                          color: '#2196f3',
+                          textDecoration: 'none',
+                          fontSize: '12px',
+                          textAlign: 'center',
+                          borderTop: '1px solid #eee'
+                        }}
+                      >
+                        🔗 Open #{index + 1}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

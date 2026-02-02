@@ -132,7 +132,8 @@ def confirm_and_create_escalation_ticket(
     user_name: str = "User",
     category: str = "Other",
     refined_query: Optional[str] = None, 
-    confidence_score: Optional[float] = None
+    confidence_score: Optional[float] = None,
+    attachment_urls: Optional[list[str]] = None
 ) -> str:
     """
     Create an escalation ticket after user confirmation.
@@ -148,6 +149,7 @@ def confirm_and_create_escalation_ticket(
         category: Ticket category
         refined_query: Refined version of the query after clarification
         confidence_score: Confidence score from KB search
+        attachment_urls: List of image URLs attached to the ticket
         
     Returns:
         Formatted confirmation message with ticket ID
@@ -164,7 +166,8 @@ def confirm_and_create_escalation_ticket(
             user_email=user_email,
             category=category,
             subject=issue_summary[:200] if issue_summary else "Support Request",
-            description=refined_query or issue_summary or "User requested support"
+            description=refined_query or issue_summary or "User requested support",
+            attachment_urls=attachment_urls
         )
         
         if ticket:

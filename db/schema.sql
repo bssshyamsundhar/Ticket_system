@@ -109,6 +109,7 @@ CREATE TABLE tickets (
     assigned_to VARCHAR(255),
     subject TEXT NOT NULL,
     description TEXT NOT NULL,
+    attachment_urls TEXT[],  -- Array of Cloudinary image URLs
     resolution_notes TEXT,
     sla_deadline TIMESTAMP,
     sla_breached BOOLEAN DEFAULT false,
