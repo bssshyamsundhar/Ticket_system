@@ -1,0 +1,263 @@
+{
+  "categories": [
+    {
+      "id": "CAT-001",
+      "name": "VPN",
+      "display_name": "VPN & Remote Access",
+      "icon": "🔐",
+      "subcategories": [
+        {
+          "id": "VPN-001",
+          "title": "Unable to access VPN?",
+          "keywords": ["vpn", "access", "connect", "remote"],
+          "solution": "**Troubleshooting VPN Access Issues**\n\n**1. Check Permission for VPN Access**\n- You must have permission to use the VPN. If you do not have it, request access using the IT service portal.\n- Search for 'VPN Access' and submit the request form.\n\n**2. If You Already Have Permission**\n- Ensure you are not trying to connect from within the company's network, as VPN may not work internally.\n- Use your Flex email and password to connect.\n\n**3. Reconfigure Global Protect VPN**\n- Open Global Protect and select the three-bar menu at the top right corner.\n- Go to Settings > General > Sign out.\n- Delete the current Portal address in the General tab.\n- Add or edit the portal address to: **flac.flex.com**\n- Sign in again with your credentials.",
+          "source": "VPN Troubleshooting Guide"
+        },
+        {
+          "id": "VPN-002",
+          "title": "How to request VPN access?",
+          "keywords": ["vpn", "request", "access", "permission"],
+          "solution": "**How to Request VPN Access**\n\n1. Open the IT service portal.\n2. Search for 'VPN Access' without pressing Enter.\n3. Select the remote access/VPN request category.\n4. Fill out the request form with required information.\n5. Submit the request.\n6. Save the ticket number for tracking.\n7. Await required managerial or system approval.\n\n**Note:** VPN access is typically granted within 24-48 hours after manager approval.",
+          "source": "Remote Access Guide"
+        },
+        {
+          "id": "VPN-003",
+          "title": "VPN connection is slow?",
+          "keywords": ["vpn", "slow", "speed", "performance"],
+          "solution": "**Troubleshooting Slow VPN Connection**\n\n1. Check your internet connection speed without VPN first.\n2. Try connecting to a different VPN server/portal.\n3. Close unnecessary applications consuming bandwidth.\n4. Restart the Global Protect client.\n5. Check if your ISP is throttling VPN connections.\n6. Try using a wired connection instead of WiFi.\n7. Contact IT support if issues persist after these steps.",
+          "source": "VPN Performance Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-002",
+      "name": "Email",
+      "display_name": "Email & Outlook",
+      "icon": "📧",
+      "subcategories": [
+        {
+          "id": "EMAIL-001",
+          "title": "How to request a new email account?",
+          "keywords": ["email", "account", "new", "request", "create"],
+          "solution": "**How to Request a Flex Email Account**\n\n1. Access Got-It from your Desktop or via the Got-It link (user must have network account).\n2. In the Got-It search bar, type 'Email Request'.\n3. Without clicking Enter, results will show automatically.\n4. Choose 'Create New Email Account' from the catalog list.\n5. Click Next.\n6. If you don't see the ticket form, click the arrow button on the right side.\n7. Select 'Person' option and type the name of the person requiring the email.\n8. Click Next.\n9. Click 'Order Now' to create the ticket.\n10. Request manager approval of the person requesting the account.\n11. Wait approximately 24 hours for the account to be created after approval.\n\n**Important:** Use your Flex email regularly; after 100 days of inactivity, the Office 365 license will be removed.",
+          "source": "Email Account Request Guide"
+        },
+        {
+          "id": "EMAIL-002",
+          "title": "How to configure Outlook email profile?",
+          "keywords": ["outlook", "configure", "setup", "profile", "email"],
+          "solution": "**How to Configure Your Email Profile in Outlook**\n\n1. At Windows Start Menu, type 'control panel' and click on it.\n2. At the top right of Control Panel, select 'Small Icons' or 'Large icons' view.\n3. Select the 'Mail' option.\n4. Select 'Add' and type a name for your profile (for your reference).\n5. The system will search for your mail server settings.\n6. Enter your password (the one you use to unlock your computer) when prompted.\n7. Click Ok and wait for configuration.\n8. Once complete, click the 'Finish' button.\n9. When asked 'When starting Microsoft Outlook, use this profile', select the profile you created.\n10. Start your Outlook application.\n11. Wait for your emails to load from the server.\n12. You can now use your email.",
+          "source": "Outlook Configuration Guide"
+        },
+        {
+          "id": "EMAIL-003",
+          "title": "Outlook 'Need Password' or connection issues?",
+          "keywords": ["outlook", "password", "need password", "connect", "exchange"],
+          "solution": "**Outlook Shows 'Need Password' Warning**\n\n1. If you see Outlook's icon in taskbar with a small warning triangle, it means Outlook needs your password.\n2. This commonly occurs after network password updates.\n3. Open Outlook, and you may see a text at the bottom right asking for your password.\n4. Click on the text that says 'Need Password'.\n5. A window will appear asking for your username and password.\n6. Username: Enter your Flex Email address.\n7. Password: Enter the same password you use to access your computer.\n8. Click Accept to reconnect Outlook to the Exchange Server.\n9. If still having issues, try restarting Outlook or restarting your computer.\n10. Alternatively, remove previous Windows credentials in Credential Manager and let Outlook re-authenticate.",
+          "source": "Outlook Troubleshooting Guide"
+        },
+        {
+          "id": "EMAIL-004",
+          "title": "How to request shared mailbox access?",
+          "keywords": ["shared", "mailbox", "access", "email"],
+          "solution": "**How to Request Access to a Shared Mailbox**\n\n1. Log into the IT service portal.\n2. Search for 'Shared Mailbox Access'.\n3. Select the relevant request category.\n4. Provide mailbox name and business justification.\n5. Submit the request.\n6. Save the ticket number.\n7. Await approval before access is granted.\n\n**Note:** Shared mailbox access requires approval from the mailbox owner or department manager.",
+          "source": "Email Access Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-003",
+      "name": "Windows",
+      "display_name": "Windows & System",
+      "icon": "💻",
+      "subcategories": [
+        {
+          "id": "WIN-001",
+          "title": "How to add a new language in Windows?",
+          "keywords": ["windows", "language", "add", "keyboard"],
+          "solution": "**How to Add a New Language in Windows 10**\n\n1. Go to Windows Start Menu and select Settings.\n2. In Windows settings, select 'Time & Language'.\n3. On the left menu, select 'Language'.\n4. Select 'Add a preferred language'.\n5. In the search bar, type the language you want to add (e.g., Spanish, English).\n6. Select your preferred language variant and click Next.\n7. Choose to install just the language pack or 'Set as my display language'.\n8. Click Install and wait for the language to be installed.\n9. Once installed, select the language and click the upward arrow to set it as your preferred default language.\n10. You can have multiple languages; the top one is always the default.\n11. To remove a language: Select it and click Remove.",
+          "source": "Windows Configuration Guide"
+        },
+        {
+          "id": "WIN-002",
+          "title": "How to switch keyboard languages?",
+          "keywords": ["keyboard", "language", "switch", "change"],
+          "solution": "**How to Switch Between Keyboard Languages in Windows**\n\n1. First ensure you have at least 2 languages added to your system.\n2. Check if you have the language icon in your system tray.\n3. If the icon is present, simply click on it and select your preferred language.\n4. If the icon is not visible, go to Windows Start Menu > Settings > Time & Language > Language.\n5. Verify your installed languages.\n6. Click on the preferred language to switch to it.\n\n**Quick Tip:** Press **Windows + Space** or **Alt + Shift** to quickly switch between languages.",
+          "source": "Windows Configuration Guide"
+        },
+        {
+          "id": "WIN-003",
+          "title": "How to install Windows updates?",
+          "keywords": ["windows", "update", "install", "updates"],
+          "solution": "**How to Install Windows Updates**\n\n**Note:** You need administrator permissions to install updates.\n\n1. Computers with 'W/F/T' in the name require IT administrator or Global IT Helpdesk contact.\n2. For computers with 'M' in the name (laptop assigned), follow these steps:\n3. Go to Windows Start Menu and click the gear icon for Settings.\n4. Select 'Update and Security' from the menu.\n5. Click 'Check for Update'.\n6. Wait for the system to search for available updates.\n7. You'll see either 'You're already up to date' or 'Restart required'.\n8. If restart is required, the system will perform updates after reboot.\n9. Once the system finishes restarting, drivers will be updated properly.\n\n**If update fails or shows errors, contact your local IT Administrator or Global IT Helpdesk.**",
+          "source": "Windows Update Guide"
+        },
+        {
+          "id": "WIN-004",
+          "title": "How to free up disk space?",
+          "keywords": ["disk", "space", "storage", "free", "cleanup"],
+          "solution": "**How to Free Up Space on Local Disk**\n\n1. Delete unnecessary files and folders from Downloads and Desktop.\n2. Empty the Recycle Bin.\n3. Remove unused applications via system settings.\n4. Clear temporary files using Disk Cleanup or system storage settings:\n   - Press Windows + R, type 'cleanmgr', press Enter.\n   - Select the drive to clean and click OK.\n   - Check boxes for files to delete and click OK.\n5. Archive or move large files to external storage or cloud storage.\n6. Delete old emails and clear mailbox storage if synchronized locally.\n7. Remove unused user profiles if applicable (administrator assistance may be required).\n\n**Tip:** Run Disk Cleanup regularly to maintain system performance.",
+          "source": "System Maintenance Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-004",
+      "name": "Zoom",
+      "display_name": "Zoom & Meetings",
+      "icon": "📹",
+      "subcategories": [
+        {
+          "id": "ZOOM-001",
+          "title": "How to request Zoom Pro account?",
+          "keywords": ["zoom", "pro", "account", "upgrade", "request"],
+          "solution": "**How to Request a Zoom Pro Account**\n\n1. Access Got-It from your Desktop or via the Got-It link.\n2. In the Got-It search bar, type 'Zoom'.\n3. Without clicking Enter or pressing search, results will show automatically.\n4. Select the category 'Zoom Scheduler Account'.\n5. The ticket form to upgrade your Zoom Basic account to Zoom Pro will appear.\n6. Fill in the form completely.\n7. Click 'Order Now' and you will receive a ticket number.\n8. Request your manager's approval.\n9. Once approved, your Zoom Pro account will be upgraded.\n\n**Note:** Zoom Basic accounts are limited to 40-minute meetings; Pro account removes this restriction.",
+          "source": "Zoom Account Request Guide"
+        },
+        {
+          "id": "ZOOM-002",
+          "title": "How to login to Zoom with SSO?",
+          "keywords": ["zoom", "login", "sso", "sign in"],
+          "solution": "**How to Login to Zoom Desktop with SSO**\n\n1. Press the Windows key on your keyboard or click on Windows Start Menu.\n2. Search for 'Zoom' in the program list.\n3. Click on 'Zoom Workplace' option.\n4. Select 'Sign in'.\n5. Select 'Sign in with SSO'.\n6. Type the company domain: **flex**\n7. Verify the information is correct.\n8. Once logged in, you can schedule meetings or join existing ones.",
+          "source": "Zoom Desktop Guide"
+        },
+        {
+          "id": "ZOOM-003",
+          "title": "How to schedule a Zoom meeting?",
+          "keywords": ["zoom", "meeting", "schedule", "create"],
+          "solution": "**How to Schedule a Meeting in Zoom Desktop**\n\n1. After starting your Zoom Desktop session, you'll see the main window.\n2. Select the 'Schedule' icon.\n3. In the Schedule Meeting window, configure your preferences:\n   - Set the topic/meeting name\n   - Set the starting time\n   - Set the duration\n   - Generate a password (must always be set)\n   - Configure other preferences\n4. Click the 'Schedule' button.\n5. This will open an Outlook email where you can add meeting invitees.\n6. Add the people you want to invite.\n7. Click 'Send' to send the meeting invitation.\n\n**Note:** Zoom Basic accounts are limited to 40-minute meetings. For longer meetings, upgrade to Zoom Pro.",
+          "source": "Zoom Meeting Scheduling Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-005",
+      "name": "Network",
+      "display_name": "Network Drives",
+      "icon": "📁",
+      "subcategories": [
+        {
+          "id": "NET-001",
+          "title": "How to request network drive access?",
+          "keywords": ["network", "drive", "access", "permission", "folder"],
+          "solution": "**How to Request Access to a Network Drive**\n\n1. Access Got-It from your Desktop or via the Got-It link.\n2. In the Got-It search bar, type 'File Server'.\n3. Without clicking Enter, results will show automatically below your text.\n4. Select the category 'Grant permissions to file server folder'.\n5. The ticket form to request access to the network drive will appear.\n6. Fill in the form completely with the required information.\n7. Click 'Order Now' to submit.\n8. You will receive a ticket number.\n9. Wait for the ticket to be approved by your manager.\n\n**Common Network Drive Mappings:**\n- H:\\ (Common)\n- I:\\ (ProcEng)\n- J:\\ (Fileserver)\n- N:\\ (Groups)",
+          "source": "Network Drive Access Guide"
+        },
+        {
+          "id": "NET-002",
+          "title": "How to map a network drive?",
+          "keywords": ["network", "drive", "map", "mapping"],
+          "solution": "**How to Map a Network Drive (H:, L:, N:, etc.) in Windows**\n\n1. First request permission to access the network drive.\n2. Open Windows Explorer or press Windows + E.\n3. In the Explorer window, select 'This PC'.\n4. At the top left, select 'Computer', then choose 'Map Network drive'.\n5. Select the drive letter you want to map (H:, L:, N:, etc.).\n6. Refer to the network drive table and type the server address:\n   - H: = \\\\\\\\Gdlser02\\\\Common\n   - I: = \\\\\\\\Dcsgd4\\\\ProcEng\n   - J: = \\\\\\\\Dcsgd3\\\\Fileserver\n   - M: = \\\\\\\\4sfgd3\\\\4sf\n   - N: = \\\\\\\\Dcsgd4\\\\Groups\n7. Click Finish.\n8. The mapped drive will appear in your Explorer with the server path.",
+          "source": "Network Drive Mapping Guide"
+        },
+        {
+          "id": "NET-003",
+          "title": "Cannot access shared folder?",
+          "keywords": ["shared", "folder", "access", "permission", "denied"],
+          "solution": "**Troubleshooting Shared Folder Access Issues**\n\n1. Verify you have permission to access the folder.\n2. Check if you can ping the server: Open Command Prompt and type 'ping servername'.\n3. Try accessing the folder using the full UNC path: \\\\\\\\servername\\\\sharename\n4. Clear your Windows credentials:\n   - Open Control Panel > Credential Manager\n   - Remove any stored credentials for the server\n   - Try accessing again\n5. Ensure you're connected to the company network or VPN.\n6. If permission was recently granted, try logging out and back in.\n7. Contact IT support if issues persist.",
+          "source": "Network Troubleshooting Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-006",
+      "name": "Software",
+      "display_name": "Software Installation",
+      "icon": "📦",
+      "subcategories": [
+        {
+          "id": "SW-001",
+          "title": "How to request software installation?",
+          "keywords": ["software", "install", "request", "application"],
+          "solution": "**How to Request Software Installation**\n\n1. Open the IT service portal.\n2. In the search bar, type 'Software Installation' without pressing Enter.\n3. Select the appropriate software installation request category from the suggestions.\n4. Complete the request form with required details and attach necessary documents if applicable.\n5. Submit the request.\n6. Note the generated ticket number for tracking.\n7. Obtain required approvals if applicable.\n\n**Note:** Some software may require additional licensing approval or manager authorization.",
+          "source": "IT Service Request Guide"
+        },
+        {
+          "id": "SW-002",
+          "title": "How to request software license?",
+          "keywords": ["software", "license", "request", "approval"],
+          "solution": "**How to Request Software License or Specialized Tools**\n\n1. Access the IT service portal.\n2. Search for 'License Request' or 'Tool Installation'.\n3. Select the appropriate category.\n4. Provide business justification and required specifications.\n5. Submit the request.\n6. Track via ticket number.\n7. Await managerial and IT approval.\n\n**Note:** License requests may take longer due to procurement processes.",
+          "source": "License Management Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-007",
+      "name": "Hardware",
+      "display_name": "Hardware Requests",
+      "icon": "🖥️",
+      "subcategories": [
+        {
+          "id": "HW-001",
+          "title": "How to request new hardware?",
+          "keywords": ["hardware", "request", "pc", "laptop", "computer"],
+          "solution": "**How to Request Hardware (PC, Laptop, Accessories)**\n\n1. Open the IT service portal.\n2. Search for 'Hardware Request'.\n3. Select the relevant category (PC, laptop, accessories).\n4. Fill in the request form with justification and specifications.\n5. Submit the request.\n6. Note the ticket number for tracking.\n7. Await approval and fulfillment.\n\n**Note:** Hardware requests typically require manager and budget approval.",
+          "source": "Hardware Request Guide"
+        },
+        {
+          "id": "HW-002",
+          "title": "How to report lost or stolen device?",
+          "keywords": ["lost", "stolen", "device", "laptop", "phone"],
+          "solution": "**How to Report a Lost or Stolen Device**\n\n⚠️ **URGENT: Report immediately to protect company data!**\n\n1. Immediately notify the IT service desk by phone or email.\n2. Access the IT portal and search for 'Lost or Stolen Device'.\n3. Submit a detailed incident report including:\n   - Device type and model\n   - Asset tag number (if known)\n   - Last known location\n   - Date and time of loss\n4. Provide any additional relevant details.\n5. Follow IT security instructions.\n6. Await further guidance regarding replacement or security actions.\n\n**Note:** IT Security will remotely wipe the device if possible to protect company data.",
+          "source": "Security Incident Guide"
+        },
+        {
+          "id": "HW-003",
+          "title": "How to reassign a device?",
+          "keywords": ["reassign", "device", "transfer", "computer"],
+          "solution": "**How to Reassign a Computer or Device**\n\n1. Access the IT service portal.\n2. Search for 'Device Reassignment'.\n3. Select the appropriate category.\n4. Provide current and new user details.\n5. Submit the request.\n6. Track the ticket until reassignment is completed.\n\n**Note:** Device data should be backed up before reassignment. IT will handle data migration.",
+          "source": "Asset Management Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-008",
+      "name": "Account",
+      "display_name": "Password & Account",
+      "icon": "🔑",
+      "subcategories": [
+        {
+          "id": "ACC-001",
+          "title": "How to reset password?",
+          "keywords": ["password", "reset", "forgot", "unlock"],
+          "solution": "**How to Request Password Reset or Account Unlock**\n\n1. Access the IT service portal (or call IT helpdesk if locked out completely).\n2. Search for 'Password Reset' or 'Account Unlock'.\n3. Select the appropriate category.\n4. Fill in required user details.\n5. Submit the request.\n6. Follow instructions provided after submission.\n7. Contact IT support if issue persists.\n\n**Self-Service Option:**\nIf you have previously registered for self-service password reset:\n1. Go to the password reset portal.\n2. Verify your identity using security questions or phone.\n3. Create a new password following the password policy.",
+          "source": "Identity Management Guide"
+        },
+        {
+          "id": "ACC-002",
+          "title": "Account locked out?",
+          "keywords": ["account", "locked", "unlock", "login"],
+          "solution": "**Account Locked Out - What to Do**\n\n1. Wait 15-30 minutes - some accounts auto-unlock after a lockout period.\n2. If urgent, contact the IT Helpdesk directly by phone.\n3. Use the self-service password reset if available.\n4. If you can access another device, submit an unlock request through the IT portal.\n\n**To Prevent Future Lockouts:**\n- Update password on all devices when changed\n- Check for saved incorrect passwords in applications\n- Ensure mobile devices aren't using old credentials\n- Sign out of all sessions before changing password",
+          "source": "Account Security Guide"
+        },
+        {
+          "id": "ACC-003",
+          "title": "How to request access to applications?",
+          "keywords": ["access", "application", "permission", "request"],
+          "solution": "**How to Request Access to Collaboration Tools or Applications**\n\n1. Log into the IT service portal.\n2. Search for the required application or tool name.\n3. Select the relevant access request category.\n4. Complete the request form with necessary details including:\n   - Application name\n   - Type of access needed\n   - Business justification\n5. Submit the request.\n6. Track using the generated ticket number.\n7. Wait for required approvals.",
+          "source": "Application Access Guide"
+        }
+      ]
+    },
+    {
+      "id": "CAT-009",
+      "name": "Other",
+      "display_name": "Other Issues",
+      "icon": "❓",
+      "subcategories": [
+        {
+          "id": "OTHER-001",
+          "title": "Report a different issue",
+          "keywords": ["other", "different", "issue", "problem"],
+          "solution": "FREE_TEXT_MODE",
+          "source": "General"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "version": "2.0",
+    "last_updated": "2026-01-30",
+    "description": "Knowledge base for IT Support button-based chatbot navigation"
+  }
+}
