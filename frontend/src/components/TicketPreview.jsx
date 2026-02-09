@@ -53,6 +53,19 @@ function TicketPreview({ ticket, onClose }) {
               </div>
             )}
 
+            {ticket.sla_deadline && (
+              <div className="info-row">
+                <span className="label">SLA Deadline:</span>
+                <span className={`value ${new Date(ticket.sla_deadline) < new Date() ? 'overdue' : ''}`}>
+                  {ticket.sla_breached ? (
+                    <span style={{ color: '#dc2626', fontWeight: '600' }}>⚠️ Overdue</span>
+                  ) : (
+                    <>Due on: {formatDate(ticket.sla_deadline)}</>
+                  )}
+                </span>
+              </div>
+            )}
+
             <div className="info-section">
               <span className="label">Issue Summary:</span>
               <div className="value-block">{ticket.issue_summary}</div>
@@ -103,8 +116,8 @@ function TicketPreview({ ticket, onClose }) {
                       overflow: 'hidden',
                       background: '#f8f9fa'
                     }}>
-                      <img 
-                        src={url} 
+                      <img
+                        src={url}
                         alt={`Attachment ${index + 1}`}
                         style={{
                           width: '100%',
@@ -113,9 +126,9 @@ function TicketPreview({ ticket, onClose }) {
                           display: 'block'
                         }}
                       />
-                      <a 
-                        href={url} 
-                        target="_blank" 
+                      <a
+                        href={url}
+                        target="_blank"
                         rel="noopener noreferrer"
                         style={{
                           display: 'block',

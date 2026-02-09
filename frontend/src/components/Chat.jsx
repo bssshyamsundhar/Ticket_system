@@ -12,19 +12,34 @@ function Chat({ user, token }) {
   const [ticketData, setTicketData] = useState(null);
   const [allTickets, setAllTickets] = useState([]);
   const [showAllTickets, setShowAllTickets] = useState(false);
-  
+
   // Button-based flow state
   const [currentButtons, setCurrentButtons] = useState([]);
   const [showOtherInput, setShowOtherInput] = useState(false);
   const [conversationState, setConversationState] = useState('start');
-  
+
   // Image upload state - Multiple images support
   const [selectedImages, setSelectedImages] = useState([]);  // Array of {file, preview}
   const [uploadingImages, setUploadingImages] = useState(false);
   const [uploadedImageUrls, setUploadedImageUrls] = useState([]);  // Array of URLs
   const [showAttachmentUpload, setShowAttachmentUpload] = useState(false);  // Only show at confirmation
   const fileInputRef = useRef(null);
-  
+
+  // Checkbox selection state (for multi-select options like Internet Access)
+  const [checkboxSelections, setCheckboxSelections] = useState([]);
+  const [showCheckboxes, setShowCheckboxes] = useState(false);
+  const [checkboxOptions, setCheckboxOptions] = useState([]);
+
+  // Star rating and feedback state
+  const [showStarRating, setShowStarRating] = useState(false);
+  const [selectedRating, setSelectedRating] = useState(0);
+  const [feedbackText, setFeedbackText] = useState('');
+  const [showFeedbackText, setShowFeedbackText] = useState(false);
+
+  // Per-solution feedback state
+  const [solutionsWithFeedback, setSolutionsWithFeedback] = useState([]);
+  const [solutionFeedback, setSolutionFeedback] = useState({}); // { solutionIndex: 'yes'|'no' }
+
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -45,7 +60,7 @@ function Chat({ user, token }) {
     setLoading(true);
     setShowOtherInput(false);
     setCurrentButtons([]);
-    
+
     try {
       const response = await api.post('/api/chat', {
         action: 'start',
@@ -56,13 +71,13 @@ function Chat({ user, token }) {
         if (response.data.session_id) {
           setSessionId(response.data.session_id);
         }
-        
+
         setMessages([{
           type: 'agent',
           text: response.data.response,
           timestamp: new Date().toISOString()
         }]);
-        
+
         setCurrentButtons(response.data.buttons || []);
         setConversationState(response.data.state || 'categories');
       }
@@ -80,6 +95,36 @@ function Chat({ user, token }) {
 
   // Handle button click
   const handleButtonClick = async (button) => {
+    // Handle restart action
+    if (button.action === 'restart' || button.action === 'start') {
+      handleRestart();
+      return;
+    }
+
+    // Handle other_issue action (opens free text input)
+    if (button.action === 'other_issue') {
+      setShowOtherInput(true);
+      setCurrentButtons([{
+        label: '⬅️ Back',
+        action: 'go_back',
+        value: 'back'
+      }]);
+
+      const userMessage = {
+        type: 'user',
+        text: `Selected: ${button.label}`,
+        timestamp: new Date().toISOString()
+      };
+
+      setMessages(prev => [...prev, userMessage, {
+        type: 'agent',
+        text: "📝 **Describe Your Issue**\n\nPlease describe your issue in detail so we can help you better:",
+        timestamp: new Date().toISOString()
+      }]);
+      setConversationState('awaiting_free_text');
+      return;
+    }
+
     // Special case: "Other Issues" (general) opens free text input without category context
     if (button.action === 'other_issues') {
       setShowOtherInput(true);
@@ -89,13 +134,13 @@ function Chat({ user, token }) {
         value: 'back'
       }]);
       setConversationState('awaiting_free_text');
-      
+
       const userMessage = {
         type: 'user',
         text: `Selected: ${button.label}`,
         timestamp: new Date().toISOString()
       };
-      
+
       setMessages(prev => [...prev, userMessage, {
         type: 'agent',
         text: "Please describe your issue in detail. I'll help identify the appropriate category and find a solution for you:",
@@ -103,7 +148,7 @@ function Chat({ user, token }) {
       }]);
       return;
     }
-    
+
     // Special case: "Other Issue" within a category - opens free text with category context
     if (button.action === 'category_other') {
       setShowOtherInput(true);
@@ -112,24 +157,24 @@ function Chat({ user, token }) {
         action: 'go_back',
         value: 'back'
       }]);
-      
+
       const userMessage = {
         type: 'user',
         text: `Selected: ${button.label}`,
         timestamp: new Date().toISOString()
       };
-      
+
       setMessages(prev => [...prev, userMessage, {
         type: 'agent',
         text: `Please describe your ${button.category || ''} issue in detail:`,
         timestamp: new Date().toISOString()
       }]);
-      
+
       // Store the category context for the free text submission
       setConversationState(`category_other_${button.category}`);
       return;
     }
-    
+
     // Add user selection as message
     const userMessage = {
       type: 'user',
@@ -137,33 +182,49 @@ function Chat({ user, token }) {
       timestamp: new Date().toISOString()
     };
     setMessages(prev => [...prev, userMessage]);
-    
+
     setLoading(true);
     setCurrentButtons([]);
-    
+
     try {
       // Check if this is a ticket confirmation action - upload images first
       let imageUrls = [];
       if (button.action === 'confirm_ticket' && selectedImages.length > 0) {
         imageUrls = await uploadAllImages();
       }
-      
-      const response = await api.post('/api/chat', {
+
+      // Include message text for feedback text submission
+      const requestData = {
         action: button.action,
         value: button.value,
         session_id: sessionId,
         attachment_urls: imageUrls.length > 0 ? imageUrls : undefined
-      });
+      };
+
+      // If submitting feedback text, include the typed message
+      if (button.action === 'submit_feedback_text' && inputMessage.trim()) {
+        requestData.message = inputMessage.trim();
+        setInputMessage('');
+        setShowOtherInput(false);
+      }
+
+      // If confirming internet access, include checkbox selections
+      if (button.action === 'confirm_internet_access') {
+        requestData.selected_options = checkboxSelections;
+        setShowCheckboxes(false);
+      }
+
+      const response = await api.post('/api/chat', requestData);
 
       if (response.data.success) {
         if (response.data.session_id) {
           setSessionId(response.data.session_id);
         }
-        
+
         console.log('Button click API Response:', response.data);
         console.log('Buttons received:', response.data.buttons);
         console.log('Buttons have icon?', response.data.buttons?.some(btn => btn.icon));
-        
+
         const agentMessage = {
           type: 'agent',
           text: response.data.response,
@@ -171,26 +232,58 @@ function Chat({ user, token }) {
           ticketId: response.data.ticket_id
         };
         setMessages(prev => [...prev, agentMessage]);
-        
+
         setCurrentButtons(response.data.buttons || []);
         setConversationState(response.data.state || 'end');
-        
+
+        // Handle star rating flag from backend
+        if (response.data.show_star_rating) {
+          setShowStarRating(true);
+          setSelectedRating(0);
+        } else {
+          setShowStarRating(false);
+        }
+
+        // Handle feedback text input flag
+        if (response.data.state === 'end_feedback_text') {
+          setShowFeedbackText(true);
+        } else {
+          setShowFeedbackText(false);
+        }
+
+        // Handle per-solution feedback data from backend
+        if (response.data.solutions_with_feedback && response.data.solutions_with_feedback.length > 0) {
+          setSolutionsWithFeedback(response.data.solutions_with_feedback);
+          setSolutionFeedback({}); // Reset feedback for new solutions
+        } else {
+          setSolutionsWithFeedback([]);
+        }
+
+        // Handle checkbox options from backend (e.g., Internet Access multi-select)
+        if (response.data.show_checkboxes && response.data.checkboxes) {
+          setShowCheckboxes(true);
+          setCheckboxOptions(response.data.checkboxes);
+          setCheckboxSelections([]);
+        } else {
+          setShowCheckboxes(false);
+        }
+
         // Show attachment upload option when at ticket confirmation state
-        const isTicketConfirmation = response.data.buttons?.some(btn => 
+        const isTicketConfirmation = response.data.buttons?.some(btn =>
           btn.action === 'confirm_ticket'
         );
         setShowAttachmentUpload(isTicketConfirmation);
-        
+
         // Clear images after successful ticket creation
         if (response.data.ticket_id) {
           clearImages();
         }
-        
+
         // Handle show_text_input flag from backend (for "need more help" and free text modes)
         if (response.data.show_text_input) {
           setShowOtherInput(true);
         }
-        
+
         // If state is 'end', show restart option
         if (response.data.state === 'end' && !response.data.buttons?.length) {
           setCurrentButtons([{
@@ -231,25 +324,25 @@ function Chat({ user, token }) {
   // Handle free text submission (for "Other Issues")
   const handleFreeTextSubmit = async () => {
     if (!inputMessage.trim()) return;
-    
+
     const userMessage = {
       type: 'user',
       text: inputMessage,
       timestamp: new Date().toISOString()
     };
     setMessages(prev => [...prev, userMessage]);
-    
+
     const messageText = inputMessage;
     setInputMessage('');
     setLoading(true);
     setShowOtherInput(false);
-    
+
     // Check if we have category context (from "Other Issue" within a category)
     let categoryContext = null;
     if (conversationState && conversationState.startsWith('category_other_')) {
       categoryContext = conversationState.replace('category_other_', '');
     }
-    
+
     try {
       const response = await api.post('/api/chat', {
         action: 'free_text',
@@ -262,7 +355,7 @@ function Chat({ user, token }) {
         if (response.data.session_id) {
           setSessionId(response.data.session_id);
         }
-        
+
         const agentMessage = {
           type: 'agent',
           text: response.data.response,
@@ -270,23 +363,31 @@ function Chat({ user, token }) {
           ticketId: response.data.ticket_id
         };
         setMessages(prev => [...prev, agentMessage]);
-        
+
         setCurrentButtons(response.data.buttons || []);
         setConversationState(response.data.state || 'end');
-        
+
+        // Handle star rating display
+        if (response.data.show_star_rating) {
+          setShowStarRating(true);
+          setSelectedRating(0);
+        } else {
+          setShowStarRating(false);
+        }
+
         // Show attachment upload option when at ticket confirmation state
-        const isTicketConfirmation = response.data.buttons?.some(btn => 
+        const isTicketConfirmation = response.data.buttons?.some(btn =>
           btn.action === 'confirm_ticket'
         );
         setShowAttachmentUpload(isTicketConfirmation);
-        
+
         // Handle show_text_input flag from backend (for follow-up questions)
         if (response.data.show_text_input) {
           setShowOtherInput(true);
         } else {
           setShowOtherInput(false);
         }
-        
+
         // Add restart button if at end
         if (response.data.state === 'end') {
           setCurrentButtons([{
@@ -317,19 +418,19 @@ function Chat({ user, token }) {
   const handleImageSelect = (event) => {
     const files = Array.from(event.target.files);
     if (files.length === 0) return;
-    
+
     const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
     const maxSize = 5 * 1024 * 1024; // 5MB
     const maxImages = 5; // Maximum 5 images
-    
+
     const currentCount = selectedImages.length;
     const remainingSlots = maxImages - currentCount;
-    
+
     if (remainingSlots <= 0) {
       alert(`Maximum ${maxImages} images allowed per ticket.`);
       return;
     }
-    
+
     const validFiles = [];
     for (const file of files.slice(0, remainingSlots)) {
       if (!allowedTypes.includes(file.type)) {
@@ -342,7 +443,7 @@ function Chat({ user, token }) {
       }
       validFiles.push(file);
     }
-    
+
     // Create previews for valid files
     validFiles.forEach(file => {
       const reader = new FileReader();
@@ -351,7 +452,7 @@ function Chat({ user, token }) {
       };
       reader.readAsDataURL(file);
     });
-    
+
     // Clear file input for next selection
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -361,24 +462,24 @@ function Chat({ user, token }) {
   // Upload all selected images
   const uploadAllImages = async () => {
     if (selectedImages.length === 0) return [];
-    
+
     setUploadingImages(true);
     const uploadedUrls = [];
-    
+
     try {
       for (const { file } of selectedImages) {
         const formData = new FormData();
         formData.append('image', file);
-        
+
         const response = await api.post('/api/upload/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
-        
+
         if (response.data.success) {
           uploadedUrls.push(response.data.url);
         }
       }
-      
+
       setUploadedImageUrls(uploadedUrls);
       return uploadedUrls;
     } catch (error) {
@@ -412,6 +513,12 @@ function Chat({ user, token }) {
     setShowOtherInput(false);
     setInputMessage('');
     setConversationState('start');
+    setShowStarRating(false);
+    setSelectedRating(0);
+    setShowFeedbackText(false);
+    setFeedbackText('');
+    setSolutionsWithFeedback([]);
+    setSolutionFeedback({});
     clearImages();  // Clear any selected images
     startConversation();
   };
@@ -420,6 +527,25 @@ function Chat({ user, token }) {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleFreeTextSubmit();
+    }
+  };
+
+  // Handle per-solution feedback (Yes/No for each solution step)
+  const handleSolutionFeedback = async (solutionIndex, feedback) => {
+    setSolutionFeedback(prev => ({
+      ...prev,
+      [solutionIndex]: feedback
+    }));
+
+    // Send feedback to backend
+    try {
+      await api.post('/api/chat', {
+        action: 'solution_helpful',
+        value: `${solutionIndex}:${feedback}`,
+        session_id: sessionId
+      });
+    } catch (err) {
+      console.error('Error sending solution feedback:', err);
     }
   };
 
@@ -439,31 +565,217 @@ function Chat({ user, token }) {
     }
   };
 
+  // Render per-solution feedback UI (Yes/No for each numbered solution)
+  const renderSolutionFeedback = () => {
+    if (!solutionsWithFeedback || solutionsWithFeedback.length === 0) return null;
+
+    return (
+      <div className="solution-feedback-container">
+        <div className="solution-feedback-header">
+          <span>📋 Was each step helpful?</span>
+        </div>
+        <div className="solution-feedback-list">
+          {solutionsWithFeedback.map((solution, index) => (
+            <div key={index} className="solution-feedback-item">
+              <div className="solution-text">
+                <strong>{solution.index}.</strong> {solution.text}
+              </div>
+              <div className="solution-feedback-buttons">
+                <button
+                  className={`helpful-button yes ${solutionFeedback[solution.index] === 'yes' ? 'selected' : ''}`}
+                  onClick={() => handleSolutionFeedback(solution.index, 'yes')}
+                >
+                  👍 Yes
+                </button>
+                <button
+                  className={`helpful-button no ${solutionFeedback[solution.index] === 'no' ? 'selected' : ''}`}
+                  onClick={() => handleSolutionFeedback(solution.index, 'no')}
+                >
+                  👎 No
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Render category buttons in a grid/expandable format
   const renderButtons = () => {
     if (!currentButtons || currentButtons.length === 0) return null;
-    
+
     console.log('renderButtons called with:', currentButtons);
-    console.log('isCategories check:', currentButtons.some(btn => btn.icon));
-    
+
     // Don't show separate buttons if we're showing the text input with its own back button
     // (But show action buttons like "Create Ticket Instead")
     if (showOtherInput && currentButtons.every(btn => btn.action === 'go_back')) {
       return null;  // The text input area has its own back button
     }
-    
-    // Check if these are category buttons (have icons)
-    const isCategories = currentButtons.some(btn => btn.icon);
-    
-    // Check if these are confirmation buttons
-    const isConfirmation = currentButtons.some(btn => 
-      btn.action === 'confirm_ticket' || btn.action === 'decline_ticket'
+
+    // Star rating display
+    if (showStarRating) {
+      const ratingButtons = currentButtons.filter(btn => btn.action === 'submit_rating');
+      const otherButtons = currentButtons.filter(btn => btn.action !== 'submit_rating');
+
+      return (
+        <div className="button-container star-rating-container">
+          <div className="star-rating-header">
+            <span>⭐ Rate your experience:</span>
+          </div>
+          <div className="star-rating-buttons">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                className={`star-button ${selectedRating >= star ? 'selected' : ''}`}
+                onClick={() => {
+                  setSelectedRating(star);
+                  setShowStarRating(false);
+                  handleButtonClick({ action: 'submit_rating', value: String(star), label: `${'⭐'.repeat(star)}` });
+                }}
+                disabled={loading}
+                title={`${star} star${star > 1 ? 's' : ''}`}
+              >
+                {'⭐'.repeat(star)}
+              </button>
+            ))}
+          </div>
+          {otherButtons.length > 0 && (
+            <div className="star-rating-skip">
+              {otherButtons.map((button, index) => (
+                <button
+                  key={index}
+                  className="chat-button skip-button"
+                  onClick={() => {
+                    setShowStarRating(false);
+                    handleButtonClick(button);
+                  }}
+                  disabled={loading}
+                >
+                  {button.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Check if these are ticket type buttons (Incident/Request)
+    const isTicketType = currentButtons.some(btn => btn.action === 'select_ticket_type');
+
+    // Check if these are smart category buttons
+    const isSmartCategory = currentButtons.some(btn => btn.action === 'select_smart_category');
+
+    // Check if these are regular category buttons (Hardware & Connectivity, etc.)
+    const isCategory = currentButtons.some(btn => btn.action === 'select_category');
+
+    // Check if these are type buttons
+    const isType = currentButtons.some(btn => btn.action === 'select_type');
+
+    // Check if these are item buttons
+    const isItem = currentButtons.some(btn => btn.action === 'select_item');
+
+    // Check if these are issue buttons
+    const isIssue = currentButtons.some(btn => btn.action === 'select_issue');
+
+    // Check if these are solution response buttons
+    const isSolutionResponse = currentButtons.some(btn =>
+      btn.action === 'solution_resolved' || btn.action === 'solution_not_resolved'
     );
-    
+
+    // Check if these are confirmation buttons
+    const isConfirmation = currentButtons.some(btn =>
+      btn.action === 'confirm_ticket' || btn.action === 'decline_ticket' ||
+      btn.action === 'preview_ticket'
+    );
+
     // Check if restart button
-    const isRestart = currentButtons.some(btn => btn.action === 'restart');
-    
-    if (isRestart) {
+    const isRestart = currentButtons.some(btn => btn.action === 'restart' || btn.action === 'start');
+
+    // Ticket type selection (Incident/Request)
+    if (isTicketType) {
+      return (
+        <div className="button-container category-container">
+          <div className="category-header">
+            <span> How can I help you today?</span>
+          </div>
+          <div className="category-grid ticket-type-grid">
+            {currentButtons.map((button, index) => (
+              <button
+                key={index}
+                className={`chat-button category-button ticket-type-button ${button.value === 'Incident' ? 'incident-btn' : 'request-btn'}`}
+                onClick={() => handleButtonClick(button)}
+                disabled={loading}
+              >
+                <span className="button-icon">{button.value === 'Incident' ? '🔧' : '📝'}</span>
+                <span className="button-label">{button.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Smart category selection
+    if (isSmartCategory) {
+      const mainButtons = currentButtons.filter(btn => btn.action !== 'start' && btn.action !== 'go_back');
+      const backButton = currentButtons.find(btn => btn.action === 'start' || btn.action === 'go_back');
+
+      return (
+        <div className="button-container category-container">
+          <div className="category-header">
+            <span> Select an issue category:</span>
+          </div>
+          <div className="category-grid smart-category-grid">
+            {mainButtons.map((button, index) => (
+              <button
+                key={index}
+                className="chat-button category-button smart-category-button"
+                onClick={() => handleButtonClick(button)}
+                disabled={loading}
+              >
+                <span className="button-icon">📁</span>
+                <span className="button-label">{button.label}</span>
+              </button>
+            ))}
+          </div>
+          {backButton && (
+            <div className="back-button-container">
+              <button
+                className="chat-button back-button"
+                onClick={() => handleButtonClick(backButton)}
+                disabled={loading}
+              >
+                {backButton.label}
+              </button>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Solution response buttons
+    if (isSolutionResponse) {
+      return (
+        <div className="button-container solution-response-container">
+          <div className="confirmation-buttons solution-buttons">
+            {currentButtons.map((button, index) => (
+              <button
+                key={index}
+                className={`chat-button ${button.action === 'solution_resolved' ? 'confirm-yes' : button.action === 'solution_not_resolved' ? 'confirm-no' : 'neutral-btn'}`}
+                onClick={() => handleButtonClick(button)}
+                disabled={loading}
+              >
+                {button.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (isRestart && currentButtons.length === 1) {
       return (
         <div className="button-container restart-container">
           {currentButtons.map((button, index) => (
@@ -479,18 +791,18 @@ function Chat({ user, token }) {
         </div>
       );
     }
-    
+
     if (isConfirmation) {
+      const mainButtons = currentButtons.filter(btn => btn.action !== 'go_back');
+      const backButton = currentButtons.find(btn => btn.action === 'go_back');
+
       return (
         <div className="button-container confirmation-container">
-          <div className="confirmation-header">
-            <span>⚠️ Would you like to create a support ticket?</span>
-          </div>
           <div className="confirmation-buttons">
-            {currentButtons.map((button, index) => (
+            {mainButtons.map((button, index) => (
               <button
                 key={index}
-                className={`chat-button ${button.action === 'confirm_ticket' ? 'confirm-yes' : 'confirm-no'}`}
+                className={`chat-button ${button.action === 'confirm_ticket' || button.action === 'preview_ticket' ? 'confirm-yes' : 'confirm-no'}`}
                 onClick={() => handleButtonClick(button)}
                 disabled={loading}
               >
@@ -498,61 +810,103 @@ function Chat({ user, token }) {
               </button>
             ))}
           </div>
+          {backButton && (
+            <div className="back-button-container">
+              <button
+                className="chat-button back-button"
+                onClick={() => handleButtonClick(backButton)}
+                disabled={loading}
+              >
+                {backButton.label}
+              </button>
+            </div>
+          )}
         </div>
       );
     }
-    
-    if (isCategories) {
+
+    // Issue list buttons - show as a list with "Other Issue" option
+    if (isIssue) {
+      const issueButtons = currentButtons.filter(btn => btn.action === 'select_issue');
+      const otherButton = currentButtons.find(btn => btn.action === 'other_issue');
+      const backButton = currentButtons.find(btn => btn.action === 'go_back');
+
       return (
-        <div className="button-container category-container">
-          <div className="category-header">
-            <span>🔍 Select an issue category:</span>
+        <div className="button-container subcategory-container issue-container">
+          <div className="subcategory-header">
+            <span> Select your issue:</span>
           </div>
-          <div className="category-grid">
-            {currentButtons.map((button, index) => (
+          <div className="subcategory-list issue-list">
+            {issueButtons.map((button, index) => (
               <button
                 key={index}
-                className={`chat-button category-button ${button.action === 'other_issues' ? 'other-button' : ''}`}
+                className="chat-button subcategory-button issue-button"
                 onClick={() => handleButtonClick(button)}
                 disabled={loading}
               >
-                <span className="button-icon">{button.icon || '📋'}</span>
-                <span className="button-label">{button.label}</span>
+                • {button.label}
               </button>
             ))}
+            {otherButton && (
+              <button
+                className="chat-button subcategory-button other-issue-button"
+                onClick={() => handleButtonClick(otherButton)}
+                disabled={loading}
+              >
+                 {otherButton.label}
+              </button>
+            )}
           </div>
+          {backButton && (
+            <div className="back-button-container">
+              <button
+                className="chat-button back-button"
+                onClick={() => handleButtonClick(backButton)}
+                disabled={loading}
+              >
+                {backButton.label}
+              </button>
+            </div>
+          )}
         </div>
       );
     }
-    
-    // Subcategory buttons - list format (also handles action buttons shown with text input)
+
+    // Default - subcategory/navigation list format
+    const mainButtons = currentButtons.filter(btn => btn.action !== 'go_back' && btn.action !== 'start');
+    const backButton = currentButtons.find(btn => btn.action === 'go_back' || btn.action === 'start');
+
     return (
       <div className="button-container subcategory-container">
-        {!showOtherInput && (
+        {!showOtherInput && mainButtons.length > 0 && (
           <div className="subcategory-header">
-            <span>📝 Select your specific issue:</span>
+            <span> Please select:</span>
           </div>
         )}
         <div className="subcategory-list">
-          {currentButtons.map((button, index) => (
+          {mainButtons.map((button, index) => (
             <button
               key={index}
-              className={`chat-button subcategory-button ${button.action === 'go_back' ? 'back-button' : ''} ${button.action === 'category_other' ? 'other-issue-button' : ''} ${button.action === 'confirm_ticket' ? 'ticket-button' : ''}`}
-              onClick={() => {
-                if (button.action === 'go_back') {
-                  setShowOtherInput(false);  // Clear text input when going back
-                  handleRestart();
-                } else {
-                  handleButtonClick(button);
-                }
-              }}
+              className={`chat-button subcategory-button ${button.action === 'other_issue' ? 'other-issue-button' : ''} ${button.action === 'confirm_ticket' || button.action === 'preview_ticket' ? 'ticket-button' : ''}`}
+              onClick={() => handleButtonClick(button)}
               disabled={loading}
             >
-              {button.action === 'go_back' ? '⬅️ ' : button.action === 'category_other' ? '✏️ ' : button.action === 'confirm_ticket' ? '🎫 ' : '• '}
+              {button.action === 'other_issue' ? '✏️ ' : button.action === 'confirm_ticket' || button.action === 'preview_ticket' ? '🎫 ' : '• '}
               {button.label}
             </button>
           ))}
         </div>
+        {backButton && (
+          <div className="back-button-container">
+            <button
+              className="chat-button back-button"
+              onClick={() => handleButtonClick(backButton)}
+              disabled={loading}
+            >
+              {backButton.label}
+            </button>
+          </div>
+        )}
       </div>
     );
   };
@@ -560,12 +914,12 @@ function Chat({ user, token }) {
   // Tickets list modal
   const TicketsModal = () => {
     if (!showAllTickets) return null;
-    
+
     return (
       <div className="modal-overlay" onClick={() => setShowAllTickets(false)}>
         <div className="modal-content" onClick={e => e.stopPropagation()}>
           <div className="modal-header">
-            <h3>📋 My Tickets</h3>
+            <h3> My Tickets</h3>
             <button className="modal-close" onClick={() => setShowAllTickets(false)}>×</button>
           </div>
           <div className="modal-body">
@@ -574,8 +928,8 @@ function Chat({ user, token }) {
             ) : (
               <div className="tickets-list">
                 {allTickets.map((ticket, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className={`ticket-item status-${ticket.status?.toLowerCase()}`}
                     onClick={() => {
                       setTicketData(ticket);
@@ -613,24 +967,25 @@ function Chat({ user, token }) {
     <div className="chat-container">
       <div className="chat-sidebar">
         <div className="sidebar-header">
-          <h3>🎫 IT Support</h3>
+          <h3> IT Support</h3>
           <p className="user-greeting">Hello, {user.username}!</p>
         </div>
-        
+
         <div className="sidebar-actions">
           <button className="sidebar-btn" onClick={viewMyTickets}>
-            📋 My Tickets
+             My Tickets
           </button>
           <button className="sidebar-btn" onClick={handleRestart}>
-            🔄 New Conversation
+             New Conversation
           </button>
         </div>
-        
+
         <div className="sidebar-info">
           <h4>How it works</h4>
           <ol>
-            <li>Select issue category</li>
-            <li>Choose specific problem</li>
+            <li>Select Incident or Request</li>
+            <li>Choose issue category</li>
+            <li>Select specific problem</li>
             <li>Get instant solution</li>
             <li>Or create a ticket</li>
           </ol>
@@ -640,43 +995,52 @@ function Chat({ user, token }) {
       <div className="chat-main">
         <div className="chat-header">
           <div className="header-info">
-            <span className="header-title">🤖 IT Support Assistant</span>
+            <span className="header-title"> IT Support Assistant</span>
             <span className="header-status">● Online</span>
           </div>
         </div>
-        
+
         <div className="chat-messages">
           {messages.map((message, index) => (
-            <div key={index} className={`message ${message.type}`}>
-              <div className="message-content">
-                <div className="message-header">
-                  <span className="message-sender">
-                    {message.type === 'user' ? '👤 You' : '🤖 Assistant'}
-                  </span>
-                  {message.ticketId && (
-                    <span className="ticket-badge">
-                      🎫 {message.ticketId}
+            <React.Fragment key={index}>
+              <div className={`message ${message.type}`}>
+                <div className="message-content">
+                  <div className="message-header">
+                    <span className="message-sender">
+                      {message.type === 'user' ? '👤 You' : ' Assistant'}
                     </span>
-                  )}
-                </div>
-                <div className="message-text">
-                  {(message.text || '').split('\n').map((line, i) => (
-                    <p key={i}>{line}</p>
-                  ))}
-                </div>
-                {/* Show attached image if present */}
-                {message.image && (
-                  <div className="message-image">
-                    <img src={message.image} alt="Attached" />
+                    {message.ticketId && (
+                      <span className="ticket-badge">
+                        🎫 {message.ticketId}
+                      </span>
+                    )}
                   </div>
-                )}
-                <div className="message-time">
-                  {new Date(message.timestamp).toLocaleTimeString()}
+                  <div className="message-text">
+                    {(message.text || '').split('\n').map((line, i) => (
+                      <p key={i} dangerouslySetInnerHTML={{ __html: line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') }} />
+                    ))}
+                  </div>
+                  {/* Show attached image if present */}
+                  {message.image && (
+                    <div className="message-image">
+                      <img src={message.image} alt="Attached" />
+                    </div>
+                  )}
+                  <div className="message-time">
+                    {new Date(message.timestamp).toLocaleTimeString()}
+                  </div>
                 </div>
               </div>
-            </div>
+              {/* Render buttons immediately after the last agent message */}
+              {message.type === 'agent' && index === messages.length - 1 && !loading && (
+                <div className="inline-buttons-wrapper">
+                  {renderSolutionFeedback()}
+                  {renderButtons()}
+                </div>
+              )}
+            </React.Fragment>
           ))}
-          
+
           {loading && (
             <div className="message agent">
               <div className="message-content">
@@ -691,14 +1055,11 @@ function Chat({ user, token }) {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Button options */}
-        {!loading && renderButtons()}
-        
         {/* Free text input for "Other Issues" */}
         {showOtherInput && (
           <div className="other-input-container">
             <div className="other-input-header">
-              <span>📝 Describe your issue:</span>
+              <span> Describe your issue:</span>
             </div>
             <div className="other-input-form">
               <textarea
@@ -711,7 +1072,7 @@ function Chat({ user, token }) {
                 rows="4"
                 autoFocus
               />
-              
+
               <div className="other-input-actions">
                 <button
                   className="cancel-btn"
@@ -736,6 +1097,34 @@ function Chat({ user, token }) {
           </div>
         )}
 
+        {/* Checkbox Selection (Multi-select for Internet Access etc.) */}
+        {showCheckboxes && checkboxOptions.length > 0 && (
+          <div className="checkbox-selection-container">
+            <div className="checkbox-header">
+              <span>☑️ Select all that apply:</span>
+            </div>
+            <div className="checkbox-list">
+              {checkboxOptions.map((option, index) => (
+                <label key={index} className="checkbox-item">
+                  <input
+                    type="checkbox"
+                    checked={checkboxSelections.includes(option.value)}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        setCheckboxSelections(prev => [...prev, option.value]);
+                      } else {
+                        setCheckboxSelections(prev => prev.filter(v => v !== option.value));
+                      }
+                    }}
+                    disabled={loading}
+                  />
+                  <span className="checkbox-label">{option.label || option.value}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Attachment Upload Section - Only shown at ticket confirmation */}
         {showAttachmentUpload && (
           <div className="attachment-upload-container">
@@ -743,7 +1132,7 @@ function Chat({ user, token }) {
               <span>📎 Attach Screenshots (Optional)</span>
               <span className="attachment-hint">Max 5 images, 5MB each</span>
             </div>
-            
+
             <input
               type="file"
               ref={fileInputRef}
@@ -753,14 +1142,14 @@ function Chat({ user, token }) {
               style={{ display: 'none' }}
               disabled={loading || uploadingImages}
             />
-            
+
             <div className="attachment-content">
               {selectedImages.length > 0 && (
                 <div className="selected-images-grid">
                   {selectedImages.map((img, index) => (
                     <div key={index} className="selected-image-item">
                       <img src={img.preview} alt={`Attachment ${index + 1}`} />
-                      <button 
+                      <button
                         className="remove-image-btn"
                         onClick={() => removeImage(index)}
                         disabled={loading || uploadingImages}
@@ -772,7 +1161,7 @@ function Chat({ user, token }) {
                   ))}
                 </div>
               )}
-              
+
               {selectedImages.length < 5 && (
                 <button
                   className="add-image-btn"
@@ -782,7 +1171,7 @@ function Chat({ user, token }) {
                   + Add Image{selectedImages.length > 0 ? ` (${5 - selectedImages.length} left)` : 's'}
                 </button>
               )}
-              
+
               {uploadingImages && (
                 <div className="upload-progress">
                   <span className="upload-spinner"></span>

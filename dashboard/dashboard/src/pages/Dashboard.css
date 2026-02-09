@@ -263,6 +263,93 @@
     color: var(--color-text-tertiary);
 }
 
+/* ==========================================
+   Expandable Stats Section
+   ========================================== */
+
+.stats-section {
+    margin-bottom: var(--spacing-lg);
+}
+
+.expandable-card {
+    transition: all 0.3s ease;
+}
+
+.expandable-card:hover {
+    transform: translateY(-2px);
+}
+
+.expandable-card .expand-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+    background: rgba(102, 126, 234, 0.1);
+    color: var(--color-primary);
+    transition: all 0.3s ease;
+}
+
+.expandable-card:hover .expand-toggle {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+.expandable-card.expanded .expand-toggle {
+    transform: rotate(180deg);
+}
+
+.stat-title .expand-hint {
+    display: block;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-tertiary);
+    margin-top: 4px;
+    opacity: 0.7;
+}
+
+.expandable-stats {
+    overflow: hidden;
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+}
+
+.expandable-stats.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0;
+}
+
+.expandable-stats.expanded {
+    max-height: 500px;
+    opacity: 1;
+    margin-bottom: var(--spacing-lg);
+}
+
+.expandable-stats .child-stats {
+    padding-top: var(--spacing-md);
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Activity loading and empty states */
+.activity-loading,
+.activity-empty {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-sm);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
     .stats-grid {

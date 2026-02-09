@@ -5,18 +5,24 @@ import {
     AlertCircle,
     CheckCircle,
     Clock,
-    Activity
+    Activity,
+    ChevronDown,
+    ChevronUp
 } from 'lucide-react';
 import Card from '../components/UI/Card';
-import { analyticsAPI } from '../services/api';
+import { analyticsAPI, auditLogsAPI } from '../services/api';
 import './Dashboard.css';
 
 const Dashboard = () => {
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [statsExpanded, setStatsExpanded] = useState(false);
+    const [recentActivity, setRecentActivity] = useState([]);
+    const [activityLoading, setActivityLoading] = useState(true);
 
     useEffect(() => {
         loadDashboardData();
+        loadRecentActivity();
     }, []);
 
     const loadDashboardData = async () => {
@@ -28,6 +34,47 @@ const Dashboard = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const loadRecentActivity = async () => {
+        try {
+            const response = await auditLogsAPI.getAll({ limit: 5 });
+            setRecentActivity(response.data || []);
+        } catch (error) {
+            console.error('Error loading recent activity:', error);
+        } finally {
+            setActivityLoading(false);
+        }
+    };
+
+    // Get color for activity dot based on action type
+    const getActivityColor = (action) => {
+        if (action?.toLowerCase().includes('resolved') || action?.toLowerCase().includes('closed')) {
+            return 'success';
+        } else if (action?.toLowerCase().includes('critical') || action?.toLowerCase().includes('high')) {
+            return 'danger';
+        } else if (action?.toLowerCase().includes('assign') || action?.toLowerCase().includes('progress')) {
+            return 'info';
+        } else if (action?.toLowerCase().includes('created') || action?.toLowerCase().includes('new')) {
+            return 'warning';
+        }
+        return 'info';
+    };
+
+    // Format time ago
+    const formatTimeAgo = (timestamp) => {
+        if (!timestamp) return 'Just now';
+        const now = new Date();
+        const time = new Date(timestamp);
+        const diffMs = now - time;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMins / 60);
+        const diffDays = Math.floor(diffHours / 24);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
+        if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+        return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
     };
 
     if (loading) {
@@ -45,15 +92,18 @@ const Dashboard = () => {
         );
     }
 
-    const statCards = [
-        {
-            title: 'Total Tickets',
-            value: stats?.totalTickets || 0,
-            icon: Activity,
-            color: 'primary',
-            trend: '+12%',
-            trendUp: true,
-        },
+    // Primary stat (Total Tickets - expandable)
+    const primaryStat = {
+        title: 'Total Tickets',
+        value: stats?.totalTickets || 0,
+        icon: Activity,
+        color: 'primary',
+        trend: '+12%',
+        trendUp: true,
+    };
+
+    // Expandable child stats  
+    const expandableStats = [
         {
             title: 'Open Tickets',
             value: stats?.openTickets || 0,
@@ -78,6 +128,18 @@ const Dashboard = () => {
             trend: '+8%',
             trendUp: true,
         },
+        {
+            title: 'SLA Breached',
+            value: stats?.slaBreached || 0,
+            icon: AlertCircle,
+            color: 'danger',
+            trend: '-1%',
+            trendUp: false,
+        },
+    ];
+
+    // Additional stats that always show
+    const additionalStats = [
         {
             title: 'High Priority',
             value: stats?.highPriorityTickets || 0,
@@ -108,8 +170,58 @@ const Dashboard = () => {
                 </div>
             </div>
 
+            {/* Primary Total Tickets Card - Clickable to expand */}
+            <div className="stats-section">
+                <Card
+                    className={`stat-card stat-card-${primaryStat.color} expandable-card ${statsExpanded ? 'expanded' : ''}`}
+                    hover
+                    onClick={() => setStatsExpanded(!statsExpanded)}
+                    style={{ cursor: 'pointer' }}
+                >
+                    <div className="stat-header">
+                        <div className={`stat-icon stat-icon-${primaryStat.color}`}>
+                            <primaryStat.icon size={24} />
+                        </div>
+                        <div className="expand-toggle">
+                            {statsExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        </div>
+                    </div>
+                    <div className="stat-body">
+                        <div className="stat-value">{primaryStat.value}</div>
+                        <div className="stat-title">
+                            {primaryStat.title}
+                            <span className="expand-hint">{statsExpanded ? 'Click to collapse' : 'Click for details'}</span>
+                        </div>
+                    </div>
+                </Card>
+            </div>
+
+            {/* Expandable Stats Section */}
+            <div className={`expandable-stats ${statsExpanded ? 'expanded' : 'collapsed'}`}>
+                <div className="stats-grid child-stats">
+                    {expandableStats.map((stat, index) => (
+                        <Card key={index} className={`stat-card stat-card-${stat.color}`} hover>
+                            <div className="stat-header">
+                                <div className={`stat-icon stat-icon-${stat.color}`}>
+                                    <stat.icon size={24} />
+                                </div>
+                                <div className={`stat-trend ${stat.trendUp ? 'trend-up' : 'trend-down'}`}>
+                                    {stat.trendUp ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
+                                    {stat.trend}
+                                </div>
+                            </div>
+                            <div className="stat-body">
+                                <div className="stat-value">{stat.value}</div>
+                                <div className="stat-title">{stat.title}</div>
+                            </div>
+                        </Card>
+                    ))}
+                </div>
+            </div>
+
+            {/* Additional Stats */}
             <div className="stats-grid">
-                {statCards.map((stat, index) => (
+                {additionalStats.map((stat, index) => (
                     <Card key={index} className={`stat-card stat-card-${stat.color}`} hover>
                         <div className="stat-header">
                             <div className={`stat-icon stat-icon-${stat.color}`}>
@@ -154,34 +266,24 @@ const Dashboard = () => {
                 <Card className="dashboard-card" glass>
                     <h3 className="card-title">Recent Activity</h3>
                     <div className="activity-list">
-                        <div className="activity-item">
-                            <div className="activity-dot activity-dot-success"></div>
-                            <div className="activity-content">
-                                <div className="activity-text">Ticket TKT-1005 resolved by Mike Chen</div>
-                                <div className="activity-time">2 minutes ago</div>
-                            </div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-dot activity-dot-warning"></div>
-                            <div className="activity-content">
-                                <div className="activity-text">New high priority ticket TKT-1007 created</div>
-                                <div className="activity-time">15 minutes ago</div>
-                            </div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-dot activity-dot-info"></div>
-                            <div className="activity-content">
-                                <div className="activity-text">Ticket TKT-1002 assigned to Mike Chen</div>
-                                <div className="activity-time">1 hour ago</div>
-                            </div>
-                        </div>
-                        <div className="activity-item">
-                            <div className="activity-dot activity-dot-danger"></div>
-                            <div className="activity-content">
-                                <div className="activity-text">Critical ticket TKT-1003 created</div>
-                                <div className="activity-time">2 hours ago</div>
-                            </div>
-                        </div>
+                        {activityLoading ? (
+                            <div className="activity-loading">Loading activity...</div>
+                        ) : recentActivity.length > 0 ? (
+                            recentActivity.map((activity, index) => (
+                                <div key={activity.id || index} className="activity-item">
+                                    <div className={`activity-dot activity-dot-${getActivityColor(activity.action)}`}></div>
+                                    <div className="activity-content">
+                                        <div className="activity-text">
+                                            {activity.action}: {activity.entityId || activity.ticketId || 'N/A'}
+                                            {activity.performedByName && ` by ${activity.performedByName}`}
+                                        </div>
+                                        <div className="activity-time">{formatTimeAgo(activity.createdAt)}</div>
+                                    </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="activity-empty">No recent activity</div>
+                        )}
                     </div>
                 </Card>
             </div>

@@ -107,7 +107,8 @@
   flex-direction: column;
   background: #ffffff;
   overflow: hidden;
-  min-width: 0; /* Prevent flex overflow */
+  min-width: 0;
+  /* Prevent flex overflow */
 }
 
 .chat-header {
@@ -147,8 +148,15 @@
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
 }
 
 /* ==========================================
@@ -183,6 +191,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -300,10 +309,14 @@
 }
 
 @keyframes typing {
-  0%, 80%, 100% {
+
+  0%,
+  80%,
+  100% {
     transform: scale(0.6);
     opacity: 0.6;
   }
+
   40% {
     transform: scale(1);
     opacity: 1;
@@ -329,6 +342,7 @@
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -721,8 +735,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
@@ -742,6 +761,7 @@
     transform: translateY(-20px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;
@@ -1077,6 +1097,7 @@
     margin: 10px;
   }
 }
+
 /* ==========================================
    Attachment Upload Section (at ticket confirmation)
    ========================================== */
@@ -1215,7 +1236,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Message with image */
@@ -1238,33 +1261,756 @@
   .attachment-upload-container {
     padding: 12px 16px;
   }
-  
+
   .selected-image-item {
     width: 60px;
     height: 60px;
   }
-  
+
   .add-image-btn {
     padding: 8px 12px;
     font-size: 12px;
   }
 }
-  
-  .attach-image-btn {
-    padding: 6px 10px;
-    font-size: 12px;
+
+.attach-image-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.image-preview {
+  width: 40px;
+  height: 40px;
+}
+
+.image-name {
+  max-width: 80px;
+  font-size: 11px;
+}
+
+.message-image {
+  max-width: 200px;
+}
+
+/* ==========================================
+   New Navigation Flow Styles
+   ========================================== */
+
+/* Ticket Type Selection (Incident/Request) */
+.ticket-type-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.ticket-type-button {
+  padding: 24px 20px;
+  min-height: 100px;
+}
+
+.ticket-type-button.incident-btn {
+  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+  border-color: #ee5a5a;
+  color: white;
+}
+
+.ticket-type-button.incident-btn:hover {
+  background: linear-gradient(135deg, #ee5a5a 0%, #ff6b6b 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(238, 90, 90, 0.4);
+}
+
+.ticket-type-button.incident-btn .button-label {
+  color: white;
+}
+
+.ticket-type-button.request-btn {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  border-color: #4facfe;
+  color: white;
+}
+
+.ticket-type-button.request-btn:hover {
+  background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+}
+
+.ticket-type-button.request-btn .button-label {
+  color: white;
+}
+
+/* Smart Category Grid */
+.smart-category-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.smart-category-button {
+  padding: 18px 14px;
+  min-height: 80px;
+}
+
+.smart-category-button .button-label {
+  font-size: 13px;
+  line-height: 1.3;
+}
+
+/* Issue List Container */
+.issue-container .issue-list {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.issue-button {
+  font-size: 12px;
+  padding: 10px 12px;
+}
+
+/* Solution Response Buttons */
+.solution-response-container {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.solution-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+.solution-buttons .chat-button {
+  flex: 0 1 auto;
+  min-width: 120px;
+  padding: 12px 16px;
+}
+
+.solution-buttons .neutral-btn {
+  background: #e2e8f0;
+  color: #4a5568;
+  border-radius: 8px;
+}
+
+.solution-buttons .neutral-btn:hover {
+  background: #cbd5e0;
+}
+
+/* Back Button Container */
+.back-button-container {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.back-button-container .back-button {
+  width: 100%;
+  background: #f7fafc;
+  border: 1px dashed #cbd5e0;
+  color: #718096;
+  padding: 10px 14px;
+  font-size: 13px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.back-button-container .back-button:hover {
+  background: #edf2f7;
+  color: #4a5568;
+  transform: translateX(-4px);
+}
+
+/* Improved Button Container */
+.button-container {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.category-container .category-header,
+.subcategory-container .subcategory-header {
+  margin-bottom: 12px;
+  color: #4a5568;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ==========================================
+   Inline Buttons Wrapper - Buttons Below Messages
+   ========================================== */
+
+.inline-buttons-wrapper {
+  width: 100%;
+  padding: 16px 0;
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.inline-buttons-wrapper .button-container {
+  background: transparent;
+  border-top: none;
+  padding: 0;
+  margin-left: 0;
+  max-width: 75%;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  .image-preview {
-    width: 40px;
-    height: 40px;
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
-  
-  .image-name {
-    max-width: 80px;
-    font-size: 11px;
-  }
-  
-  .message-image {
-    max-width: 200px;
-  }
+}
+
+/* Adjust category grid for inline display */
+.inline-buttons-wrapper .category-grid {
+  max-width: 100%;
+}
+
+/* Adjust ticket type buttons for inline display */
+.inline-buttons-wrapper .ticket-type-grid {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.inline-buttons-wrapper .ticket-type-button {
+  min-width: 140px;
+  flex: 0 1 auto;
+}
+
+/* Adjust smart category buttons for inline display */
+.inline-buttons-wrapper .smart-category-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inline-buttons-wrapper .smart-category-button {
+  flex: 1 1 auto;
+  min-width: 180px;
+  max-width: 250px;
+}
+
+/* Adjust subcategory list for inline display */
+.inline-buttons-wrapper .subcategory-list {
+  max-height: none;
+  overflow: visible;
+}
+
+/* Adjust confirmation buttons for inline display */
+.inline-buttons-wrapper .confirmation-buttons {
+  justify-content: flex-start;
+}
+
+.inline-buttons-wrapper .solution-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inline-buttons-wrapper .solution-buttons .chat-button {
+  flex: 0 1 auto;
+  min-width: 120px;
+}
+
+/* ==========================================
+   Star Rating Styles - Feedback System
+   ========================================== */
+
+.star-rating-container {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+}
+
+.star-rating-header {
+  margin-bottom: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.star-rating-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.star-button {
+  padding: 12px 20px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.star-button:hover {
+  border-color: #fbbf24;
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+}
+
+.star-button.selected {
+  border-color: #f59e0b;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: white;
+}
+
+.star-rating-skip {
+  margin-top: 12px;
+}
+
+/* ==========================================
+   Checkbox Options - Internet Access Flow
+   ========================================== */
+
+.checkbox-options-container {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.checkbox-header {
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.checkbox-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.checkbox-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-option:hover {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #f0f2ff 0%, #fff 100%);
+}
+
+.checkbox-option.selected {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.checkbox-option input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.checkbox-option label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a5568;
+  cursor: pointer;
+}
+
+.checkbox-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+/* ==========================================
+   Feedback Text Input
+   ========================================== */
+
+.feedback-text-container {
+  padding: 16px 24px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.feedback-text-header {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.feedback-textarea {
+  width: 100%;
+  min-height: 80px;
+  padding: 12px 14px;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.2s ease;
+}
+
+.feedback-textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.feedback-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+/* ==========================================
+   Manager Approval Message Styles
+   ========================================== */
+
+.manager-approval-message {
+  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+  border: 2px solid #fbbf24;
+  border-radius: 12px;
+  padding: 16px;
+  margin: 12px 0;
+}
+
+.manager-approval-message .status-icon {
+  font-size: 24px;
+  margin-right: 10px;
+}
+
+.manager-approval-message .status-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #92400e;
+}
+
+.manager-approval-success {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
+}
+
+.manager-approval-success .status-text {
+  color: #047857;
+}
+
+/* ==========================================
+   Solution Feedback Buttons (Per-Solution)
+   ========================================== */
+
+.solution-feedback {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.solution-feedback-label {
+  font-size: 12px;
+  color: #718096;
+  margin-right: 8px;
+}
+
+.helpful-button {
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  background: white;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.helpful-button.yes:hover {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+}
+
+.helpful-button.no:hover {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+.helpful-button.selected {
+  font-weight: 600;
+}
+
+.helpful-button.selected.yes {
+  background: #ecfdf5;
+  border-color: #10b981;
+  color: #047857;
+}
+
+.helpful-button.selected.no {
+  background: #fef2f2;
+  border-color: #ef4444;
+  color: #dc2626;
+}
+
+/* ==========================================
+   Request Flow Category Buttons
+   ========================================== */
+
+.request-category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.request-category-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 14px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 90px;
+}
+
+.request-category-button:hover {
+  border-color: #667eea;
+  background: linear-gradient(135deg, #f0f2ff 0%, #fff 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.25);
+}
+
+.request-category-button .icon {
+  font-size: 28px;
+}
+
+.request-category-button .label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.request-category-button.hardware {
+  border-color: #93c5fd;
+}
+
+.request-category-button.hardware:hover {
+  border-color: #3b82f6;
+  background: linear-gradient(135deg, #eff6ff 0%, #fff 100%);
+}
+
+.request-category-button.software {
+  border-color: #a78bfa;
+}
+
+.request-category-button.software:hover {
+  border-color: #8b5cf6;
+  background: linear-gradient(135deg, #f5f3ff 0%, #fff 100%);
+}
+
+.request-category-button.access {
+  border-color: #6ee7b7;
+}
+
+.request-category-button.access:hover {
+  border-color: #10b981;
+  background: linear-gradient(135deg, #ecfdf5 0%, #fff 100%);
+}
+
+/* ==========================================
+   Solution Feedback Container (Per-Solution UI)
+   ========================================== */
+
+.solution-feedback-container {
+  padding: 16px;
+  margin-bottom: 16px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.solution-feedback-header {
+  margin-bottom: 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.solution-feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.solution-feedback-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 12px 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.solution-feedback-item .solution-text {
+  flex: 1;
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.5;
+}
+
+.solution-feedback-item .solution-text strong {
+  color: #2d3748;
+}
+
+.solution-feedback-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ==========================================
+   Star Rating UI
+   ========================================== */
+
+.star-rating-container {
+  padding: 16px;
+  text-align: center;
+}
+
+.star-rating-header {
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.star-rating-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.star-button {
+  padding: 10px 20px;
+  background: white;
+  border: 2px solid #e2e8f0;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.star-button:hover {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
+}
+
+.star-button.selected {
+  background: #fffbeb;
+  border-color: #f59e0b;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.star-rating-skip {
+  margin-top: 8px;
+}
+
+.star-rating-skip .skip-button {
+  padding: 8px 16px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #64748b;
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.star-rating-skip .skip-button:hover {
+  background: #e2e8f0;
+  color: #475569;
+}
+
+/* ==========================================
+   Checkbox Selection (Multi-select)
+   ========================================== */
+
+.checkbox-selection-container {
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+}
+
+.checkbox-header {
+  margin-bottom: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-item:hover {
+  background: #f0f4ff;
+  border-color: #667eea;
+}
+
+.checkbox-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.checkbox-label {
+  font-size: 14px;
+  color: #2d3748;
+}

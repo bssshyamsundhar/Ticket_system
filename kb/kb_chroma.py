@@ -291,10 +291,10 @@ class KnowledgeBase:
             return []
 
     def load_kb_from_json(self, json_path: str = None) -> int:
-        """Load knowledge base from structured JSON file"""
+        """Load knowledge base from data.json (hierarchical IT support data)"""
         self._ensure_ready()
         if json_path is None:
-            json_path = os.path.join(os.path.dirname(__file__), 'data', 'initial_kb.json')
+            json_path = os.path.join(os.path.dirname(__file__), 'data', 'data.json')
         
         try:
             with open(json_path, 'r', encoding='utf-8') as f:

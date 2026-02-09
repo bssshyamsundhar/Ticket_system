@@ -5,6 +5,7 @@ import Table from '../components/UI/Table';
 import Button from '../components/UI/Button';
 import Badge, { PriorityBadge, StatusBadge } from '../components/UI/Badge';
 import Modal from '../components/UI/Modal';
+import SLATimer from '../components/UI/SLATimer';
 import { ticketsAPI, techniciansAPI } from '../services/api';
 import './Tickets.css';
 
@@ -17,7 +18,7 @@ const Tickets = () => {
     const [filterPriority, setFilterPriority] = useState('all');
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
-    
+
     // Track modifications
     const [editedTicket, setEditedTicket] = useState(null);
     const [hasChanges, setHasChanges] = useState(false);
@@ -65,47 +66,47 @@ const Tickets = () => {
             ...prev,
             [field]: value
         }));
-        
+
         // Check if anything actually changed from original
         const original = {
             status: selectedTicket.status,
             assignedToId: selectedTicket.assignedToId || '',
             resolutionNotes: selectedTicket.resolutionNotes || ''
         };
-        
+
         const newValues = {
             ...editedTicket,
             [field]: value
         };
-        
-        const changed = 
+
+        const changed =
             newValues.status !== original.status ||
             newValues.assignedToId !== original.assignedToId ||
             newValues.resolutionNotes !== original.resolutionNotes;
-        
+
         setHasChanges(changed);
     };
 
     const handleSaveChanges = async () => {
         if (!hasChanges || saving) return;
-        
+
         setSaving(true);
         try {
             // Update status if changed
             if (editedTicket.status !== selectedTicket.status) {
-                await ticketsAPI.update(selectedTicket.id, { 
+                await ticketsAPI.update(selectedTicket.id, {
                     status: editedTicket.status,
                     resolution_notes: editedTicket.resolutionNotes
                 });
             }
-            
+
             // Update assignment if changed
             if (editedTicket.assignedToId !== (selectedTicket.assignedToId || '')) {
                 if (editedTicket.assignedToId) {
                     await ticketsAPI.assign(selectedTicket.id, editedTicket.assignedToId);
                 }
             }
-            
+
             // Reload data and close modal
             await loadData();
             handleCloseModal();
@@ -154,10 +155,22 @@ const Tickets = () => {
             render: (value) => value || <span className="text-muted">Unassigned</span>
         },
         {
+            key: 'assignmentGroup',
+            label: 'Assignment Group',
+            sortable: true,
+            render: (value) => value || <span className="text-muted">-</span>
+        },
+        {
             key: 'createdAt',
             label: 'Created',
             sortable: true,
             render: (value) => new Date(value).toLocaleDateString()
+        },
+        {
+            key: 'slaDeadline',
+            label: 'SLA',
+            sortable: true,
+            render: (value, row) => <SLATimer slaDeadline={value} slaBreached={row.slaBreached} />
         },
         {
             key: 'actions',
@@ -222,9 +235,9 @@ const Tickets = () => {
                             className="filter-select"
                         >
                             <option value="all">All Priority</option>
-                            <option value="Low">Low</option>
-                            <option value="Medium">Medium</option>
-                            <option value="High">High</option>
+                            <option value="P4">P4 (Low)</option>
+                            <option value="P3">P3 (Medium)</option>
+                            <option value="P2">P2 (High)</option>
                             <option value="Critical">Critical</option>
                         </select>
                     </div>
@@ -257,8 +270,8 @@ const Tickets = () => {
                         <Button variant="secondary" onClick={handleCloseModal}>
                             Close
                         </Button>
-                        <Button 
-                            variant="success" 
+                        <Button
+                            variant="success"
                             onClick={handleSaveChanges}
                             disabled={!hasChanges || saving}
                         >
@@ -345,8 +358,8 @@ const Tickets = () => {
                                             overflow: 'hidden',
                                             background: '#f8fafc'
                                         }}>
-                                            <img 
-                                                src={url} 
+                                            <img
+                                                src={url}
                                                 alt={`Attachment ${index + 1}`}
                                                 style={{
                                                     width: '100%',
@@ -355,9 +368,9 @@ const Tickets = () => {
                                                     display: 'block'
                                                 }}
                                             />
-                                            <a 
-                                                href={url} 
-                                                target="_blank" 
+                                            <a
+                                                href={url}
+                                                target="_blank"
                                                 rel="noopener noreferrer"
                                                 style={{
                                                     display: 'block',

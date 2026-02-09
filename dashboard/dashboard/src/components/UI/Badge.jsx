@@ -22,13 +22,17 @@ const Badge = ({
     );
 };
 
-// Priority badge helper
+// Priority badge helper (Updated for P2/P3/P4)
 export const PriorityBadge = ({ priority }) => {
     const variantMap = {
+        'P4': 'default',      // Low priority - 7 days
+        'P3': 'warning',      // Medium priority - 3 days
+        'P2': 'info',         // High priority - 8 hours
+        'Critical': 'danger', // Critical - 2 hours
+        // Legacy support
         'Low': 'default',
         'Medium': 'warning',
         'High': 'info',
-        'Critical': 'danger',
     };
 
     return <Badge variant={variantMap[priority] || 'default'}>{priority}</Badge>;
@@ -39,6 +43,8 @@ export const StatusBadge = ({ status }) => {
     const variantMap = {
         'Open': 'info',
         'In Progress': 'warning',
+        'Pending Approval': 'secondary',
+        'Approved': 'primary',
         'Resolved': 'success',
         'Closed': 'default',
     };

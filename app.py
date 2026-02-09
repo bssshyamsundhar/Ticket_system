@@ -12,7 +12,7 @@ import asyncio
 import logging
 import jwt
 import bcrypt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from config import config
 from db.postgres import db
@@ -20,6 +20,9 @@ from kb.kb_chroma import kb
 from runners.run_agents import orchestrator
 from services.email_service import email_service
 from services.cloudinary_service import cloudinary_service
+from services.chat_handler import chat_handler  # New navigation handler
+from services.ticket_data_service import ticket_data_service  # New data service
+from services import feedback_handler
 import time
 import json
 import base64
@@ -30,6 +33,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+
+# Ensure werkzeug request logs (GET/POST etc.) are visible
+logging.getLogger('werkzeug').setLevel(logging.INFO)
 
 # Create or get event loop for async operations
 def get_or_create_event_loop():
@@ -175,7 +181,7 @@ def register():
                 'email': email,
                 'name': name,
                 'role': 'user',
-                'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
+                'exp': datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
             }, JWT_SECRET, algorithm="HS256")
             
             return jsonify({
@@ -240,7 +246,7 @@ def login():
             'email': user['email'],
             'name': user['name'],
             'role': user['role'],
-            'exp': datetime.utcnow() + timedelta(hours=JWT_EXPIRATION_HOURS)
+            'exp': datetime.now(timezone.utc) + timedelta(hours=JWT_EXPIRATION_HOURS)
         }, JWT_SECRET, algorithm="HS256")
         
         return jsonify({
@@ -396,8 +402,11 @@ def get_solution(subcat_id):
     try:
         solution = kb.get_solution_by_subcategory_id(subcat_id)
         if solution:
-            # Increment view count if article exists in ChromaDB
-            kb.increment_kb_views(subcat_id) if hasattr(kb, 'increment_kb_views') else None
+            # Increment view count in database
+            try:
+                db.increment_kb_views(subcat_id)
+            except Exception:
+                pass  # Non-critical, don't fail the request
             return jsonify({
                 "success": True,
                 "solution": solution
@@ -457,10 +466,36 @@ def create_ticket_from_chat():
                     category=category,
                     subject=subject,
                     description=description,
-                    priority=ticket.get('priority', 'Medium')
+                    priority=ticket.get('priority', 'P3')
                 )
             except Exception as email_error:
                 logger.warning(f"Failed to send ticket creation email: {email_error}")
+            
+            # Send auto-assignment emails if ticket was assigned
+            if ticket.get('assigned_to_id'):
+                try:
+                    tech_info = db.get_technician_by_id(ticket['assigned_to_id'])
+                    if tech_info:
+                        email_service.send_ticket_assigned(
+                            user_email=request.user_email,
+                            user_name=request.user_name,
+                            ticket_id=ticket['id'],
+                            subject=subject,
+                            technician_name=tech_info.get('name', ''),
+                            technician_email=tech_info.get('email', '')
+                        )
+                        email_service.send_technician_assignment(
+                            tech_email=tech_info.get('email', ''),
+                            tech_name=tech_info.get('name', ''),
+                            ticket_id=ticket['id'],
+                            user_name=request.user_name,
+                            category=category,
+                            subject=subject,
+                            description=description,
+                            priority=ticket.get('priority', 'P3')
+                        )
+                except Exception as assign_email_err:
+                    logger.warning(f"Failed to send auto-assignment emails: {assign_email_err}")
             
             return jsonify({
                 "success": True,
@@ -485,7 +520,269 @@ def create_ticket_from_chat():
 @token_required
 def chat():
     """
-    Main chat endpoint - handles both button-based and free-text interactions
+    Main chat endpoint - handles button-based navigation through 6-level hierarchy
+    Flow: Incident/Request → Smart Category → Category → Type → Item → Issue → Solution → Ticket
+    """
+    try:
+        data = request.json
+        message = data.get('message')
+        session_id = data.get('session_id')
+        action = data.get('action')
+        attachment_urls = data.get('attachment_urls')
+        
+        # Get user info from token
+        user_id = request.user_id
+        user_email = request.user_email
+        user_name = request.user_name
+        
+        # Create session if not provided
+        if not session_id:
+            import uuid
+            session_id = str(uuid.uuid4())
+        
+        # Get or create conversation state
+        state_key = f"{user_id}_{session_id}"
+        if state_key not in conversation_states:
+            conversation_states[state_key] = chat_handler.create_initial_state()
+        
+        conversation_state = conversation_states[state_key]
+        
+        # Store attachment_urls if provided
+        if attachment_urls:
+            conversation_state['attachment_urls'] = attachment_urls
+        
+        logger.info(f"Chat request: action={action}, state={conversation_state.get('state')}, session={session_id}")
+        
+        # Prepare user info for handler
+        user_info = {
+            'id': user_id,
+            'email': user_email,
+            'name': user_name
+        }
+        
+        # If no action provided but message exists and state expects free text
+        current_state = conversation_state.get('state', '')
+        request_text_states = [
+            'awaiting_free_text', 'request_justification', 'request_vpn_reason',
+            'request_shared_folder_path', 'request_software_type', 'end_feedback_text'
+        ]
+        if not action and message and current_state in request_text_states:
+            action = 'free_text'
+        
+        # Default to start if no action
+        if not action:
+            action = 'start'
+        
+        # Handle the action using the chat handler
+        handler_response = chat_handler.handle_action(
+            action=action,
+            data=data,
+            conversation_state=conversation_state,
+            user_info=user_info
+        )
+        
+        # Check if we need to go to start
+        if handler_response.get('go_to_start'):
+            handler_response = chat_handler.handle_action(
+                action='start',
+                data={},
+                conversation_state=conversation_state,
+                user_info=user_info
+            )
+        
+        # Check if we need to create a ticket
+        if handler_response.get('create_ticket'):
+            ticket_data = handler_response.get('ticket_data', {})
+            stored_attachment_urls = ticket_data.get('attachment_urls', []) or conversation_state.get('attachment_urls', [])
+            
+            # Create the ticket
+            ticket = db.create_ticket(
+                user_id=user_id,
+                user_name=user_name,
+                user_email=user_email,
+                category=ticket_data.get('category', 'General'),
+                subcategory=conversation_state.get('smart_category'),  # Store smart category
+                subject=ticket_data.get('subject', 'Support Request'),
+                description=ticket_data.get('description', 'User requested support'),
+                session_id=session_id,
+                attachment_urls=stored_attachment_urls if stored_attachment_urls else None
+            )
+            
+            if ticket:
+                conversation_state['ticket_id'] = ticket['id']
+                
+                # Send email notification
+                try:
+                    email_service.send_ticket_created(
+                        user_email=user_email,
+                        user_name=user_name,
+                        ticket_id=ticket['id'],
+                        category=ticket_data.get('category', 'General'),
+                        subject=ticket_data.get('subject', 'Support Request'),
+                        description=ticket_data.get('description', ''),
+                        priority=ticket.get('priority', 'P3')
+                    )
+                except Exception as email_error:
+                    logger.warning(f"Failed to send ticket creation email: {email_error}")
+                
+                # Send assignment emails if ticket was auto-assigned
+                assigned_tech_id = ticket.get('assigned_to_id')
+                assigned_tech_name = ticket.get('assigned_to')
+                if assigned_tech_id:
+                    try:
+                        tech_info = db.get_technician_by_id(assigned_tech_id)
+                        if tech_info:
+                            # Notify user about assignment
+                            email_service.send_ticket_assigned(
+                                user_email=user_email,
+                                user_name=user_name,
+                                ticket_id=ticket['id'],
+                                subject=ticket_data.get('subject', 'Support Request'),
+                                technician_name=tech_info.get('name', 'Support Technician'),
+                                technician_email=tech_info.get('email', '')
+                            )
+                            # Notify technician
+                            email_service.send_technician_assignment(
+                                tech_email=tech_info.get('email', ''),
+                                tech_name=tech_info.get('name', ''),
+                                ticket_id=ticket['id'],
+                                user_name=user_name,
+                                category=ticket_data.get('category', 'General'),
+                                subject=ticket_data.get('subject', 'Support Request'),
+                                description=ticket_data.get('description', ''),
+                                priority=ticket.get('priority', 'P3')
+                            )
+                    except Exception as assign_email_err:
+                        logger.warning(f"Failed to send auto-assignment emails: {assign_email_err}")
+                
+                # Check if this is a Request ticket with manager simulation
+                if handler_response.get('simulate_manager_approval'):
+                    # Simulate manager approval
+                    simulated_manager = handler_response.get('simulated_manager', 'Your Manager')
+                    
+                    # Update ticket status to In Progress (manager approved)
+                    try:
+                        db.update_ticket_status(ticket['id'], 'In Progress', user_id, 'Manager Simulation',
+                                               f"Manager approved by: {simulated_manager}")
+                    except Exception as status_err:
+                        logger.warning(f"Could not update ticket status: {status_err}")
+                    
+                    handler_response = {
+                        "success": True,
+                        "response": f"✅ **Request Approved!** (Ticket: **{ticket['id']}**)\n\n👤 **Manager {simulated_manager}** has reviewed and approved your request.\n\n📧 You will receive a confirmation email shortly.\n\n---\n\nWould you like to do anything else?",
+                        "ticket_id": ticket['id'],
+                        "buttons": [
+                            {"id": "new", "label": "🆕 New Request", "action": "start", "value": "new"},
+                            {"id": "done", "label": "✅ I'm Done", "action": "end", "value": "done"}
+                        ],
+                        "state": "manager_approved"
+                    }
+                    conversation_state['state'] = 'manager_approved'
+                else:
+                    # Build response with auto-assignment info + prompt star rating
+                    assign_msg = ""
+                    if ticket.get('assigned_to'):
+                        assign_msg = f"\n\n👨‍💻 **Assigned to:** {ticket['assigned_to']} (auto-assigned based on shift availability)"
+                    
+                    # Trigger star rating flow so feedback saves with this ticket_id
+                    conversation_state['state'] = 'end_rating'
+                    star_ui = feedback_handler.get_star_rating_ui()
+                    star_buttons = star_ui.get('buttons', [])
+                    star_buttons.append({"id": "skip", "label": "⏭️ Skip Rating", "action": "skip_rating", "value": "skip"})
+                    
+                    handler_response = {
+                        "success": True,
+                        "response": f"🎫 **Ticket Created!**\n\n✅ I've created ticket **{ticket['id']}** for you.{assign_msg}\n\nOur support team will review it and get back to you soon.\n\n---\n\n📊 **How was your experience?** Please rate your interaction:",
+                        "ticket_id": ticket['id'],
+                        "show_star_rating": True,
+                        "buttons": star_buttons,
+                        "state": "end_rating"
+                    }
+            else:
+                handler_response = {
+                    "success": False,
+                    "response": "Sorry, I couldn't create the ticket. Please try again.",
+                    "buttons": [
+                        {"id": "retry", "label": "🔄 Try Again", "action": "preview_ticket", "value": "retry"},
+                        {"id": "back", "label": "⬅️ Start Over", "action": "start", "value": "back"}
+                    ],
+                    "state": conversation_state.get('state')
+                }
+        
+        # Build final response
+        response_data = {
+            "success": handler_response.get('success', True),
+            "session_id": session_id,
+            "response": handler_response.get('response', ''),
+            "buttons": handler_response.get('buttons', []),
+            "show_text_input": handler_response.get('show_text_input', False),
+            "show_attachment_upload": handler_response.get('show_attachment_upload', False),
+            "show_star_rating": handler_response.get('show_star_rating', False),
+            "show_checkboxes": handler_response.get('show_checkboxes', False),
+            "checkboxes": handler_response.get('checkboxes', []),
+            "state": handler_response.get('state', conversation_state.get('state', '')),
+            "awaiting_confirmation": conversation_state.get('state') == 'awaiting_ticket_confirmation'
+        }
+        
+        # Save feedback to database if ready
+        if handler_response.get('feedback_data', {}).get('ready_to_save'):
+            try:
+                feedback_data = handler_response['feedback_data']
+                feedback_data['session_id'] = session_id
+                feedback_data['ticket_id'] = conversation_state.get('ticket_id')
+                db.save_all_feedback(feedback_data)
+                logger.info(f"Saved feedback for session {session_id}")
+            except Exception as feedback_error:
+                logger.warning(f"Failed to save feedback: {feedback_error}")
+        
+        if handler_response.get('ticket_id'):
+            response_data['ticket_id'] = handler_response['ticket_id']
+        
+        # Include solutions_with_feedback for per-solution radio buttons
+        if handler_response.get('solutions_with_feedback'):
+            response_data['solutions_with_feedback'] = handler_response['solutions_with_feedback']
+        
+        # Save conversation state
+        conversation_states[state_key] = conversation_state
+        
+        logger.info(f"Returning response with {len(response_data.get('buttons', []))} buttons, state={conversation_state.get('state')}")
+        
+        # Save to conversation history
+        db.save_conversation(
+            user_id=user_id,
+            session_id=session_id,
+            message_type='user' if message else 'action',
+            message_content=message or action or 'start',
+            buttons_shown=[b.get('label', '') for b in response_data.get('buttons', [])],
+            button_clicked=action
+        )
+        
+        return jsonify(response_data)
+    
+    except Exception as e:
+        logger.error(f"Error in chat endpoint: {e}")
+        import traceback
+        logger.error(traceback.format_exc())
+        return jsonify({
+            "success": False,
+            "error": str(e),
+            "response": "Something went wrong. Please try again.",
+            "buttons": [
+                {"id": "restart", "label": "🔄 Start Over", "action": "start", "value": "restart"}
+            ]
+        }), 500
+
+
+# ==========================================
+# LEGACY CHAT ACTIONS (for backward compatibility)
+# These handle old action types from the previous flow
+# ==========================================
+@app.route('/api/chat/legacy', methods=['POST'])
+@token_required
+def chat_legacy():
+    """
+    Legacy chat endpoint - handles old button-based and free-text interactions
+    Kept for backward compatibility during transition
     """
     try:
         data = request.json
@@ -507,7 +804,7 @@ def chat():
             session_id = str(uuid.uuid4())
         
         # Get or create conversation state
-        state_key = f"{user_id}_{session_id}"
+        state_key = f"{user_id}_{session_id}_legacy"
         conversation_state = conversation_states.get(state_key, {
             'state': 'initial',
             'selected_category': None,
@@ -520,7 +817,7 @@ def chat():
         if attachment_urls:
             conversation_state['attachment_urls'] = attachment_urls
         
-        logger.info(f"Chat request: action={action}, state_key={state_key}, current_state={conversation_state.get('state')}")
+        logger.info(f"Legacy Chat request: action={action}, state_key={state_key}, current_state={conversation_state.get('state')}")
         
         response_data = {
             "success": True,
@@ -773,7 +1070,7 @@ def chat():
                         category=category,
                         subject=subject,
                         description=description,
-                        priority=ticket.get('priority', 'Medium')
+                        priority=ticket.get('priority', 'P3')
                     )
                 except Exception as email_error:
                     logger.warning(f"Failed to send ticket creation email: {email_error}")
@@ -1343,7 +1640,7 @@ def assign_ticket(ticket_id):
                             category=old_ticket.get('category', 'General'),
                             subject=subject,
                             description=old_ticket.get('description', ''),
-                            priority=old_ticket.get('priority', 'Medium')
+                            priority=old_ticket.get('priority', 'P3')
                         )
             except Exception as email_error:
                 logger.warning(f"Failed to send assignment emails: {email_error}")
@@ -1370,6 +1667,23 @@ def assign_ticket(ticket_id):
 # TECHNICIAN ENDPOINTS
 # ==========================================
 
+def serialize_technician(tech):
+    """Convert technician record to JSON-serializable dict"""
+    tech_dict = dict(tech)
+    # Convert time objects to strings for JSON serialization
+    if 'shift_start' in tech_dict and tech_dict['shift_start'] is not None:
+        tech_dict['shift_start'] = str(tech_dict['shift_start'])
+    if 'shift_end' in tech_dict and tech_dict['shift_end'] is not None:
+        tech_dict['shift_end'] = str(tech_dict['shift_end'])
+    # Convert date objects to strings
+    if 'joined_date' in tech_dict and tech_dict['joined_date'] is not None:
+        tech_dict['joined_date'] = str(tech_dict['joined_date'])
+    if 'created_at' in tech_dict and tech_dict['created_at'] is not None:
+        tech_dict['created_at'] = tech_dict['created_at'].isoformat() if hasattr(tech_dict['created_at'], 'isoformat') else str(tech_dict['created_at'])
+    if 'updated_at' in tech_dict and tech_dict['updated_at'] is not None:
+        tech_dict['updated_at'] = tech_dict['updated_at'].isoformat() if hasattr(tech_dict['updated_at'], 'isoformat') else str(tech_dict['updated_at'])
+    return tech_dict
+
 @app.route('/api/technicians', methods=['GET'])
 @token_required
 def get_technicians():
@@ -1382,7 +1696,7 @@ def get_technicians():
             technicians = db.get_all_technicians()
         return jsonify({
             "success": True,
-            "technicians": [dict(t) for t in technicians] if technicians else []
+            "technicians": [serialize_technician(t) for t in technicians] if technicians else []
         })
     except Exception as e:
         logger.error(f"Error getting technicians: {e}")
@@ -1401,7 +1715,7 @@ def get_technician(tech_id):
         if tech:
             return jsonify({
                 "success": True,
-                "technician": dict(tech)
+                "technician": serialize_technician(tech)
             })
         else:
             return jsonify({
@@ -1438,7 +1752,7 @@ def create_technician():
         if tech:
             return jsonify({
                 "success": True,
-                "technician": dict(tech)
+                "technician": serialize_technician(tech)
             }), 201
         else:
             return jsonify({
@@ -1463,7 +1777,7 @@ def update_technician(tech_id):
         if tech:
             return jsonify({
                 "success": True,
-                "technician": dict(tech)
+                "technician": serialize_technician(tech)
             })
         else:
             return jsonify({

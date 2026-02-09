@@ -1,13 +1,13 @@
 """
 Seed Data Script
 Populates the database with initial data (users, technicians, SLA config, etc.)
-Matches the actual schema in db/schema.sql
+Updated for P2/P3/P4 priorities and technician shift timings
 """
 
 import os
 import sys
 import hashlib
-from datetime import date
+from datetime import date, time
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -61,47 +61,60 @@ def seed_data():
                 print(f"   ⚠ Error with user {user[1]}: {e}")
         
         # ==========================================
-        # SEED TECHNICIANS
-        # Schema: id, name, email, role, department, active_status, assigned_tickets,
-        #         resolved_tickets, avg_resolution_time, specialization[], joined_date
+        # SEED TECHNICIANS (10 technicians with shift timings)
+        # Shift 1: 7AM-4PM (4 technicians)
+        # Shift 2: 2PM-11PM (3 technicians)
+        # Shift 3: 7PM-4AM (3 technicians)
         # ==========================================
-        print("\n🔧 Seeding technicians...")
+        print("\n🔧 Seeding technicians with shift timings...")
         technicians = [
-            ('TECH-001', 'Alex Tech', 'alex.tech@company.com', 'L1 Support', 'IT Support', True, 0, 0, '2 hours', ['Hardware', 'Network'], date(2023, 1, 15)),
-            ('TECH-002', 'Bob Engineer', 'bob.engineer@company.com', 'L2 Support', 'IT Support', True, 0, 0, '4 hours', ['Software', 'VPN'], date(2023, 3, 1)),
-            ('TECH-003', 'Carol Admin', 'carol.admin@company.com', 'System Admin', 'Infrastructure', True, 0, 0, '3 hours', ['Servers', 'Active Directory'], date(2022, 6, 10)),
-            ('TECH-004', 'David Senior', 'david.senior@company.com', 'L3 Support', 'IT Support', True, 0, 0, '6 hours', ['Complex Issues', 'Security'], date(2021, 11, 5)),
-            ('TECH-005', 'Eve Network', 'eve.network@company.com', 'Network Engineer', 'Infrastructure', True, 0, 0, '5 hours', ['Network', 'VPN', 'Firewalls'], date(2022, 9, 20)),
+            # Shift 1: 7AM-4PM (4 technicians)
+            ('TECH-001', 'Vinodh Kumar', 'vinodh.kumar@company.com', 'L1 Support', 'IT Support', True, 0, 0, '2 hours', ['Windows', 'Email', 'VPN'], time(7, 0), time(16, 0), date(2024, 1, 15)),
+            ('TECH-002', 'Shyam Sundhar', 'shyam.sundhar@company.com', 'L1 Support', 'IT Support', True, 0, 0, '2 hours', ['Hardware', 'Software', 'Network'], time(7, 0), time(16, 0), date(2024, 2, 1)),
+            ('TECH-003', 'Jayachandran', 'jayachandran@company.com', 'L2 Support', 'IT Support', True, 0, 0, '4 hours', ['Network', 'Server', 'Security'], time(7, 0), time(16, 0), date(2023, 6, 1)),
+            ('TECH-004', 'Kamali', 'kamali@company.com', 'Senior Engineer', 'IT Support', True, 0, 0, '3 hours', ['Infrastructure', 'Cloud', 'Database'], time(7, 0), time(16, 0), date(2022, 3, 20)),
+            # Shift 2: 2PM-11PM (3 technicians)
+            ('TECH-005', 'Pramodh', 'pramodh@company.com', 'L1 Support', 'IT Support', True, 0, 0, '2 hours', ['Windows', 'Email', 'Zoom'], time(14, 0), time(23, 0), date(2024, 3, 10)),
+            ('TECH-006', 'Varshini', 'varshini@company.com', 'L2 Support', 'IT Support', True, 0, 0, '4 hours', ['Software', 'VPN', 'Account'], time(14, 0), time(23, 0), date(2023, 9, 15)),
+            ('TECH-007', 'Mugundhan', 'mugundhan@company.com', 'L1 Support', 'IT Support', True, 0, 0, '2 hours', ['Hardware', 'Network', 'Printing'], time(14, 0), time(23, 0), date(2024, 1, 20)),
+            # Shift 3: 7PM-4AM (3 technicians)
+            ('TECH-008', 'Vikram Anand', 'vikram.anand@company.com', 'L1 Support', 'IT Support', True, 0, 0, '2 hours', ['Windows', 'VPN', 'Email'], time(19, 0), time(4, 0), date(2024, 4, 5)),
+            ('TECH-009', 'Parthiban', 'parthiban@company.com', 'L2 Support', 'IT Support', True, 0, 0, '4 hours', ['Server', 'Security', 'Network'], time(19, 0), time(4, 0), date(2023, 11, 1)),
+            ('TECH-010', 'Ramesh', 'ramesh@company.com', 'Senior Engineer', 'IT Support', True, 0, 0, '5 hours', ['Infrastructure', 'Database', 'Cloud'], time(19, 0), time(4, 0), date(2022, 8, 15)),
         ]
         
         for tech in technicians:
             try:
                 db.execute_query("""
                     INSERT INTO technicians (id, name, email, role, department, active_status, 
-                        assigned_tickets, resolved_tickets, avg_resolution_time, specialization, joined_date)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                        assigned_tickets, resolved_tickets, avg_resolution_time, specialization, 
+                        shift_start, shift_end, joined_date)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     ON CONFLICT (id) DO UPDATE SET
                         name = EXCLUDED.name,
                         email = EXCLUDED.email,
                         role = EXCLUDED.role,
                         department = EXCLUDED.department,
                         active_status = EXCLUDED.active_status,
-                        specialization = EXCLUDED.specialization
+                        specialization = EXCLUDED.specialization,
+                        shift_start = EXCLUDED.shift_start,
+                        shift_end = EXCLUDED.shift_end
                 """, tech)
-                print(f"   ✓ Technician: {tech[1]} ({tech[3]})")
+                shift_str = f"{tech[10].strftime('%I:%M %p')}-{tech[11].strftime('%I:%M %p')}"
+                print(f"   ✓ Technician: {tech[1]} ({tech[3]}) - Shift: {shift_str}")
             except Exception as e:
                 print(f"   ⚠ Error with technician {tech[1]}: {e}")
         
         # ==========================================
-        # SEED SLA CONFIG
-        # Schema: id, priority (Low/Medium/High/Critical), sla_hours, description
+        # SEED SLA CONFIG (P2/P3/P4)
+        # P2 = 8 hours, P3 = 72 hours (3 days), P4 = 168 hours (7 days)
         # ==========================================
-        print("\n⏰ Seeding SLA configuration...")
+        print("\n⏰ Seeding SLA configuration (P2/P3/P4)...")
         sla_configs = [
-            ('SLA-001', 'Critical', 4, 'Critical issues must be resolved within 4 hours'),
-            ('SLA-002', 'High', 8, 'High priority issues must be resolved within 8 hours'),
-            ('SLA-003', 'Medium', 24, 'Medium priority issues must be resolved within 24 hours'),
-            ('SLA-004', 'Low', 72, 'Low priority issues must be resolved within 72 hours'),
+            ('SLA-001', 'Critical', 2, 'Critical - Business-critical issues, 2 hours resolution'),
+            ('SLA-002', 'P2', 8, 'P2 - High priority issues, 8 hours resolution'),
+            ('SLA-003', 'P3', 72, 'P3 - Medium priority issues, 3 days resolution'),
+            ('SLA-004', 'P4', 168, 'P4 - Low priority issues, 7 days resolution'),
         ]
         
         for sla in sla_configs:
@@ -119,25 +132,25 @@ def seed_data():
                 print(f"   ⚠ Error with SLA {sla[1]}: {e}")
         
         # ==========================================
-        # SEED PRIORITY RULES
-        # Schema: id, keyword, category, priority (Low/Medium/High/Critical)
+        # SEED PRIORITY RULES (P2/P3/P4)
         # ==========================================
-        print("\n📊 Seeding priority rules...")
+        print("\n📊 Seeding priority rules (P2/P3/P4)...")
         priority_rules = [
-            ('RULE-001', 'urgent', None, 'Critical'),
+            ('RULE-001', 'urgent', None, 'P2'),
             ('RULE-002', 'emergency', None, 'Critical'),
-            ('RULE-003', 'down', None, 'Critical'),
-            ('RULE-004', 'not working', None, 'High'),
-            ('RULE-005', 'broken', None, 'High'),
-            ('RULE-006', 'error', None, 'High'),
-            ('RULE-007', 'slow', None, 'Medium'),
-            ('RULE-008', 'issue', None, 'Medium'),
-            ('RULE-009', 'help', None, 'Low'),
-            ('RULE-010', 'question', None, 'Low'),
-            ('RULE-011', 'vpn', 'VPN', 'High'),
-            ('RULE-012', 'network', 'Network', 'High'),
-            ('RULE-013', 'email', 'Email', 'Medium'),
-            ('RULE-014', 'password', 'Account', 'Medium'),
+            ('RULE-003', 'critical', None, 'Critical'),
+            ('RULE-004', 'down', None, 'Critical'),
+            ('RULE-005', 'not working', None, 'P2'),
+            ('RULE-006', 'broken', None, 'P2'),
+            ('RULE-007', 'error', None, 'P3'),
+            ('RULE-008', 'slow', None, 'P3'),
+            ('RULE-009', 'issue', None, 'P3'),
+            ('RULE-010', 'help', None, 'P4'),
+            ('RULE-011', 'question', None, 'P4'),
+            ('RULE-012', 'vpn', 'VPN', 'P2'),
+            ('RULE-013', 'network', 'Network', 'P2'),
+            ('RULE-014', 'email', 'Email', 'P3'),
+            ('RULE-015', 'password', 'Account', 'P3'),
         ]
         
         for rule in priority_rules:
@@ -156,7 +169,6 @@ def seed_data():
         
         # ==========================================
         # SEED KB CATEGORIES
-        # Schema: id, name, display_name, icon, display_order, enabled
         # ==========================================
         print("\n📁 Seeding KB categories...")
         kb_categories = [
@@ -188,7 +200,6 @@ def seed_data():
         
         # ==========================================
         # SEED NOTIFICATION SETTINGS
-        # Schema: email_notifications, escalation_time_hours, notify_on_*
         # ==========================================
         print("\n🔔 Seeding notification settings...")
         try:
@@ -217,12 +228,31 @@ def seed_data():
             count = result[0]['cnt'] if result else 0
             print(f"   {table}: {count} rows")
         
+        # Show technician shift distribution
+        print("\n📅 Technician Shift Distribution:")
+        shifts = db.execute_query("""
+            SELECT shift_start, shift_end, COUNT(*) as count 
+            FROM technicians 
+            GROUP BY shift_start, shift_end 
+            ORDER BY shift_start
+        """, fetch=True)
+        for shift in shifts:
+            start = shift['shift_start']
+            end = shift['shift_end']
+            count = shift['count']
+            print(f"   {start} - {end}: {count} technicians")
+        
         print("\n" + "=" * 60)
         print("✅ SEED DATA INSERTED SUCCESSFULLY!")
         print("=" * 60)
         print("\nTest credentials:")
         print("  Admin: admin@company.com / admin123")
         print("  User:  john.doe@company.com / user123")
+        print("\nPriority Levels:")
+        print("  Critical = 2 hours")
+        print("  P2 = 8 hours")
+        print("  P3 = 72 hours (3 days)")
+        print("  P4 = 168 hours (7 days)")
         
         return True
         

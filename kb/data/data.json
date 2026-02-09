@@ -1,0 +1,1816 @@
+{
+  "Incident": {
+    "Network Connection Issues": {
+      "Hardware & Connectivity": {
+        "Network": {
+          "Network Port": [
+            {
+              "issue": "Remote desktop not working due to network port connectivity issue",
+              "bot_solution": "1. Please check if your network cable is securely connected to the port.\n2. Try unplugging and reconnecting the cable.\n3. If the issue persists, restart your laptop and check if the network port LED is blinking.\n4. Contact Site IT if the port appears to be physically damaged."
+            },
+            {
+              "issue": "Network port not detecting connection",
+              "bot_solution": "1. Please try using a different network cable to rule out cable issues.\n2. Check if the network port LED lights up when the cable is connected.\n3. If not, try connecting to a different network port nearby.\n4. Restart your device and check network settings."
+            },
+            {
+              "issue": "Intermittent network disconnection from port",
+              "bot_solution": "1. Please ensure the network cable is firmly seated in the port.\n2. Check for any visible damage to the cable or port.\n3. Try moving to a different workstation to test.\n4. If the issue continues, the port may need inspection by Site IT."
+            },
+            {
+              "issue": "LAN connection not establishing through network port",
+              "bot_solution": "1. Please verify the network cable is properly connected at both ends.\n2. Check if your network adapter is enabled in Device Manager.\n3. Run network troubleshooter from Settings > Network & Internet > Status.\n4. Restart your computer if the issue persists."
+            },
+            {
+              "issue": "Network port showing no activity",
+              "bot_solution": "1. Please check if the network cable is functional by testing with another device.\n2. Verify the port LED indicators - no lights may indicate a port or cable issue.\n3. Try a different network port in your area.\n4. Contact Site IT if the port needs replacement."
+            }
+          ],
+          "Zoom Phone": [
+            {
+              "issue": "VoIP phone hardware not working",
+              "bot_solution": "1. Please check if the VoIP phone is properly connected to power and network.\n2. Restart the phone by unplugging and reconnecting it.\n3. Verify the network cable connection.\n4. If the phone still doesn't work, it may need hardware replacement - contact Site IT."
+            },
+            {
+              "issue": "Zoom Phone not connecting to network",
+              "bot_solution": "1. Please ensure your Zoom Phone is connected to the network port with an ethernet cable.\n2. Check if the phone displays any error messages.\n3. Restart the phone and wait for it to boot completely.\n4. Verify your network connection is active."
+            },
+            {
+              "issue": "No dial tone on VoIP phone",
+              "bot_solution": "1. Please check if the phone is powered on and connected to the network.\n2. Verify the handset cord is properly connected.\n3. Restart the phone by unplugging power for 30 seconds.\n4. If the issue persists, the phone may need reconfiguration or replacement."
+            },
+            {
+              "issue": "Zoom Phone audio quality issues",
+              "bot_solution": "1. Please check your network connection stability.\n2. Ensure the phone is connected via wired ethernet, not WiFi.\n3. Close bandwidth-intensive applications on your computer.\n4. Restart the phone and test audio quality again."
+            },
+            {
+              "issue": "VoIP phone displaying error message",
+              "bot_solution": "1. Please note the error message displayed on screen.\n2. Restart the phone by unplugging power for 30 seconds.\n3. Check network cable connections.\n4. If the error persists after restart, contact Site IT with the error details for further assistance."
+            }
+          ]
+        }
+      }
+    },
+    "Operating System Issues": {
+      "Applications & Software": {
+        "Windows 10": {
+          "Disk Drive Space Problems": [
+            {
+              "issue": "Laptop storage is full and system hanging",
+              "bot_solution": "1. Please clear temporary files by typing %temp% in Run dialog and deleting all files.\n2. Empty your Recycle Bin.\n3. Run Disk Cleanup from Start menu.\n4. Consider moving large files to cloud storage like Box.\n5. Clear browser cache and old downloads."
+            },
+            {
+              "issue": "C drive disk space running low",
+              "bot_solution": "1. Please run Disk Cleanup utility from Start menu.\n2. Delete temporary files from C:\\Windows\\Temp folder.\n3. Clear your Downloads folder of unnecessary files.\n4. Uninstall unused applications from Control Panel.\n5. Move personal files to cloud storage."
+            },
+            {
+              "issue": "Excel not working due to insufficient disk space",
+              "bot_solution": "1. Please free up disk space by clearing temporary files.\n2. Type %temp% in Run dialog and delete files.\n3. Clear Outlook OST cache if it's large.\n4. Empty Recycle Bin.\n5. Restart Excel after freeing up at least 2GB of space."
+            },
+            {
+              "issue": "System slow due to low storage",
+              "bot_solution": "1. Please clear disk space by removing temporary files and cache.\n2. Run Disk Cleanup and select all categories.\n3. Delete old software distribution files from C:\\Windows\\SoftwareDistribution\\Download.\n4. Consider archiving old files to Box."
+            },
+            {
+              "issue": "Unable to save files due to disk full error",
+              "bot_solution": "1. Please immediately free up space by emptying Recycle Bin.\n2. Delete temporary files using Disk Cleanup.\n3. Move large files like videos or downloads to external storage or Box.\n4. Check for large Outlook OST files that can be compacted."
+            }
+          ],
+          "Domain Problem": [
+            {
+              "issue": "Unable to login - domain not available error",
+              "bot_solution": "1. Please restart your laptop and try logging in again.\n2. Ensure you're connected to the office network or VPN.\n3. If the error persists, your laptop may need to be rejoined to the domain - contact Site IT for assistance."
+            },
+            {
+              "issue": "Trust relationship error preventing login",
+              "bot_solution": "1. Please restart your computer and attempt to log in with cached credentials.\n2. Connect to the office network or VPN.\n3. This error typically requires the laptop to be rejoined to the domain - please contact Site IT for assistance."
+            },
+            {
+              "issue": "Cannot sign in with domain credentials",
+              "bot_solution": "1. Please verify you're entering the correct username and password.\n2. Ensure Caps Lock is off.\n3. Check if you're connected to the corporate network.\n4. Try restarting your laptop.\n5. If the issue continues, the device may need domain rejoin."
+            },
+            {
+              "issue": "Domain authentication failing",
+              "bot_solution": "1. Please ensure your network connection is active.\n2. Restart your computer and try again.\n3. Verify your password hasn't expired by checking on another device.\n4. If you recently changed your password, use the new one."
+            },
+            {
+              "issue": "Laptop showing domain unavailable message",
+              "bot_solution": "1. Please check your network connectivity first.\n2. Restart your laptop and try logging in.\n3. If working remotely, connect to VPN before logging in.\n4. This issue may require domain rejoin - please visit Site IT with your laptop."
+            }
+          ],
+          "Driver Issue": [
+            {
+              "issue": "Audio not working on laptop",
+              "bot_solution": "1. Please restart your laptop first.\n2. Check if audio is muted in system tray.\n3. Go to Device Manager, expand Sound controllers, right-click the audio device and select 'Update driver'.\n4. If the issue persists, try uninstalling and reinstalling the audio driver."
+            },
+            {
+              "issue": "Laptop slowness and hanging due to outdated drivers",
+              "bot_solution": "1. Please restart your laptop.\n2. Open Device Manager and check for any devices with yellow warning icons.\n3. Update BIOS and chipset drivers from the manufacturer's website.\n4. Allow Windows Update to install pending driver updates."
+            },
+            {
+              "issue": "WiFi not working - driver issue",
+              "bot_solution": "1. Please check if WiFi is enabled using the keyboard shortcut (usually Fn+F2 or similar).\n2. Go to Device Manager, expand Network adapters, right-click WiFi adapter and select 'Update driver'.\n3. Restart your laptop after the update."
+            },
+            {
+              "issue": "Screen brightness control not working",
+              "bot_solution": "1. Please update your display/graphics driver.\n2. Go to Device Manager, expand Display adapters, right-click and select 'Update driver'.\n3. Also check BIOS settings and update BIOS if available.\n4. Restart your laptop after updates."
+            },
+            {
+              "issue": "Laptop charging issue - driver related",
+              "bot_solution": "1. Please update your BIOS and chipset drivers.\n2. Go to Device Manager, expand Batteries, right-click 'Microsoft ACPI-Compliant Control Method Battery' and select 'Uninstall'.\n3. Restart your laptop to reinstall the driver automatically."
+            },
+            {
+              "issue": "Speaker not producing sound",
+              "bot_solution": "1. Please check volume levels in system tray.\n2. Go to Device Manager, uninstall audio driver, then restart your laptop to reinstall it.\n3. Run Windows Audio Troubleshooter from Settings > Update & Security > Troubleshoot."
+            }
+          ],
+          "Remote Desktop Connection": [
+            {
+              "issue": "Unable to connect to remote desktop on Citrix",
+              "bot_solution": "1. Please restart your Citrix Workspace application.\n2. Clear Citrix cache by deleting files in %APPDATA%\\ICAClient\\Cache folder.\n3. Ensure you're connected to VPN if working remotely.\n4. Try accessing through web browser if desktop app fails."
+            },
+            {
+              "issue": "Remote desktop showing black screen",
+              "bot_solution": "1. Please close and reopen the Remote Desktop connection.\n2. Try pressing Ctrl+Alt+End to access task manager on remote system.\n3. Check if the remote computer needs restart.\n4. Verify your network connection is stable."
+            },
+            {
+              "issue": "Cannot connect to office system remotely",
+              "bot_solution": "1. Please verify the remote computer is turned on.\n2. Check your VPN connection is active.\n3. Ensure you have the correct IP address or computer name.\n4. Try pinging the remote system.\n5. Contact Site IT if the remote system needs to be powered on."
+            },
+            {
+              "issue": "Remote desktop connection timing out",
+              "bot_solution": "1. Please check your internet connection speed.\n2. Ensure VPN is connected and stable.\n3. Try disconnecting and reconnecting to VPN.\n4. Close bandwidth-heavy applications.\n5. If the remote system is unresponsive, it may need a restart."
+            },
+            {
+              "issue": "Citrix Workspace not launching applications",
+              "bot_solution": "1. Please sign out and sign back into Citrix Workspace.\n2. Clear the Citrix cache folder.\n3. Ensure Citrix Workspace app is updated to the latest version.\n4. Try uninstalling and reinstalling Citrix Workspace if issues persist."
+            }
+          ]
+        },
+        "Windows 11": {
+          "All Configuration issues": [
+            {
+              "issue": "Date and time showing incorrect on system",
+              "bot_solution": "1. Please right-click on the date/time in taskbar and select 'Adjust date/time'.\n2. Enable 'Set time automatically' and 'Set time zone automatically'.\n3. Click 'Sync now' to synchronize with time server.\n4. Restart your computer if needed."
+            },
+            {
+              "issue": "Unable to install Jupyter Notebook in Python",
+              "bot_solution": "1. Please open Command Prompt as Administrator.\n2. Enable long path support by running: reg add 'HKLM\\SYSTEM\\CurrentControlSet\\Control\\FileSystem' /v LongPathsEnabled /t REG_DWORD /d 1.\n3. Restart your computer and try installation again."
+            },
+            {
+              "issue": "System regional settings changed unexpectedly",
+              "bot_solution": "1. Please go to Settings > Time & Language > Language & Region.\n2. Set your preferred region and language.\n3. Check Date & Time settings and select correct time zone.\n4. Restart your computer to apply changes."
+            },
+            {
+              "issue": "Registry settings preventing software installation",
+              "bot_solution": "1. Please contact Site IT for registry modifications as this requires admin privileges.\n2. Provide details of the software you're trying to install and any error messages you're receiving."
+            },
+            {
+              "issue": "Windows configuration causing application errors",
+              "bot_solution": "1. Please run Windows Update to ensure system is current.\n2. Open Command Prompt as admin and run 'sfc /scannow' to check system files.\n3. Restart your computer and test the application again."
+            }
+          ],
+          "Disk Drive Space Problems": [
+            {
+              "issue": "Laptop storage full and system hanging",
+              "bot_solution": "1. Please clear temporary files by typing %temp% in Run and deleting all files.\n2. Clear browser cache and downloads.\n3. Run Disk Cleanup from Start menu.\n4. Empty Recycle Bin.\n5. Consider moving files to Box cloud storage."
+            },
+            {
+              "issue": "Storage full in remote desktop",
+              "bot_solution": "1. Please delete temporary files from the remote system.\n2. Clear the Outlook OST file if it's consuming excessive space.\n3. Remove files from Downloads and Recycle Bin.\n4. Contact Site IT if you need assistance accessing the remote system."
+            },
+            {
+              "issue": "C drive constantly showing full",
+              "bot_solution": "1. Please run Disk Cleanup and select all categories.\n2. Delete files from C:\\Windows\\Temp and %temp% folders.\n3. Clear browser cache.\n4. Remove old Windows Update files from SoftwareDistribution folder.\n5. Move large files to cloud storage."
+            },
+            {
+              "issue": "Cannot save files due to low disk space",
+              "bot_solution": "1. Please immediately empty Recycle Bin to free space.\n2. Delete temporary files using Disk Cleanup.\n3. Move documents and downloads to Box cloud storage.\n4. Uninstall unused applications from Settings > Apps."
+            },
+            {
+              "issue": "System slow due to storage issue",
+              "bot_solution": "1. Please clear all temporary and cache files.\n2. Run Disk Cleanup with system files option.\n3. Delete old Outlook OST files.\n4. Remove unused applications.\n5. Ensure at least 10% of disk space is free for optimal performance."
+            }
+          ],
+          "Display Configuration": [
+            {
+              "issue": "Monitor display automatically turning off",
+              "bot_solution": "1. Please go to Settings > System > Power & battery.\n2. Adjust 'Screen' and 'Sleep' timeout settings to your preference.\n3. Check advanced power settings for display timeout.\n4. Ensure power plan is set to 'Balanced' or 'High Performance'."
+            },
+            {
+              "issue": "Screen going to sleep too quickly",
+              "bot_solution": "1. Please open Settings > System > Power & battery.\n2. Increase the time for 'Turn off screen after' setting.\n3. Check Screen saver settings in Personalization.\n4. Adjust power plan settings in Control Panel if needed."
+            },
+            {
+              "issue": "External monitor not detected",
+              "bot_solution": "1. Please check cable connections between laptop and monitor.\n2. Press Windows+P and select 'Extend' or 'Duplicate'.\n3. Go to Settings > System > Display and click 'Detect'.\n4. Try a different cable or port if available."
+            },
+            {
+              "issue": "Display resolution incorrect",
+              "bot_solution": "1. Please right-click on desktop and select 'Display settings'.\n2. Choose the recommended resolution from the dropdown.\n3. If the correct resolution isn't available, update your graphics driver from Device Manager."
+            },
+            {
+              "issue": "Screen brightness changing automatically",
+              "bot_solution": "1. Please go to Settings > System > Display.\n2. Turn off 'Change brightness automatically when lighting changes'.\n3. Also check Graphics Control Panel for adaptive brightness settings.\n4. Update display drivers if needed."
+            }
+          ],
+          "Domain Problems": [
+            {
+              "issue": "Trust relationship error preventing system login",
+              "bot_solution": "1. Please restart your computer and try logging in with cached credentials.\n2. Connect to the corporate network.\n3. This error requires the laptop to be rejoined to the domain with a new name - please contact Site IT for assistance."
+            },
+            {
+              "issue": "User locked out of system due to domain issue",
+              "bot_solution": "1. Please ensure you're connected to the office network or VPN.\n2. Try restarting your computer.\n3. If you can log in with cached credentials, contact Site IT to rejoin the laptop to the domain."
+            },
+            {
+              "issue": "Domain credentials not being accepted",
+              "bot_solution": "1. Please verify your password is correct and not expired.\n2. Check Caps Lock is off.\n3. Ensure network connectivity to domain controller.\n4. Restart your computer.\n5. If the issue persists, domain rejoin may be required."
+            },
+            {
+              "issue": "Cannot access domain resources",
+              "bot_solution": "1. Please verify your network connection is active.\n2. Try mapping network drives manually.\n3. Check if your domain account is locked by contacting IT.\n4. Restart your computer and reconnect to the network."
+            },
+            {
+              "issue": "Domain authentication timing out",
+              "bot_solution": "1. Please check your network connection speed.\n2. Restart your computer and ensure you're connected before logging in.\n3. If working remotely, connect to VPN first.\n4. Contact Site IT if the issue continues."
+            }
+          ],
+          "Driver Issue": [
+            {
+              "issue": "Audio not working in Zoom/Teams calls",
+              "bot_solution": "1. Please update your audio driver from Device Manager.\n2. Right-click the audio device under Sound controllers and select 'Update driver'.\n3. Check Zoom/Teams audio settings to ensure correct device is selected.\n4. Restart the application."
+            },
+            {
+              "issue": "WiFi not connecting or disabled",
+              "bot_solution": "1. Please check if WiFi is enabled in Settings > Network & Internet > WiFi.\n2. Update WiFi driver from Device Manager.\n3. Run network troubleshooter from Settings.\n4. Restart your laptop after driver update."
+            },
+            {
+              "issue": "Touchpad not working properly",
+              "bot_solution": "1. Please check if touchpad is enabled (often Fn+F7 or similar key).\n2. Go to Settings > Bluetooth & devices > Touchpad to verify settings.\n3. Update touchpad driver from Device Manager.\n4. Restart your laptop."
+            },
+            {
+              "issue": "USB ports not working",
+              "bot_solution": "1. Please try different USB ports on your laptop.\n2. Go to Device Manager, expand Universal Serial Bus controllers, and update all USB drivers.\n3. Uninstall USB Root Hub drivers and restart to reinstall them automatically."
+            },
+            {
+              "issue": "Bluetooth device not connecting",
+              "bot_solution": "1. Please ensure Bluetooth is enabled in Settings > Bluetooth & devices.\n2. Update Bluetooth driver from Device Manager.\n3. Remove the device and pair it again.\n4. Restart Bluetooth service from Services.msc."
+            },
+            {
+              "issue": "Laptop automatically restarting - driver issue",
+              "bot_solution": "1. Please update BIOS and graphics drivers to the latest version.\n2. Check Device Manager for any devices with warning icons.\n3. Run Windows Update for latest driver updates.\n4. Check Event Viewer for crash details."
+            }
+          ],
+          "File Registration": [
+            {
+              "issue": "QuanTM file not working - OCX registration needed",
+              "bot_solution": "1. Please contact Site IT to register the OCX file.\n2. This requires administrator privileges.\n3. Provide the application name and error message to Site IT for proper file registration."
+            },
+            {
+              "issue": "Excel add-in not working due to registration issue",
+              "bot_solution": "1. Please check if the add-in is enabled in Excel Options > Add-ins.\n2. If it shows as inactive, try re-enabling it.\n3. DNS suffix may need to be added to network properties - contact Site IT for assistance."
+            },
+            {
+              "issue": "Application showing DLL registration error",
+              "bot_solution": "1. Please note the exact error message and DLL file name.\n2. Contact Site IT as DLL registration requires administrator privileges.\n3. Provide application name and error details for faster resolution."
+            },
+            {
+              "issue": "COM object registration failure",
+              "bot_solution": "1. Please try repairing the application from Control Panel > Programs > Programs and Features.\n2. Right-click the application and select 'Repair'.\n3. If the issue persists, reinstallation may be required with admin assistance."
+            },
+            {
+              "issue": "ActiveX component registration required",
+              "bot_solution": "1. Please contact Site IT for ActiveX component registration as this requires administrator access.\n2. Provide the application name and specific error message for proper troubleshooting."
+            }
+          ],
+          "Folder Permission Problems": [
+            {
+              "issue": "Cannot access shared folder - network error",
+              "bot_solution": "1. Please verify you have access permissions for the folder.\n2. Check if DNS suffix is configured in network adapter properties.\n3. Try accessing the folder using the full path.\n4. Contact the folder owner to verify your access rights."
+            },
+            {
+              "issue": "Shared drive not accessible",
+              "bot_solution": "1. Please ensure you're connected to the corporate network or VPN.\n2. Try mapping the drive manually using the full network path.\n3. Check your access permissions with the folder owner.\n4. Restart File Explorer."
+            },
+            {
+              "issue": "Access denied to network folder",
+              "bot_solution": "1. Please verify you have been granted access to this folder.\n2. Contact the folder owner to confirm your permissions.\n3. If you recently changed your password, disconnect and reconnect to the network share."
+            },
+            {
+              "issue": "Cannot save files to shared location",
+              "bot_solution": "1. Please check if you have write permissions to the folder.\n2. Try saving to a different location first.\n3. Contact the folder owner to verify your permission level.\n4. Check if the folder has available storage space."
+            },
+            {
+              "issue": "Folder showing inaccessible after network change",
+              "bot_solution": "1. Please disconnect any mapped drives and reconnect them.\n2. Restart File Explorer.\n3. Ensure DNS suffix is properly configured.\n4. Try accessing the folder using IP address instead of hostname."
+            }
+          ],
+          "Group Policy problems": [
+            {
+              "issue": "Unable to access system features due to Group Policy",
+              "bot_solution": "1. Please note the specific error message mentioning Group Policy restrictions.\n2. This requires IT admin intervention.\n3. Contact Site IT with the exact error message and what you were trying to access."
+            },
+            {
+              "issue": "Software installation blocked by Group Policy",
+              "bot_solution": "1. Please contact Site IT for software installation as Group Policy restricts user installations.\n2. Provide the software name and business justification for the installation request."
+            },
+            {
+              "issue": "Settings greyed out due to policy restrictions",
+              "bot_solution": "1. Please note which settings you cannot modify.\n2. These are restricted by corporate Group Policy for security.\n3. Contact Site IT if you have a business need to modify these settings."
+            },
+            {
+              "issue": "Cannot change password due to policy",
+              "bot_solution": "1. Please ensure your new password meets complexity requirements: minimum 8 characters, uppercase, lowercase, numbers, and special characters.\n2. Don't reuse recent passwords.\n3. Contact IT if you need the specific password policy requirements."
+            },
+            {
+              "issue": "USB devices blocked by policy",
+              "bot_solution": "1. Please note that USB storage devices may be blocked by security policy.\n2. Contact Site IT with your business justification if you need USB access.\n3. Alternative options include Box cloud storage for file transfers."
+            }
+          ],
+          "Network Share": [
+            {
+              "issue": "Cannot access network share after password change",
+              "bot_solution": "1. Please open Credential Manager from Control Panel.\n2. Remove old credentials for the network share.\n3. Try accessing the share again and enter your new password when prompted.\n4. Select 'Remember my credentials'."
+            },
+            {
+              "issue": "Network share disconnecting frequently",
+              "bot_solution": "1. Please check your network connection stability.\n2. Go to network adapter settings and disable power management for the network adapter.\n3. Map the drive with 'Reconnect at sign-in' option enabled."
+            },
+            {
+              "issue": "Unable to map network drive",
+              "bot_solution": "1. Please ensure you're connected to the corporate network.\n2. Use the full UNC path (\\\\server\\share) to map the drive.\n3. Check if network discovery is enabled.\n4. Verify you have access permissions for the share."
+            },
+            {
+              "issue": "Network share showing offline",
+              "bot_solution": "1. Please check your network connection.\n2. Restart File Explorer from Task Manager.\n3. Disconnect and reconnect VPN if working remotely.\n4. Right-click the drive and select 'Disconnect' then remap it."
+            },
+            {
+              "issue": "Slow access to network shares",
+              "bot_solution": "1. Please check your network connection speed.\n2. Close unnecessary applications using network resources.\n3. Disable offline files sync for the share if not needed.\n4. Contact Site IT if the issue persists across multiple shares."
+            }
+          ],
+          "OS related Issue": [
+            {
+              "issue": "Windows automatic restart due to updates",
+              "bot_solution": "1. Please go to Settings > Windows Update > Advanced options.\n2. Set 'Active hours' for when you use your computer.\n3. Enable 'Notify me when a restart is required'.\n4. Save your work frequently during update periods."
+            },
+            {
+              "issue": "System hanging frequently",
+              "bot_solution": "1. Please check Task Manager for high CPU or memory usage.\n2. Close unnecessary applications.\n3. Run Windows Update for latest fixes.\n4. Check disk space and clear temporary files.\n5. Restart your computer regularly."
+            },
+            {
+              "issue": "Blue screen error occurring",
+              "bot_solution": "1. Please note the error code shown on the blue screen.\n2. Restart your computer and check for Windows Updates.\n3. Update all drivers from Device Manager.\n4. If the issue recurs, contact Site IT with the error code."
+            },
+            {
+              "issue": "System slow after Windows Update",
+              "bot_solution": "1. Please restart your computer after updates complete.\n2. Run Disk Cleanup to remove old update files.\n3. Check for additional pending updates.\n4. Allow system to complete background optimization (may take 24-48 hours)."
+            },
+            {
+              "issue": "Windows features not working properly",
+              "bot_solution": "1. Please run System File Checker by opening Command Prompt as admin and typing 'sfc /scannow'.\n2. Restart your computer.\n3. If the issue persists, try running DISM /Online /Cleanup-Image /RestoreHealth command."
+            }
+          ],
+          "Remote Desktop Connection": [
+            {
+              "issue": "Unable to connect to remote desktop",
+              "bot_solution": "1. Please verify you're connected to VPN if working remotely.\n2. Check the remote computer name or IP address is correct.\n3. Ensure remote desktop is enabled on the target computer.\n4. Contact Site IT if you don't have remote access permissions."
+            },
+            {
+              "issue": "Remote desktop showing black screen",
+              "bot_solution": "1. Please try pressing Ctrl+Alt+End on the remote session.\n2. Disconnect and reconnect to the remote desktop.\n3. Check your display settings in Remote Desktop Connection options.\n4. Try connecting with lower color depth."
+            },
+            {
+              "issue": "Remote desktop disconnecting frequently",
+              "bot_solution": "1. Please check your internet connection stability.\n2. Adjust Remote Desktop settings to reduce bandwidth (lower resolution, disable visual effects).\n3. Check if the remote computer is going to sleep.\n4. Update Remote Desktop client."
+            },
+            {
+              "issue": "Cannot copy files to remote desktop",
+              "bot_solution": "1. Please check clipboard redirection settings in Remote Desktop Connection > Local Resources tab.\n2. Enable 'Clipboard' and 'Drives' options.\n3. Reconnect to the remote session.\n4. Try copying smaller files first."
+            },
+            {
+              "issue": "Audio not working in remote desktop",
+              "bot_solution": "1. Please open Remote Desktop Connection options.\n2. Go to Local Resources tab and click 'Settings' under Remote audio.\n3. Select 'Play on this computer'.\n4. Reconnect to the remote session."
+            }
+          ],
+          "System Performance Problems": [
+            {
+              "issue": "Laptop running very slow",
+              "bot_solution": "1. Please check Task Manager for high CPU/memory usage.\n2. Close unnecessary applications and browser tabs.\n3. Clear temporary files and restart your computer.\n4. Ensure disk has at least 10% free space.\n5. Run Windows Update."
+            },
+            {
+              "issue": "System hanging during startup",
+              "bot_solution": "1. Please wait for system to fully load before opening applications.\n2. Disable unnecessary startup programs from Task Manager > Startup tab.\n3. Run Disk Cleanup and restart.\n4. Check for Windows Updates."
+            },
+            {
+              "issue": "High CPU usage slowing system",
+              "bot_solution": "1. Please open Task Manager and identify which process is using high CPU.\n2. End unnecessary processes.\n3. Check for Windows Updates and malware scans.\n4. Restart your computer if Antivirus scan is consuming resources."
+            },
+            {
+              "issue": "Computer freezing randomly",
+              "bot_solution": "1. Please check Task Manager when freezing occurs.\n2. Update graphics and other drivers.\n3. Run System File Checker (sfc /scannow).\n4. Check disk health using CHKDSK.\n5. Ensure adequate cooling and ventilation."
+            },
+            {
+              "issue": "Applications taking long time to open",
+              "bot_solution": "1. Please check available disk space and free up if needed.\n2. Reduce startup programs.\n3. Ensure system has completed Windows Update installation.\n4. Consider closing browser tabs and other memory-heavy applications."
+            }
+          ],
+          "User Profile Problems": [
+            {
+              "issue": "New user profile created after system issues",
+              "bot_solution": "1. Please backup your data from the old profile folder (C:\\Users\\OldProfile).\n2. Contact Site IT to transfer settings and data to the new profile.\n3. Some application-specific settings may need to be reconfigured."
+            },
+            {
+              "issue": "Temporary profile loading at login",
+              "bot_solution": "1. Please restart your computer and try logging in again.\n2. If temporary profile persists, contact Site IT as this requires registry fixes.\n3. Your files may be in a different profile folder temporarily."
+            },
+            {
+              "issue": "User profile corrupted",
+              "bot_solution": "1. Please contact Site IT for profile repair.\n2. Do not delete the existing profile folder.\n3. IT will need to create a new profile and migrate your data.\n4. Backup any accessible files to Box cloud storage."
+            },
+            {
+              "issue": "Cannot access files from old profile",
+              "bot_solution": "1. Please check if old profile folder exists in C:\\Users.\n2. You may need admin rights to access another profile's files.\n3. Contact Site IT to transfer ownership of files or copy them to your new profile."
+            },
+            {
+              "issue": "Outlook data not available after profile change",
+              "bot_solution": "1. Please reconfigure Outlook with your email account.\n2. Previous emails should sync from the server.\n3. For PST files, locate them in old profile folder and import them.\n4. Contact Site IT for assistance with file access."
+            }
+          ],
+          "Windows Patch Issue": [
+            {
+              "issue": "Windows Update stuck or failing",
+              "bot_solution": "1. Please restart your computer and try Windows Update again.\n2. If stuck, run Windows Update Troubleshooter from Settings > System > Troubleshoot.\n3. Clear update cache by stopping Windows Update service and deleting SoftwareDistribution folder contents."
+            },
+            {
+              "issue": "System unstable after Windows Update",
+              "bot_solution": "1. Please go to Settings > Windows Update > Update history > Uninstall updates.\n2. Remove the most recent update causing issues.\n3. Restart your computer.\n4. Report the problematic update to Site IT."
+            },
+            {
+              "issue": "Updates not installing for long time",
+              "bot_solution": "1. Please ensure your computer has adequate disk space.\n2. Keep laptop plugged in and connected to network.\n3. Let updates run overnight if needed.\n4. Run Windows Update Troubleshooter if updates consistently fail."
+            },
+            {
+              "issue": "Mandatory security update required",
+              "bot_solution": "1. Please save your work and allow Windows Update to install.\n2. Go to Settings > Windows Update and click 'Download & install'.\n3. Restart when prompted.\n4. Do not postpone security updates as they protect your system."
+            },
+            {
+              "issue": "Application not working after Windows Update",
+              "bot_solution": "1. Please check for updates for the affected application.\n2. Try repairing the application from Control Panel > Programs.\n3. If the issue persists, the problematic Windows Update may need to be uninstalled by Site IT."
+            }
+          ],
+          "Windows Services": [
+            {
+              "issue": "Print Spooler service not running",
+              "bot_solution": "1. Please open Services (services.msc).\n2. Find Print Spooler, right-click and select 'Restart'.\n3. If it fails, stop the service, clear files in C:\\Windows\\System32\\spool\\PRINTERS, then start the service again."
+            },
+            {
+              "issue": "Windows Search not working",
+              "bot_solution": "1. Please restart the Windows Search service from Services.msc.\n2. Rebuild the search index from Settings > Privacy & security > Searching Windows > Advanced indexing options > Rebuild.\n3. This may take several hours."
+            },
+            {
+              "issue": "Audio service not starting",
+              "bot_solution": "1. Please open Services.msc and find Windows Audio service.\n2. Ensure it's set to Automatic and click Start.\n3. Also check Windows Audio Endpoint Builder service.\n4. Restart your computer if services won't start."
+            },
+            {
+              "issue": "Background services consuming resources",
+              "bot_solution": "1. Please check Task Manager > Details tab to identify high-usage services.\n2. Some services are essential for Windows operation.\n3. Contact Site IT before disabling any services to avoid system issues."
+            },
+            {
+              "issue": "Service failed to start error at login",
+              "bot_solution": "1. Please note the service name in the error message.\n2. Try restarting your computer.\n3. Check Event Viewer for detailed error information.\n4. Contact Site IT with the service name and error details for resolution."
+            }
+          ]
+        }
+      }
+    },
+    "PC / Laptop / Peripherals / Accessories Issues": {
+      "Applications & Software": {
+        "Biometric": {
+          "Biometric App Related Problem": [
+            {
+              "issue": "Unable to access biometric attendance application",
+              "bot_solution": "1. Please clear your browser cache and cookies.\n2. Try accessing the biometric application in incognito mode.\n3. Check if you're connected to the corporate network.\n4. Verify your login credentials are correct."
+            },
+            {
+              "issue": "Biometric device not recognizing fingerprint",
+              "bot_solution": "1. Please clean the fingerprint scanner with a soft dry cloth.\n2. Ensure your finger is dry and placed correctly on the scanner.\n3. Try registering a different finger.\n4. Check Device Manager for driver issues."
+            },
+            {
+              "issue": "Biometric software not launching",
+              "bot_solution": "1. Please restart your computer and try again.\n2. Check if the biometric service is running in Services.msc.\n3. Verify the software is properly installed.\n4. Contact Site IT for software reinstallation if needed."
+            },
+            {
+              "issue": "Attendance not recorded in biometric system",
+              "bot_solution": "1. Please verify your punch was registered on the device (usually shows confirmation).\n2. Check your attendance records after a few minutes as sync may be delayed.\n3. Contact HR or Site IT if attendance is still missing."
+            },
+            {
+              "issue": "Biometric login taking too long",
+              "bot_solution": "1. Please clean the scanner surface.\n2. Try re-enrolling your fingerprint in Windows Hello settings.\n3. Update biometric drivers from Device Manager.\n4. Restart the Windows Biometric Service from Services.msc."
+            }
+          ]
+        },
+        "Laptop/ Desktop": {
+          "Active Directory": [
+            {
+              "issue": "Account locked out - cannot login",
+              "bot_solution": "1. Please wait 30 minutes for automatic unlock or contact Site IT for immediate unlock.\n2. Verify you're using the correct password.\n3. Check Caps Lock is off.\n4. After unlock, change your password if you suspect it was compromised."
+            },
+            {
+              "issue": "AD account not syncing with applications",
+              "bot_solution": "1. Please log out and log back in to refresh your credentials.\n2. Restart your computer if the issue persists.\n3. Check if your account has the required group memberships.\n4. Contact Site IT for account verification."
+            },
+            {
+              "issue": "Password expired - cannot access system",
+              "bot_solution": "1. Please change your password using Ctrl+Alt+Delete > Change Password.\n2. If you cannot log in, access the password change portal from another device or contact Site IT for a temporary password."
+            },
+            {
+              "issue": "New employee - AD account setup needed",
+              "bot_solution": "1. Please contact your manager to verify the account creation request was submitted to IT.\n2. Account creation typically takes 1-2 business days.\n3. Check with HR if your onboarding process is complete."
+            },
+            {
+              "issue": "Cannot access resources with AD credentials",
+              "bot_solution": "1. Please verify your account is not locked or expired.\n2. Try logging out and back in.\n3. Check if you have the required permissions for the resource.\n4. Contact the resource owner to verify your access rights."
+            }
+          ],
+          "Adobe Reader": [
+            {
+              "issue": "Adobe Reader not opening PDF files",
+              "bot_solution": "1. Please try right-clicking the PDF and selecting Open with > Adobe Reader.\n2. If that fails, repair Adobe Reader from Control Panel > Programs > Programs and Features.\n3. Clear Adobe Reader cache and restart the application."
+            },
+            {
+              "issue": "Adobe Reader crashing when opening documents",
+              "bot_solution": "1. Please close Adobe Reader and end any Adobe processes in Task Manager.\n2. Disable Protected Mode in Edit > Preferences > Security (Enhanced).\n3. Update Adobe Reader to the latest version."
+            },
+            {
+              "issue": "Cannot print from Adobe Reader",
+              "bot_solution": "1. Please try 'Print as Image' option in print dialog.\n2. Check if you can print from other applications.\n3. Update your printer driver.\n4. Clear print queue and restart Print Spooler service."
+            },
+            {
+              "issue": "PDF forms not filling correctly",
+              "bot_solution": "1. Please ensure you're using Adobe Reader (not browser PDF viewer) to fill forms.\n2. Check if the form is an actual fillable PDF.\n3. Enable form editing in Edit > Preferences > Forms.\n4. Try saving locally before filling."
+            },
+            {
+              "issue": "Adobe Reader showing security warning",
+              "bot_solution": "1. Please click 'Enable All Features' if you trust the document source.\n2. For trusted internal documents, add the source to trusted locations in Preferences > Security (Enhanced).\n3. Contact Site IT if warnings persist."
+            }
+          ],
+          "Agile": [
+            {
+              "issue": "Unable to access Agile application",
+              "bot_solution": "1. Please clear your browser cache and try accessing in a different browser.\n2. Verify you have the required access permissions.\n3. Check if the Agile server is accessible by contacting Site IT."
+            },
+            {
+              "issue": "Agile running slowly",
+              "bot_solution": "1. Please close unnecessary browser tabs and applications.\n2. Clear browser cache.\n3. Check your network connection speed.\n4. Try during off-peak hours if the system is experiencing high load."
+            },
+            {
+              "issue": "Cannot download files from Agile",
+              "bot_solution": "1. Please check your browser's download settings and popup blocker.\n2. Try a different browser.\n3. Verify you have download permissions for the file.\n4. Check if there's sufficient disk space."
+            },
+            {
+              "issue": "Agile session timing out quickly",
+              "bot_solution": "1. Please save your work frequently.\n2. Keep the browser tab active.\n3. Check with Site IT about session timeout settings.\n4. Consider using 'Keep me logged in' option if available."
+            },
+            {
+              "issue": "Error uploading documents to Agile",
+              "bot_solution": "1. Please check the file size doesn't exceed limits.\n2. Verify the file format is supported.\n3. Try renaming the file without special characters.\n4. Clear browser cache and try again."
+            }
+          ],
+          "BAAN Application": [
+            {
+              "issue": "BAAN application not launching",
+              "bot_solution": "1. Please restart your computer and try again.\n2. Check if Java is properly installed and updated.\n3. Clear BAAN cache files.\n4. Verify your network connection to the BAAN server.\n5. Contact Site IT for application repair."
+            },
+            {
+              "issue": "BAAN error when processing transactions",
+              "bot_solution": "1. Please note the exact error code and message.\n2. Try the transaction again after a few minutes.\n3. Check if other users are experiencing the same issue.\n4. Contact Site IT with the error details."
+            },
+            {
+              "issue": "BAAN running very slowly",
+              "bot_solution": "1. Please close other applications to free up memory.\n2. Check your network connection.\n3. Clear BAAN temporary files.\n4. Try during off-peak hours.\n5. Contact Site IT if performance issues persist."
+            },
+            {
+              "issue": "Cannot print from BAAN",
+              "bot_solution": "1. Please verify your default printer is set correctly.\n2. Check BAAN printer configuration settings.\n3. Try printing to PDF first.\n4. Restart Print Spooler service.\n5. Contact Site IT for printer mapping issues."
+            },
+            {
+              "issue": "BAAN session disconnecting",
+              "bot_solution": "1. Please check your network connection stability.\n2. Don't let your computer go to sleep during BAAN sessions.\n3. Save work frequently.\n4. Contact Site IT if disconnections occur regularly."
+            }
+          ],
+          "Bitlocker Encryption": [
+            {
+              "issue": "Bitlocker asking for recovery key at startup",
+              "bot_solution": "1. Please enter the 48-digit recovery key if you have it saved.\n2. Check your Microsoft account for recovery key backup.\n3. Contact Site IT with your computer name to retrieve the recovery key from Active Directory."
+            },
+            {
+              "issue": "Bitlocker encryption failed to complete",
+              "bot_solution": "1. Please ensure the laptop is plugged in and connected to power.\n2. Check available disk space.\n3. Run CHKDSK to fix disk errors.\n4. Contact Site IT to restart the encryption process if needed."
+            },
+            {
+              "issue": "Cannot access encrypted drive",
+              "bot_solution": "1. Please try unlocking with your password first.\n2. If password fails, use the recovery key.\n3. Check if the drive letter has changed.\n4. Contact Site IT with the drive details for assistance."
+            },
+            {
+              "issue": "Bitlocker slowing down system",
+              "bot_solution": "1. Please note that some performance impact is normal with encryption.\n2. Ensure Windows is up to date.\n3. Check disk health using CHKDSK.\n4. Contact Site IT if performance degradation is severe."
+            },
+            {
+              "issue": "Need to disable Bitlocker temporarily",
+              "bot_solution": "1. Please contact Site IT for Bitlocker management.\n2. Encryption policies are managed centrally for security.\n3. IT can assist with temporary suspension if there's a valid business requirement."
+            }
+          ],
+          "Box": [
+            {
+              "issue": "Box Drive not syncing files",
+              "bot_solution": "1. Please check your internet connection.\n2. Right-click Box Drive icon in system tray and select 'Sync Now'.\n3. Check if the file is too large for sync.\n4. Restart Box Drive application.\n5. Clear Box Drive cache if needed."
+            },
+            {
+              "issue": "Cannot upload files to Box",
+              "bot_solution": "1. Please check if you have upload permissions for the folder.\n2. Verify file size doesn't exceed limits (15GB).\n3. Check available Box storage quota.\n4. Try uploading through web browser as alternative."
+            },
+            {
+              "issue": "Box showing sync errors",
+              "bot_solution": "1. Please check the specific error in Box Drive settings.\n2. Common causes include file name conflicts, permissions issues, or network problems.\n3. Rename files with special characters.\n4. Restart Box Drive."
+            },
+            {
+              "issue": "Cannot access Box folder shared with me",
+              "bot_solution": "1. Please check your Box notifications for the share invitation.\n2. Accept the invitation if pending.\n3. Verify with the folder owner that sharing was completed.\n4. Try accessing via Box website first."
+            },
+            {
+              "issue": "Box Drive consuming too much disk space",
+              "bot_solution": "1. Please open Box Drive settings and enable 'Streaming' mode instead of 'Download'.\n2. Select specific folders to sync locally.\n3. Move less-used files to online-only.\n4. Clear Box Drive cache."
+            }
+          ],
+          "Citrix": [
+            {
+              "issue": "Citrix Workspace not connecting",
+              "bot_solution": "1. Please verify you're connected to VPN if required.\n2. Clear Citrix Workspace cache from Citrix Connection Center.\n3. Check your network connection.\n4. Try accessing through web browser.\n5. Restart Citrix Workspace application."
+            },
+            {
+              "issue": "Citrix session freezing or slow",
+              "bot_solution": "1. Please check your internet connection speed.\n2. Close unnecessary applications in the Citrix session.\n3. Reduce display quality in Citrix settings.\n4. Restart the Citrix session.\n5. Connect to a closer VPN server."
+            },
+            {
+              "issue": "Cannot launch applications in Citrix",
+              "bot_solution": "1. Please try refreshing the Citrix Workspace.\n2. Clear browser cache if using web access.\n3. Verify you have permissions for the application.\n4. Restart Citrix Workspace.\n5. Contact Site IT if specific apps fail."
+            },
+            {
+              "issue": "Printing not working in Citrix",
+              "bot_solution": "1. Please check if your local printer is mapped in the Citrix session.\n2. Go to Citrix Preferences and verify printer redirection is enabled.\n3. Try setting the printer as default in the Citrix session.\n4. Restart the session."
+            },
+            {
+              "issue": "Citrix disconnecting frequently",
+              "bot_solution": "1. Please check your network connection stability.\n2. Adjust session timeout settings in Citrix Preferences.\n3. Keep the session window active.\n4. Contact Site IT if disconnections persist to check server-side settings."
+            }
+          ],
+          "Desktop Application": [
+            {
+              "issue": "Application not responding",
+              "bot_solution": "1. Please wait a moment for the application to respond.\n2. If it remains frozen, open Task Manager (Ctrl+Shift+Esc), select the application, and click 'End task'.\n3. Restart the application.\n4. Check for application updates."
+            },
+            {
+              "issue": "Application crashing on startup",
+              "bot_solution": "1. Please try running the application as administrator (right-click > Run as administrator).\n2. Update the application to latest version.\n3. Repair the application from Control Panel.\n4. Check Event Viewer for crash details."
+            },
+            {
+              "issue": "Application not installing correctly",
+              "bot_solution": "1. Please ensure you have administrator rights for installation.\n2. Temporarily disable antivirus during installation.\n3. Check available disk space.\n4. Run installer in compatibility mode if needed.\n5. Contact Site IT for admin installation."
+            },
+            {
+              "issue": "Application compatibility issues with Windows 11",
+              "bot_solution": "1. Please try running in compatibility mode (right-click > Properties > Compatibility).\n2. Check for Windows 11 compatible version of the application.\n3. Contact the application vendor or Site IT for alternatives."
+            },
+            {
+              "issue": "Desktop shortcuts not working",
+              "bot_solution": "1. Please verify the application is still installed.\n2. Right-click the shortcut and check the target path.\n3. Recreate the shortcut from Start menu.\n4. If the application was moved or uninstalled, reinstall it."
+            }
+          ],
+          "Desktop Shortcuts": [
+            {
+              "issue": "Shortcut showing 'Target not found'",
+              "bot_solution": "1. Please verify the application still exists at the shortcut's target location.\n2. The application may have been moved or uninstalled.\n3. Delete the broken shortcut and create a new one from Start menu or installation folder."
+            },
+            {
+              "issue": "Desktop icons rearranging after restart",
+              "bot_solution": "1. Please right-click desktop > View > uncheck 'Auto arrange icons'.\n2. Check display resolution hasn't changed.\n3. Disable 'Align icons to grid' option.\n4. Ensure icon cache isn't corrupted by running ie4uinit.exe -show."
+            },
+            {
+              "issue": "Cannot create shortcuts on desktop",
+              "bot_solution": "1. Please check if your desktop is redirected to a network location.\n2. Verify you have write permissions to the desktop folder.\n3. Try creating shortcuts in a different location first.\n4. Check Group Policy restrictions."
+            },
+            {
+              "issue": "Shortcut icons showing generic icon",
+              "bot_solution": "1. Please rebuild the icon cache by opening Command Prompt and running: ie4uinit.exe -ClearIconCache.\n2. Restart Windows Explorer.\n3. If the issue persists, right-click the shortcut > Properties > Change Icon."
+            },
+            {
+              "issue": "Shortcuts running wrong application",
+              "bot_solution": "1. Please right-click the shortcut and verify the Target path.\n2. The shortcut may point to an old installation.\n3. Delete and recreate the shortcut.\n4. Check for duplicate installations of the application."
+            }
+          ],
+          "Engineering Application": [
+            {
+              "issue": "CAD software not launching",
+              "bot_solution": "1. Please check if the license server is accessible on the network.\n2. Verify your license is valid and not expired.\n3. Run the application as administrator.\n4. Check for pending Windows updates that might affect compatibility."
+            },
+            {
+              "issue": "Engineering application crashing during calculations",
+              "bot_solution": "1. Please ensure adequate RAM is available by closing other applications.\n2. Check if graphics drivers are up to date.\n3. Verify the model or calculation isn't corrupted.\n4. Contact Site IT for application-specific support."
+            },
+            {
+              "issue": "Cannot open engineering files from network",
+              "bot_solution": "1. Please check network connectivity to the file server.\n2. Copy the file locally and try opening.\n3. Verify you have access permissions.\n4. Check if the file format is compatible with your software version."
+            },
+            {
+              "issue": "Engineering software license error",
+              "bot_solution": "1. Please verify you're connected to the corporate network where license server is accessible.\n2. Check if your license hasn't expired.\n3. Contact Site IT for license availability and assignment."
+            },
+            {
+              "issue": "Slow performance in engineering applications",
+              "bot_solution": "1. Please close unnecessary applications to free RAM.\n2. Update graphics drivers.\n3. Check if hardware acceleration is enabled.\n4. Consider working with local copies instead of network files.\n5. Contact Site IT for hardware assessment."
+            }
+          ],
+          "Excel": [
+            {
+              "issue": "Excel file not opening - corrupted",
+              "bot_solution": "1. Please try Open and Repair: Open Excel > File > Open > Browse to file > Click dropdown arrow on Open button > Select 'Open and Repair'.\n2. If that fails, try opening in Safe Mode by holding Ctrl while starting Excel."
+            },
+            {
+              "issue": "Excel crashing when opening files",
+              "bot_solution": "1. Please disable Excel add-ins from File > Options > Add-ins.\n2. Start Excel in Safe Mode (hold Ctrl while opening).\n3. Check for Microsoft Office updates.\n4. Repair Office installation from Control Panel > Programs."
+            },
+            {
+              "issue": "Excel formulas not calculating",
+              "bot_solution": "1. Please check calculation mode: Formulas > Calculation Options > Automatic.\n2. Press Ctrl+Alt+F9 to force recalculation.\n3. Ensure cells aren't formatted as text.\n4. Check for circular references in formulas."
+            },
+            {
+              "issue": "Cannot save Excel file to network location",
+              "bot_solution": "1. Please save the file locally first, then copy to network location.\n2. Check if you have write permissions to the folder.\n3. Verify the file isn't open by another user.\n4. Check network connection stability."
+            },
+            {
+              "issue": "Excel running very slowly",
+              "bot_solution": "1. Please reduce formula complexity and remove unnecessary formatting.\n2. Disable automatic calculation temporarily.\n3. Split large files into smaller ones.\n4. Check for memory-consuming add-ins.\n5. Update Microsoft Office."
+            }
+          ],
+          "Google Chrome": [
+            {
+              "issue": "Chrome not loading pages",
+              "bot_solution": "1. Please clear Chrome cache: Settings > Privacy and security > Clear browsing data.\n2. Disable extensions temporarily.\n3. Check network connection.\n4. Try incognito mode.\n5. Reset Chrome settings if needed."
+            },
+            {
+              "issue": "Chrome crashing frequently",
+              "bot_solution": "1. Please update Chrome to latest version.\n2. Disable all extensions and re-enable one by one.\n3. Clear browsing data.\n4. Check if hardware acceleration is causing issues (disable in Settings > System).\n5. Reinstall Chrome if needed."
+            },
+            {
+              "issue": "Chrome using too much memory",
+              "bot_solution": "1. Please close unnecessary tabs.\n2. Disable unused extensions.\n3. Enable Memory Saver in Settings > Performance.\n4. Use Chrome Task Manager (Shift+Esc) to identify high-memory tabs.\n5. Consider using tab management extensions."
+            },
+            {
+              "issue": "Chrome not saving passwords",
+              "bot_solution": "1. Please check Settings > Passwords > Offer to save passwords is enabled.\n2. Verify the site isn't in the 'Never saved' list.\n3. Clear saved passwords for the site and try again.\n4. Check if Chrome sync is working properly."
+            },
+            {
+              "issue": "Downloads not working in Chrome",
+              "bot_solution": "1. Please check download folder in Settings > Downloads.\n2. Ensure adequate disk space.\n3. Temporarily disable antivirus to test.\n4. Clear download history.\n5. Try downloading in incognito mode.\n6. Check Chrome's Safe Browsing settings."
+            }
+          ],
+          "Got IT": [
+            {
+              "issue": "Cannot access Got IT portal",
+              "bot_solution": "1. Please clear your browser cache and cookies.\n2. Try accessing in incognito mode.\n3. Check your network connection.\n4. Verify your login credentials.\n5. Try a different browser if the issue persists."
+            },
+            {
+              "issue": "Got IT ticket not submitting",
+              "bot_solution": "1. Please ensure all required fields are filled.\n2. Check for any special characters in your input.\n3. Try refreshing the page and resubmitting.\n4. Clear browser cache.\n5. Contact Site IT if the issue persists."
+            },
+            {
+              "issue": "Unable to attach files in Got IT",
+              "bot_solution": "1. Please check file size doesn't exceed the limit.\n2. Ensure file format is supported.\n3. Try compressing the file.\n4. Use a different browser.\n5. Check popup blocker settings."
+            },
+            {
+              "issue": "Got IT loading slowly",
+              "bot_solution": "1. Please clear browser cache.\n2. Close unnecessary tabs.\n3. Check your network connection speed.\n4. Try accessing during off-peak hours.\n5. Use a different browser if performance is consistently slow."
+            },
+            {
+              "issue": "Cannot view ticket history in Got IT",
+              "bot_solution": "1. Please refresh the page.\n2. Check if you're logged in with the correct account.\n3. Clear browser cache.\n4. Try accessing from a different browser.\n5. Contact Site IT if the issue persists."
+            }
+          ],
+          "Java": [
+            {
+              "issue": "Java application not running",
+              "bot_solution": "1. Please verify Java is installed: Open Command Prompt and type 'java -version'.\n2. Update Java to the latest version from java.com.\n3. Check Java is enabled in browser settings.\n4. Restart the browser after installation."
+            },
+            {
+              "issue": "Java security warning blocking application",
+              "bot_solution": "1. Please add the application URL to Java's Exception Site List: Control Panel > Java > Security tab > Edit Site List.\n2. Check Java security level isn't set too high.\n3. Contact Site IT for enterprise-wide exceptions."
+            },
+            {
+              "issue": "Multiple Java versions causing conflicts",
+              "bot_solution": "1. Please uninstall older Java versions from Control Panel > Programs.\n2. Keep only the required version.\n3. Restart your browser.\n4. Some applications may require specific Java versions - contact Site IT for guidance."
+            },
+            {
+              "issue": "Java consuming too much memory",
+              "bot_solution": "1. Please close Java applications not in use.\n2. Increase Java heap size in Java Control Panel > Java tab > View > Runtime Parameters.\n3. Restart Java applications after changes."
+            },
+            {
+              "issue": "Java Web Start applications not launching",
+              "bot_solution": "1. Please associate .jnlp files with Java Web Start: Right-click .jnlp file > Properties > Change > Choose Java Web Start.\n2. Clear Java cache from Java Control Panel > Settings > Delete Files."
+            }
+          ],
+          "Microsoft office": [
+            {
+              "issue": "Microsoft Office activation error",
+              "bot_solution": "1. Please verify you're signed in with your corporate Microsoft account.\n2. Check network connectivity.\n3. Run Office repair from Control Panel > Programs > Microsoft 365 > Change > Online Repair.\n4. Contact Site IT for license issues."
+            },
+            {
+              "issue": "Office applications not opening",
+              "bot_solution": "1. Please try starting Office in Safe Mode (hold Ctrl while opening).\n2. Repair Office installation from Control Panel > Programs > Microsoft 365 > Change > Quick Repair.\n3. Update Office through any Office app > File > Account > Update Options."
+            },
+            {
+              "issue": "Office updates failing to install",
+              "bot_solution": "1. Please check internet connectivity.\n2. Run Windows Update first.\n3. Try manual update from any Office app > File > Account > Update Options > Update Now.\n4. If updates consistently fail, repair Office installation."
+            },
+            {
+              "issue": "Office asking to sign in repeatedly",
+              "bot_solution": "1. Please clear Office credentials: Control Panel > Credential Manager > Windows Credentials > Remove Office entries.\n2. Sign out from Office account and sign back in.\n3. Update Office to latest version."
+            },
+            {
+              "issue": "Office file associations broken",
+              "bot_solution": "1. Please repair Office installation: Control Panel > Programs > Microsoft 365 > Change > Online Repair.\n2. Set default apps in Settings > Apps > Default apps.\n3. Right-click file > Open with > Choose Microsoft Office app > Always use."
+            }
+          ],
+          "Microsoft Teams": [
+            {
+              "issue": "Teams not loading or showing blank screen",
+              "bot_solution": "1. Please clear Teams cache: Close Teams > Delete contents of %appdata%\\Microsoft\\Teams > Restart Teams.\n2. If using web version, clear browser cache.\n3. Update Teams to latest version."
+            },
+            {
+              "issue": "Cannot hear audio in Teams calls",
+              "bot_solution": "1. Please check speaker settings in Teams: Settings > Devices > Audio devices.\n2. Test your speakers.\n3. Check Windows sound settings.\n4. Ensure Teams has microphone permissions in Windows Settings > Privacy."
+            },
+            {
+              "issue": "Teams camera not working",
+              "bot_solution": "1. Please check camera permissions: Settings > Privacy > Camera > Allow Teams.\n2. Verify camera works in other apps.\n3. Update camera driver.\n4. Select correct camera in Teams Settings > Devices."
+            },
+            {
+              "issue": "Teams notifications not appearing",
+              "bot_solution": "1. Please check Teams notification settings: Settings > Notifications.\n2. Verify Windows notifications are enabled for Teams: Settings > System > Notifications.\n3. Check Focus Assist isn't blocking notifications."
+            },
+            {
+              "issue": "Cannot share screen in Teams",
+              "bot_solution": "1. Please close any applications showing sensitive content.\n2. Check you have presenter rights in the meeting.\n3. Grant screen recording permission in Windows Settings.\n4. Try sharing a specific window instead of entire screen."
+            }
+          ],
+          "Outlook": [
+            {
+              "issue": "Outlook not connecting to server",
+              "bot_solution": "1. Please check your network connection.\n2. Restart Outlook.\n3. Check Outlook is not in Offline mode (Send/Receive tab).\n4. Run Outlook in Safe Mode.\n5. Repair Office installation if the issue persists."
+            },
+            {
+              "issue": "Outlook crashing when opening",
+              "bot_solution": "1. Please start Outlook in Safe Mode (hold Ctrl while opening).\n2. Disable COM add-ins from File > Options > Add-ins.\n3. Repair Office installation.\n4. Create a new Outlook profile if needed."
+            },
+            {
+              "issue": "Outlook search not working",
+              "bot_solution": "1. Please rebuild Outlook search index: File > Options > Search > Indexing Options > Rebuild.\n2. Ensure Outlook is included in indexed locations.\n3. Run Windows Search troubleshooter."
+            },
+            {
+              "issue": "Cannot send or receive emails",
+              "bot_solution": "1. Please check your mailbox isn't full.\n2. Verify you're online (check status bar).\n3. Clear Outbox of any stuck emails.\n4. Run Send/Receive manually.\n5. Check with Site IT for any server issues."
+            },
+            {
+              "issue": "Outlook calendar not syncing",
+              "bot_solution": "1. Please check you're connected to the Exchange server.\n2. Refresh calendar (F5).\n3. Remove and re-add the calendar if shared.\n4. Check folder permissions.\n5. Restart Outlook."
+            }
+          ],
+          "Sentinal One Antivirus": [
+            {
+              "issue": "SentinelOne blocking legitimate application",
+              "bot_solution": "1. Please note the application name and file path being blocked.\n2. Contact Site IT to create an exclusion for the application.\n3. Do not attempt to disable SentinelOne as it's managed centrally for security."
+            },
+            {
+              "issue": "SentinelOne showing high CPU usage",
+              "bot_solution": "1. Please wait for the scan to complete if one is in progress.\n2. Restart your computer if high usage persists.\n3. Contact Site IT if the issue continues, as SentinelOne settings are managed centrally."
+            },
+            {
+              "issue": "SentinelOne quarantined important file",
+              "bot_solution": "1. Please contact Site IT immediately with the file name and location.\n2. IT can restore the file from quarantine if it's a false positive.\n3. Do not attempt to disable or modify SentinelOne settings."
+            },
+            {
+              "issue": "SentinelOne service not running",
+              "bot_solution": "1. Please restart your computer.\n2. SentinelOne should start automatically.\n3. If the service doesn't start, contact Site IT immediately as this is a security concern that needs urgent attention."
+            },
+            {
+              "issue": "System slow after SentinelOne update",
+              "bot_solution": "1. Please restart your computer to complete the update.\n2. Wait 30 minutes for initial scans to complete.\n3. If performance issues persist, contact Site IT to check SentinelOne configuration."
+            }
+          ],
+          "VPN": [
+            {
+              "issue": "VPN not connecting",
+              "bot_solution": "1. Please verify your internet connection is working.\n2. Restart VPN application.\n3. Check your VPN credentials are correct.\n4. Try connecting to a different VPN server if available.\n5. Restart your computer and try again."
+            },
+            {
+              "issue": "VPN connected but cannot access resources",
+              "bot_solution": "1. Please verify VPN shows as connected.\n2. Disconnect and reconnect VPN.\n3. Check if specific resources or all resources are inaccessible.\n4. Ensure DNS settings are correct.\n5. Restart your browser after VPN connects."
+            },
+            {
+              "issue": "VPN disconnecting frequently",
+              "bot_solution": "1. Please check your internet connection stability.\n2. Disable power saving for network adapter.\n3. Update VPN client to latest version.\n4. Connect to a different VPN server.\n5. Check if firewall is interfering."
+            },
+            {
+              "issue": "VPN slow performance",
+              "bot_solution": "1. Please try connecting to a closer VPN server location.\n2. Check your internet speed.\n3. Close unnecessary applications using bandwidth.\n4. Split tunnel may not be available for security reasons - check with Site IT."
+            },
+            {
+              "issue": "VPN asking for certificate error",
+              "bot_solution": "1. Please check your system date and time are correct.\n2. Reinstall VPN client certificates.\n3. Contact Site IT for new certificates if they've expired.\n4. Don't ignore certificate warnings as they indicate security issues."
+            }
+          ],
+          "Zoom": [
+            {
+              "issue": "Zoom audio not working",
+              "bot_solution": "1. Please check Zoom audio settings: Settings > Audio > Test Speaker/Microphone.\n2. Select correct devices.\n3. Check Windows sound settings.\n4. Ensure Zoom has microphone permission in Windows Privacy settings.\n5. Join audio when entering meetings."
+            },
+            {
+              "issue": "Zoom video not showing",
+              "bot_solution": "1. Please check camera is not covered or used by another app.\n2. Verify correct camera selected in Zoom Settings > Video.\n3. Check Windows camera permissions for Zoom.\n4. Update camera driver.\n5. Test camera in Windows Camera app."
+            },
+            {
+              "issue": "Cannot join Zoom meeting",
+              "bot_solution": "1. Please verify the meeting link is correct and meeting hasn't expired.\n2. Check internet connection.\n3. Update Zoom to latest version.\n4. Try joining via web browser if desktop app fails.\n5. Check if you're blocked from the meeting."
+            },
+            {
+              "issue": "Zoom screen sharing not working",
+              "bot_solution": "1. Please update Zoom to latest version.\n2. Check screen recording permissions in Windows Settings > Privacy.\n3. Close sensitive applications before sharing.\n4. Try sharing a specific window instead of entire screen.\n5. Verify host has enabled screen sharing."
+            },
+            {
+              "issue": "Zoom meeting quality poor",
+              "bot_solution": "1. Please close unnecessary applications using bandwidth.\n2. Use ethernet instead of WiFi if possible.\n3. Lower video quality in Settings > Video.\n4. Check internet speed.\n5. Disable HD video if bandwidth is limited."
+            }
+          ]
+        }
+      },
+      "Hardware & Connectivity": {
+        "Datacard": {
+          "Data card Lost": [
+            {
+              "issue": "Data card misplaced or lost",
+              "bot_solution": "1. Please report the loss to Site IT immediately for asset tracking purposes.\n2. Provide your asset tag number if known.\n3. A replacement will be arranged based on availability.\n4. Check with your manager about the replacement process."
+            },
+            {
+              "issue": "Data card stolen",
+              "bot_solution": "1. Please report to Site IT and your manager immediately.\n2. File a security incident report.\n3. Provide details of where and when the theft occurred.\n4. SIM deactivation may be required - IT will coordinate with the telecom provider."
+            },
+            {
+              "issue": "Need replacement for lost data card",
+              "bot_solution": "1. Please submit an IT request for data card replacement.\n2. Include your employee ID and manager approval.\n3. Provide justification for the replacement.\n4. Processing time depends on device availability and procurement."
+            },
+            {
+              "issue": "Data card left at previous location",
+              "bot_solution": "1. Please contact the location where you left the device.\n2. Inform Site IT about the situation.\n3. If the device cannot be recovered, follow the lost device procedure for replacement."
+            },
+            {
+              "issue": "Unable to locate assigned data card",
+              "bot_solution": "1. Please check all your bags and common work areas.\n2. If not found within 24 hours, report to Site IT as lost.\n3. Provide any information about when you last used the device."
+            }
+          ],
+          "Datacard Battery Problem": [
+            {
+              "issue": "Data card not holding charge",
+              "bot_solution": "1. Please try using a different charging cable and adapter.\n2. Ensure you're using the original charger.\n3. If the battery still drains quickly, the battery may need replacement.\n4. Contact Site IT for battery or device replacement."
+            },
+            {
+              "issue": "Data card not charging at all",
+              "bot_solution": "1. Please try different charging cable, adapter, and power outlet.\n2. Check the charging port for debris.\n3. Try charging while powered off.\n4. If still not charging, contact Site IT for hardware assessment."
+            },
+            {
+              "issue": "Data card overheating during use",
+              "bot_solution": "1. Please stop using the device immediately if it's very hot.\n2. Allow it to cool down.\n3. Avoid using while charging.\n4. Check for software updates.\n5. If overheating persists, contact Site IT as this may indicate battery issues."
+            },
+            {
+              "issue": "Battery showing wrong percentage",
+              "bot_solution": "1. Please drain the battery completely and recharge to 100% to recalibrate.\n2. Restart the device.\n3. If the issue persists, the battery sensor may be faulty - contact Site IT for assessment."
+            },
+            {
+              "issue": "Data card shutting down at high battery percentage",
+              "bot_solution": "1. Please perform a battery calibration by fully discharging then fully charging the device.\n2. This indicates battery degradation.\n3. Contact Site IT for battery replacement if the issue continues."
+            }
+          ],
+          "Datacard hardware Problem": [
+            {
+              "issue": "Data card screen not working",
+              "bot_solution": "1. Please try restarting the device by holding the power button.\n2. Connect to computer to check if it's recognized.\n3. If the screen remains blank, hardware replacement is needed - contact Site IT."
+            },
+            {
+              "issue": "Data card power button not responding",
+              "bot_solution": "1. Please try pressing and holding the power button for 15-20 seconds for forced restart.\n2. Try charging the device.\n3. If the button is physically damaged, contact Site IT for device replacement."
+            },
+            {
+              "issue": "Data card physically damaged",
+              "bot_solution": "1. Please assess if the device is still functional.\n2. If damaged but working, use carefully and plan for replacement.\n3. If non-functional, contact Site IT for replacement and provide details of the damage."
+            },
+            {
+              "issue": "Data card USB port damaged",
+              "bot_solution": "1. Please check if wireless connectivity still works.\n2. If the device can connect wirelessly, continue using it while arranging replacement.\n3. Contact Site IT for hardware replacement."
+            },
+            {
+              "issue": "Data card buttons not working",
+              "bot_solution": "1. Please restart the device.\n2. Try using touch screen or software alternatives if available.\n3. If physical buttons are essential and not working, contact Site IT for device replacement."
+            }
+          ],
+          "Signal Problem": [
+            {
+              "issue": "Weak signal on data card",
+              "bot_solution": "1. Please move to an area with better network coverage.\n2. Check if the antenna is properly connected.\n3. Try switching between network modes (4G/3G).\n4. Position the device near a window for better reception."
+            },
+            {
+              "issue": "Data card showing no signal",
+              "bot_solution": "1. Please restart the device.\n2. Check if the SIM is properly inserted.\n3. Verify the SIM is active with the carrier.\n4. Try the SIM in a different device.\n5. Check for carrier outages in your area."
+            },
+            {
+              "issue": "Intermittent connectivity on data card",
+              "bot_solution": "1. Please check for network congestion in your area.\n2. Update the device firmware if available.\n3. Try connecting at different times.\n4. Move to a location with better coverage.\n5. Contact carrier if issues persist."
+            },
+            {
+              "issue": "Data card speed very slow",
+              "bot_solution": "1. Please check if you've exceeded your data plan limits.\n2. Try switching between network modes.\n3. Move to an area with better signal.\n4. Restart the device.\n5. Check for background apps using data."
+            },
+            {
+              "issue": "Data card not connecting to network",
+              "bot_solution": "1. Please verify network settings are correct.\n2. Check if airplane mode is off.\n3. Restart the device.\n4. Try manual network selection.\n5. If SIM works in another device, the data card may need repair/replacement."
+            }
+          ],
+          "SIM Problem": [
+            {
+              "issue": "SIM card not detected",
+              "bot_solution": "1. Please power off the device and reseat the SIM card.\n2. Check SIM is inserted in correct orientation.\n3. Try cleaning SIM contacts gently.\n4. Test SIM in another device.\n5. If not detected anywhere, contact Site IT for SIM replacement."
+            },
+            {
+              "issue": "SIM card locked",
+              "bot_solution": "1. Please enter the PIN code if you know it.\n2. After 3 wrong attempts, SIM will require PUK code.\n3. Contact Site IT or the telecom provider for PUK code.\n4. Avoid further attempts to prevent permanent lock."
+            },
+            {
+              "issue": "SIM card expired or deactivated",
+              "bot_solution": "1. Please contact Site IT to check SIM status with the carrier.\n2. If the SIM has been deactivated due to inactivity, IT can arrange reactivation or replacement.\n3. Provide your employee ID and SIM number."
+            },
+            {
+              "issue": "SIM card damaged",
+              "bot_solution": "1. Please handle SIM cards carefully as they're sensitive.\n2. Contact Site IT for a replacement SIM.\n3. Provide your current SIM number and device details.\n4. Data plan will be transferred to the new SIM."
+            },
+            {
+              "issue": "Wrong SIM size for data card",
+              "bot_solution": "1. Please contact Site IT for the correct SIM size adapter or replacement SIM.\n2. Don't cut the SIM yourself as it may damage it.\n3. IT will provide the appropriate SIM size for your device."
+            }
+          ]
+        },
+        "Desktop": {
+          "Desktop": [
+            {
+              "issue": "Desktop not turning on",
+              "bot_solution": "1. Please check if the power cable is securely connected to both the desktop and power outlet.\n2. Try a different power outlet.\n3. Check if the power strip or surge protector is on.\n4. If still not working, contact Site IT for hardware assessment."
+            },
+            {
+              "issue": "Desktop showing no display",
+              "bot_solution": "1. Please verify the monitor cable is connected properly.\n2. Try a different video port if available.\n3. Check if the monitor is powered on and set to correct input.\n4. Connect a different monitor to test.\n5. Contact Site IT if the issue persists."
+            },
+            {
+              "issue": "Desktop making unusual noises",
+              "bot_solution": "1. Please identify if the noise is from fans, hard drive, or other components.\n2. Grinding or clicking from hard drive indicates potential failure - backup data immediately.\n3. Contact Site IT for hardware inspection."
+            },
+            {
+              "issue": "Desktop running very slow",
+              "bot_solution": "1. Please check Task Manager for high CPU/memory usage.\n2. Close unnecessary programs.\n3. Check available disk space.\n4. Run Disk Cleanup.\n5. Consider that hardware may need upgrade - contact Site IT for assessment."
+            },
+            {
+              "issue": "Desktop randomly restarting",
+              "bot_solution": "1. Please check Event Viewer for error details.\n2. Ensure adequate cooling - check fans are working.\n3. Update drivers and Windows.\n4. Random restarts may indicate hardware issues - contact Site IT for diagnosis."
+            }
+          ],
+          "Mouse Problems": [
+            {
+              "issue": "Mouse not moving cursor",
+              "bot_solution": "1. Please check mouse connection - reconnect USB or check wireless dongle.\n2. For wireless mouse, replace batteries or check if charged.\n3. Try a different USB port.\n4. Test mouse on another computer.\n5. Clean the sensor area."
+            },
+            {
+              "issue": "Mouse clicking not working",
+              "bot_solution": "1. Please check mouse settings in Control Panel > Mouse.\n2. Try a different USB port.\n3. Clean around the mouse buttons.\n4. If wireless, check battery level.\n5. The mouse may need replacement if physically worn."
+            },
+            {
+              "issue": "Mouse cursor jumping or erratic",
+              "bot_solution": "1. Please clean the mouse sensor and mouse pad.\n2. Try a different surface or mouse pad.\n3. Update mouse drivers.\n4. Check for wireless interference.\n5. Reduce mouse sensitivity in settings if too high."
+            },
+            {
+              "issue": "Wireless mouse not connecting",
+              "bot_solution": "1. Please ensure the wireless receiver is plugged in.\n2. Try a different USB port.\n3. Replace batteries.\n4. Re-pair the mouse with receiver (usually a connect button on mouse).\n5. Check for wireless interference."
+            },
+            {
+              "issue": "Scroll wheel not working",
+              "bot_solution": "1. Please clean around the scroll wheel - debris often causes issues.\n2. Check mouse settings in Control Panel.\n3. Update mouse driver.\n4. If cleaning doesn't help, the mouse may need replacement."
+            }
+          ],
+          "Power Adapter Problems": [
+            {
+              "issue": "Desktop power adapter not working",
+              "bot_solution": "1. Please verify the power outlet works by testing with another device.\n2. Check all cable connections are secure.\n3. Try a different power cable if available.\n4. Contact Site IT for power supply replacement if needed."
+            },
+            {
+              "issue": "Power adapter making buzzing noise",
+              "bot_solution": "1. Please unplug the power adapter immediately if making unusual noises.\n2. This may indicate electrical issues.\n3. Do not use until inspected.\n4. Contact Site IT for replacement - this could be a safety hazard."
+            },
+            {
+              "issue": "Power supply fan not spinning",
+              "bot_solution": "1. Please check if the desktop is overheating.\n2. A non-spinning fan may indicate power supply failure.\n3. Ensure adequate ventilation.\n4. Contact Site IT for power supply inspection and replacement."
+            },
+            {
+              "issue": "Intermittent power issues",
+              "bot_solution": "1. Please check all cable connections are tight.\n2. Try a different power outlet.\n3. Use a surge protector.\n4. Intermittent power may indicate failing power supply - contact Site IT for hardware assessment."
+            },
+            {
+              "issue": "Desktop not getting power after outage",
+              "bot_solution": "1. Please check if the power outlet has reset (check circuit breaker).\n2. Verify surge protector is on.\n3. Wait a few minutes before trying again.\n4. If still not working, the power supply may have been damaged."
+            }
+          ],
+          "Power Cord Problem": [
+            {
+              "issue": "Power cord damaged",
+              "bot_solution": "1. Please stop using a damaged power cord immediately - this is a safety hazard.\n2. Do not attempt to repair.\n3. Contact Site IT for a replacement power cord.\n4. Inspect other cords for similar damage."
+            },
+            {
+              "issue": "Power cord loose connection",
+              "bot_solution": "1. Please ensure the power cord is fully inserted at both ends.\n2. Try a different power outlet.\n3. If the cord fits loosely in the desktop, the connector may be damaged.\n4. Contact Site IT for replacement."
+            },
+            {
+              "issue": "Power cord not fitting properly",
+              "bot_solution": "1. Please verify you're using the correct power cord for your device.\n2. Different desktop models may use different connectors.\n3. Contact Site IT for the correct power cord type."
+            },
+            {
+              "issue": "Power cord overheating",
+              "bot_solution": "1. Please unplug the power cord immediately if it's hot to touch.\n2. This is a fire hazard.\n3. Do not use until inspected.\n4. Contact Site IT urgently for replacement and inspection of the power outlet."
+            },
+            {
+              "issue": "Need longer power cord",
+              "bot_solution": "1. Please contact Site IT for an appropriate extension cord or longer power cable.\n2. Do not use household extension cords for desktop computers.\n3. IT will provide properly rated power equipment."
+            }
+          ]
+        },
+        "Headset": {
+          "Headset Problem": [
+            {
+              "issue": "Headset audio not working",
+              "bot_solution": "1. Please check headset connection - ensure fully plugged in.\n2. Verify correct audio device selected in Windows Sound settings.\n3. Test with another device.\n4. Check if mute switch is on.\n5. Update audio drivers."
+            },
+            {
+              "issue": "Headset microphone not working",
+              "bot_solution": "1. Please check microphone is selected in sound settings.\n2. Ensure microphone permissions are granted in Windows Privacy settings.\n3. Check if microphone is muted on headset.\n4. Test microphone in Sound settings > Input."
+            },
+            {
+              "issue": "Headset producing static or crackling",
+              "bot_solution": "1. Please check cable connections and look for damage.\n2. Try a different audio port.\n3. Test with another device to isolate the issue.\n4. Update audio drivers.\n5. Clean the headset jack.\n6. Consider replacement if cable is damaged."
+            },
+            {
+              "issue": "Bluetooth headset not pairing",
+              "bot_solution": "1. Please put headset in pairing mode (check manual for instructions).\n2. Enable Bluetooth on computer.\n3. Remove old pairing and try again.\n4. Update Bluetooth drivers.\n5. Move closer to computer during pairing."
+            },
+            {
+              "issue": "USB headset not recognized",
+              "bot_solution": "1. Please try a different USB port.\n2. Update USB drivers.\n3. Check Device Manager for unknown devices.\n4. Try the headset on another computer.\n5. Restart your computer.\n6. Install manufacturer's drivers if available."
+            },
+            {
+              "issue": "Headset one ear not working",
+              "bot_solution": "1. Please check audio balance in Sound settings isn't shifted to one side.\n2. Wiggle the cable connection to check for loose contact.\n3. Test with another device.\n4. Cable damage often causes one-sided audio - headset may need replacement."
+            }
+          ]
+        },
+        "Laptop": {
+          "Audio Port Problem": [
+            {
+              "issue": "Headphones not detected when plugged in",
+              "bot_solution": "1. Please check the audio port for debris and clean gently.\n2. Try the headphones on another device.\n3. Update audio drivers.\n4. Check Sound settings for headphone detection.\n5. The port may need hardware repair if damaged."
+            },
+            {
+              "issue": "Audio port producing static",
+              "bot_solution": "1. Please clean the audio port with compressed air.\n2. Try different headphones.\n3. Update audio drivers.\n4. Check for loose connections inside.\n5. If static persists, use USB or Bluetooth audio as alternative."
+            },
+            {
+              "issue": "Audio plays through speakers when headphones connected",
+              "bot_solution": "1. Please check Sound settings - set headphones as default device.\n2. Ensure headphones are fully inserted.\n3. Try a different pair of headphones.\n4. The audio port detection may be faulty - contact Site IT for hardware assessment."
+            },
+            {
+              "issue": "Audio port physically damaged",
+              "bot_solution": "1. Please do not force headphones into a damaged port.\n2. Use USB headset or Bluetooth audio as alternatives.\n3. Contact Site IT for hardware repair assessment.\n4. Port replacement requires professional service."
+            },
+            {
+              "issue": "Microphone input not working through audio port",
+              "bot_solution": "1. Please check if your laptop uses combined or separate mic/audio ports.\n2. Try a different headset with microphone.\n3. Check Recording devices in Sound settings.\n4. Update audio drivers.\n5. Consider USB headset alternative."
+            }
+          ],
+          "Battery Problems": [
+            {
+              "issue": "Laptop battery draining quickly",
+              "bot_solution": "1. Please reduce screen brightness.\n2. Close unnecessary applications and browser tabs.\n3. Check battery settings for power mode.\n4. Disable unused devices like Bluetooth.\n5. Check Task Manager for high-power apps.\n6. Battery may need replacement if old."
+            },
+            {
+              "issue": "Laptop not charging",
+              "bot_solution": "1. Please try a different power outlet.\n2. Check adapter and cable for damage.\n3. Try removing and reinserting the battery if removable.\n4. Update battery drivers in Device Manager.\n5. The adapter or battery may need replacement."
+            },
+            {
+              "issue": "Battery showing 'plugged in, not charging'",
+              "bot_solution": "1. Please check battery health in Device Manager or manufacturer utility.\n2. Try different outlet and adapter.\n3. Update battery drivers.\n4. If battery is old, it may no longer accept charge.\n5. Contact Site IT for battery replacement."
+            },
+            {
+              "issue": "Laptop only works when plugged in",
+              "bot_solution": "1. Please check battery status in Device Manager.\n2. The battery may have failed and needs replacement.\n3. Backup your work frequently when on power.\n4. Contact Site IT for battery replacement assessment."
+            },
+            {
+              "issue": "Battery percentage not changing",
+              "bot_solution": "1. Please restart your laptop.\n2. Update battery drivers.\n3. Run battery calibration by fully discharging then fully charging.\n4. Check for Windows battery driver issues.\n5. The battery sensor may be faulty."
+            }
+          ],
+          "Bezel Problem": [
+            {
+              "issue": "Laptop screen bezel cracked or loose",
+              "bot_solution": "1. Please avoid pressing on the damaged area.\n2. A loose bezel may damage the screen further.\n3. Do not attempt DIY repair.\n4. Contact Site IT for proper assessment and repair through authorized service."
+            },
+            {
+              "issue": "Bezel separating from screen",
+              "bot_solution": "1. Please handle the laptop carefully to prevent further damage.\n2. Avoid opening/closing the lid forcefully.\n3. The laptop needs professional repair.\n4. Contact Site IT for service request."
+            },
+            {
+              "issue": "Bezel clips broken",
+              "bot_solution": "1. Please avoid removing or manipulating the bezel further.\n2. Broken clips may cause the bezel to fall off.\n3. The laptop needs servicing.\n4. Contact Site IT for repair assessment."
+            },
+            {
+              "issue": "Camera covered by bezel damage",
+              "bot_solution": "1. Please use an external webcam as a temporary solution if camera is obstructed.\n2. Contact Site IT for bezel repair.\n3. Do not attempt to force the bezel away from the camera."
+            },
+            {
+              "issue": "Bezel scratched or damaged cosmetically",
+              "bot_solution": "1. Please note that cosmetic damage alone may not warrant repair replacement.\n2. If the damage affects functionality, contact Site IT.\n3. For minor scratches, continue using carefully."
+            }
+          ],
+          "Camera Problem": [
+            {
+              "issue": "Laptop camera showing black screen",
+              "bot_solution": "1. Please check if camera privacy cover is closed.\n2. Verify camera permissions in Windows Settings > Privacy > Camera.\n3. Check if another app is using the camera.\n4. Update camera driver.\n5. Try Camera app to test."
+            },
+            {
+              "issue": "Camera not detected in device manager",
+              "bot_solution": "1. Please check if camera is disabled in BIOS.\n2. Scan for hardware changes in Device Manager.\n3. Update laptop drivers from manufacturer website.\n4. The camera hardware may need repair if not detected."
+            },
+            {
+              "issue": "Camera image quality poor",
+              "bot_solution": "1. Please clean the camera lens gently.\n2. Ensure adequate lighting.\n3. Check camera settings in the application.\n4. Update camera driver.\n5. Low quality may be due to hardware limitations or dirt on lens."
+            },
+            {
+              "issue": "Camera showing upside down image",
+              "bot_solution": "1. Please update camera driver from manufacturer website.\n2. Check camera settings in the application you're using.\n3. Some apps have flip/rotate options.\n4. Reinstall camera driver if issue persists."
+            },
+            {
+              "issue": "External camera not working, internal does",
+              "bot_solution": "1. Please try a different USB port.\n2. Check if external camera is selected in application settings.\n3. Install camera's software/drivers if required.\n4. Update USB drivers.\n5. Test camera on another computer."
+            }
+          ],
+          "DC Port Problem": [
+            {
+              "issue": "Power connector loose in DC port",
+              "bot_solution": "1. Please check if the issue is with the adapter or the port.\n2. Try a different adapter if available.\n3. If the port is loose, avoid wiggling as this can cause further damage.\n4. Contact Site IT for hardware repair."
+            },
+            {
+              "issue": "Laptop only charges at certain angle",
+              "bot_solution": "1. Please this indicates DC port damage.\n2. Avoid bending or forcing the connector.\n3. Use the position that works temporarily.\n4. Contact Site IT urgently for repair to prevent complete charging failure."
+            },
+            {
+              "issue": "DC port physically damaged",
+              "bot_solution": "1. Please do not force the power adapter into a damaged port.\n2. This can cause electrical shorts.\n3. The laptop needs professional repair.\n4. Contact Site IT immediately for service."
+            },
+            {
+              "issue": "Sparking when connecting charger",
+              "bot_solution": "1. Please stop using immediately - this is a safety hazard.\n2. Do not connect the charger again.\n3. Contact Site IT urgently.\n4. The laptop and charger need inspection before further use."
+            },
+            {
+              "issue": "DC port pins bent or broken",
+              "bot_solution": "1. Please do not attempt to straighten bent pins yourself.\n2. Do not use force when connecting charger.\n3. The port requires professional repair.\n4. Contact Site IT for hardware service."
+            }
+          ],
+          "FAN Problems": [
+            {
+              "issue": "Laptop fan running constantly",
+              "bot_solution": "1. Please check Task Manager for high CPU usage processes.\n2. Ensure vents are not blocked.\n3. Clean vents with compressed air.\n4. Update BIOS and drivers.\n5. High fan activity during intensive tasks is normal."
+            },
+            {
+              "issue": "Fan making grinding noise",
+              "bot_solution": "1. Please backup your data as this may indicate fan failure.\n2. Stop using if laptop overheats.\n3. Grinding usually means fan bearing failure.\n4. Contact Site IT immediately for fan replacement."
+            },
+            {
+              "issue": "Fan not spinning - laptop overheating",
+              "bot_solution": "1. Please shut down the laptop immediately to prevent damage.\n2. A non-working fan is a critical issue.\n3. Do not use until repaired.\n4. Contact Site IT urgently for fan replacement."
+            },
+            {
+              "issue": "Laptop shutting down due to heat",
+              "bot_solution": "1. Please ensure vents are clear.\n2. Use laptop on hard flat surface, not soft surfaces.\n3. Clean vents with compressed air.\n4. Thermal shutdown indicates serious cooling issues.\n5. Contact Site IT for cleaning or repair."
+            },
+            {
+              "issue": "Fan speed fluctuating rapidly",
+              "bot_solution": "1. Please update BIOS to latest version.\n2. Check power settings and ensure balanced mode.\n3. Monitor CPU temperature with a utility.\n4. Rapid fluctuation may indicate failing fan or sensor issue."
+            }
+          ],
+          "Hard Drive Problems": [
+            {
+              "issue": "Hard drive making clicking sounds",
+              "bot_solution": "1. Please backup your data immediately - clicking indicates potential drive failure.\n2. Stop using the laptop if clicking is constant.\n3. Contact Site IT urgently for drive replacement before data loss occurs."
+            },
+            {
+              "issue": "Hard drive not detected",
+              "bot_solution": "1. Please restart the laptop and check BIOS if drive is visible.\n2. This usually indicates drive failure.\n3. The laptop needs professional diagnosis.\n4. Contact Site IT for hard drive replacement."
+            },
+            {
+              "issue": "Laptop very slow to boot or load files",
+              "bot_solution": "1. Please check drive health using built-in diagnostics.\n2. Run Disk Cleanup and defragmentation for HDD.\n3. Check available space.\n4. Slow performance may indicate failing drive - backup data and contact Site IT."
+            },
+            {
+              "issue": "Frequent file errors or corrupted files",
+              "bot_solution": "1. Please run CHKDSK (check disk) from Command Prompt: chkdsk C: /f /r.\n2. Backup important data immediately.\n3. Frequent errors indicate drive problems.\n4. Contact Site IT for drive assessment."
+            },
+            {
+              "issue": "Blue screen with hard drive errors",
+              "bot_solution": "1. Please note the error code.\n2. Backup data immediately from Safe Mode if possible.\n3. Hard drive errors causing blue screens indicate serious issues.\n4. Contact Site IT for urgent drive replacement."
+            }
+          ],
+          "Hinge Problem": [
+            {
+              "issue": "Laptop hinge stiff or hard to open",
+              "bot_solution": "1. Please do not force the lid open.\n2. Stiff hinges can break if forced.\n3. Open and close slowly at the center of the lid.\n4. Contact Site IT for hinge assessment and repair."
+            },
+            {
+              "issue": "Laptop hinge broken or loose",
+              "bot_solution": "1. Please avoid using the laptop with a broken hinge as it can damage the screen cable.\n2. Keep the lid at a stable position.\n3. Contact Site IT immediately for repair.\n4. Do not attempt DIY fixes."
+            },
+            {
+              "issue": "Laptop screen wobbling",
+              "bot_solution": "1. Please this indicates loose or damaged hinges.\n2. Handle the laptop carefully.\n3. Avoid moving the screen once positioned.\n4. Contact Site IT for hinge repair to prevent further damage."
+            },
+            {
+              "issue": "Laptop lid won't stay open",
+              "bot_solution": "1. Please use a support to prop the screen temporarily.\n2. Worn hinges cannot hold the screen.\n3. The laptop needs professional hinge repair.\n4. Contact Site IT for service."
+            },
+            {
+              "issue": "Cracking sound when opening laptop",
+              "bot_solution": "1. Please stop forcing the lid if you hear cracking.\n2. This may indicate hinge or plastic damage.\n3. Open slowly and carefully.\n4. Contact Site IT for inspection before the hinge breaks completely."
+            }
+          ],
+          "Keypad Problems": [
+            {
+              "issue": "Keyboard keys not working",
+              "bot_solution": "1. Please check if it's specific keys or entire keyboard.\n2. Restart laptop.\n3. Update keyboard driver.\n4. Check for debris under keys.\n5. Try external keyboard.\n6. If multiple keys fail, keyboard replacement may be needed."
+            },
+            {
+              "issue": "Keyboard typing wrong characters",
+              "bot_solution": "1. Please check keyboard language settings (Windows+Space to switch).\n2. Verify Num Lock isn't causing number input.\n3. Check for stuck keys.\n4. Update keyboard drivers.\n5. Regional settings may need adjustment."
+            },
+            {
+              "issue": "Keyboard keys stuck or sticky",
+              "bot_solution": "1. Please carefully clean around the affected keys.\n2. Turn off laptop, turn upside down and gently shake.\n3. Use compressed air.\n4. For spill damage, contact Site IT immediately - liquid damage needs professional cleaning."
+            },
+            {
+              "issue": "Keyboard backlight not working",
+              "bot_solution": "1. Please check keyboard backlight function key (usually Fn+key with light icon).\n2. Verify in BIOS settings if backlight is enabled.\n3. Update keyboard drivers.\n4. Not all laptops have backlight - check your model specifications."
+            },
+            {
+              "issue": "Keys physically broken or missing",
+              "bot_solution": "1. Please do not use the keyboard with missing keys as debris can enter.\n2. Use external keyboard temporarily.\n3. Contact Site IT for keyboard replacement.\n4. Individual key caps may not be replaceable."
+            }
+          ],
+          "LCD Problems": [
+            {
+              "issue": "Laptop screen flickering",
+              "bot_solution": "1. Please update display drivers.\n2. Try changing refresh rate in Display settings.\n3. Connect external monitor to test if issue is with LCD or GPU.\n4. Flickering often indicates cable or backlight issues needing repair."
+            },
+            {
+              "issue": "Lines on laptop screen",
+              "bot_solution": "1. Please connect an external monitor - if lines appear there too, it's GPU issue.\n2. If only on laptop screen, it's LCD or cable damage.\n3. Contact Site IT for hardware assessment and repair."
+            },
+            {
+              "issue": "Screen showing dead pixels",
+              "bot_solution": "1. Please note the location of dead pixels.\n2. Try pixel-fixing software (flashing colors).\n3. If pixels remain dead, the LCD panel needs replacement for significant dead pixel clusters.\n4. Contact Site IT for assessment."
+            },
+            {
+              "issue": "Screen very dim even at max brightness",
+              "bot_solution": "1. Please check power settings aren't reducing brightness.\n2. Update display drivers.\n3. Connect external monitor to test.\n4. Dim screen often indicates failing backlight or inverter - professional repair needed."
+            },
+            {
+              "issue": "Screen cracked or physically damaged",
+              "bot_solution": "1. Please stop using the laptop to prevent further damage or injury from broken glass.\n2. Do not press on cracked screen.\n3. Contact Site IT immediately for LCD replacement.\n4. Backup data using external monitor."
+            }
+          ],
+          "Motherboard Problems": [
+            {
+              "issue": "Laptop not turning on at all",
+              "bot_solution": "1. Please try removing battery (if possible) and holding power for 30 seconds, then reconnect.\n2. Try different power outlet.\n3. If completely dead with no lights, motherboard may have failed.\n4. Contact Site IT for diagnosis."
+            },
+            {
+              "issue": "Random shutdowns and restarts",
+              "bot_solution": "1. Please check for overheating issues first.\n2. Update BIOS and drivers.\n3. Random failures can indicate motherboard problems.\n4. Backup data immediately.\n5. Contact Site IT for hardware diagnosis."
+            },
+            {
+              "issue": "USB ports not working on laptop",
+              "bot_solution": "1. Please test multiple USB ports.\n2. Update USB drivers.\n3. Check Device Manager for errors.\n4. Try different devices in ports.\n5. If all ports fail, motherboard USB controller may be damaged.\n6. Contact Site IT."
+            },
+            {
+              "issue": "Laptop stuck in boot loop",
+              "bot_solution": "1. Please try booting to Safe Mode (hold Shift while clicking Restart).\n2. If unable to boot at all, hardware failure may be the cause.\n3. Contact Site IT for diagnosis - may require motherboard repair or replacement."
+            },
+            {
+              "issue": "Multiple components failing simultaneously",
+              "bot_solution": "1. Please backup any accessible data immediately.\n2. Multiple failures often indicate motherboard problems or power surge damage.\n3. Contact Site IT urgently for hardware assessment."
+            }
+          ],
+          "Mouse Problems": [
+            {
+              "issue": "Laptop trackpad not responding",
+              "bot_solution": "1. Please check if trackpad is disabled (function key combination like Fn+F7).\n2. Verify trackpad settings in Windows Settings > Devices > Touchpad.\n3. Update trackpad drivers.\n4. Restart laptop."
+            },
+            {
+              "issue": "Trackpad cursor jumping around",
+              "bot_solution": "1. Please clean the trackpad surface.\n2. Adjust sensitivity in Settings > Devices > Touchpad.\n3. Check for palm detection settings.\n4. Update trackpad drivers.\n5. Disable 'tap to click' if causing issues."
+            },
+            {
+              "issue": "Trackpad buttons not clicking",
+              "bot_solution": "1. Please clean around the button area.\n2. Check trackpad settings for button configuration.\n3. Try tap-to-click as alternative.\n4. If physical buttons are damaged, external mouse is recommended.\n5. Contact Site IT for repair."
+            },
+            {
+              "issue": "External mouse not working on laptop",
+              "bot_solution": "1. Please try different USB ports.\n2. Test mouse on another computer.\n3. Update USB and mouse drivers.\n4. Check for power management disabling USB (Device Manager > USB > Power Management).\n5. Try a different mouse."
+            },
+            {
+              "issue": "Trackpad gestures not working",
+              "bot_solution": "1. Please check Settings > Devices > Touchpad for gesture settings.\n2. Ensure precision trackpad drivers are installed.\n3. Update trackpad drivers.\n4. Some older laptops may not support advanced gestures."
+            }
+          ],
+          "Not Booting": [
+            {
+              "issue": "Laptop stuck on manufacturer logo",
+              "bot_solution": "1. Please try hard reset: Hold power button 15 seconds, wait 30 seconds, power on.\n2. Enter BIOS and load defaults.\n3. If stuck at logo, hardware issue may exist.\n4. Contact Site IT for diagnosis."
+            },
+            {
+              "issue": "Boot device not found error",
+              "bot_solution": "1. Please restart and enter BIOS to check if hard drive is detected.\n2. If drive not visible, it may have failed.\n3. Try reseating the drive if accessible.\n4. Contact Site IT for hard drive replacement."
+            },
+            {
+              "issue": "Windows boot loop - keeps restarting",
+              "bot_solution": "1. Please try Automatic Repair (should start after 3 failed boots).\n2. Boot from Windows recovery USB if available.\n3. Try Safe Mode.\n4. Startup repair or Windows reinstallation may be needed.\n5. Contact Site IT."
+            },
+            {
+              "issue": "Blue screen during boot",
+              "bot_solution": "1. Please note the error code.\n2. Try Safe Mode (Shift+F8 during boot or from recovery).\n3. Uninstall recent updates or drivers.\n4. Run Startup Repair from recovery options.\n5. Contact Site IT if unable to resolve."
+            },
+            {
+              "issue": "Laptop beeping but not booting",
+              "bot_solution": "1. Please note the beep pattern (number and length of beeps).\n2. Beep codes indicate specific hardware failures.\n3. Search your laptop model's beep codes.\n4. Usually indicates RAM or other hardware failure.\n5. Contact Site IT."
+            }
+          ],
+          "Physical Damage": [
+            {
+              "issue": "Laptop dropped - checking for damage",
+              "bot_solution": "1. Please carefully inspect for visible damage.\n2. Test all functions: screen, keyboard, touchpad, ports.\n3. Listen for unusual sounds.\n4. Run built-in diagnostics if available.\n5. Any issues should be reported to Site IT."
+            },
+            {
+              "issue": "Laptop case cracked or dented",
+              "bot_solution": "1. Please assess if crack affects internal components.\n2. If crack is near vents or ports, debris may enter.\n3. If functional, use carefully and plan for repair.\n4. Contact Site IT for damage assessment."
+            },
+            {
+              "issue": "Laptop liquid spill damage",
+              "bot_solution": "1. Please shut down immediately and unplug.\n2. Do NOT turn on.\n3. Flip upside down to let liquid drain.\n4. Do not use hair dryer.\n5. Contact Site IT immediately.\n6. Laptop needs professional cleaning within 24-48 hours."
+            },
+            {
+              "issue": "Laptop screen damaged from pressure",
+              "bot_solution": "1. Please avoid pressing on the damaged area.\n2. If screen is usable, connect external monitor for backup.\n3. LCD replacement is needed.\n4. Contact Site IT for repair assessment."
+            },
+            {
+              "issue": "Laptop ports physically damaged",
+              "bot_solution": "1. Please stop using damaged ports to prevent electrical issues.\n2. Use alternative ports or adapters if available.\n3. Contact Site IT for repair.\n4. Port replacement requires professional service."
+            }
+          ],
+          "Power Adapter Problems": [
+            {
+              "issue": "Laptop adapter not charging",
+              "bot_solution": "1. Please try different power outlet.\n2. Check for damage to cable or connector.\n3. Verify adapter light (if present) is on.\n4. Test with another adapter if available.\n5. Contact Site IT for adapter replacement."
+            },
+            {
+              "issue": "Adapter getting very hot",
+              "bot_solution": "1. Please ensure adapter has adequate ventilation - don't cover it.\n2. Some warmth is normal but hot to touch is not.\n3. Unplug if excessively hot.\n4. Contact Site IT for replacement if overheating persists."
+            },
+            {
+              "issue": "Adapter cable frayed or damaged",
+              "bot_solution": "1. Please stop using damaged adapters immediately - fire hazard.\n2. Do not tape or repair damaged cables.\n3. Contact Site IT for replacement adapter.\n4. Do not use third-party adapters."
+            },
+            {
+              "issue": "Laptop not recognizing original adapter",
+              "bot_solution": "1. Please check adapter wattage matches laptop requirements.\n2. Try reconnecting several times.\n3. Update BIOS.\n4. Some laptops require specific adapters.\n5. Verify adapter is genuine OEM product.\n6. Contact Site IT."
+            },
+            {
+              "issue": "Charging intermittently with adapter",
+              "bot_solution": "1. Please check connection at laptop and outlet.\n2. Try different outlet.\n3. Look for bent pins in connector.\n4. Intermittent charging may indicate adapter or DC port failure.\n5. Contact Site IT for assessment."
+            }
+          ],
+          "RAM problems": [
+            {
+              "issue": "Laptop slow due to RAM issues",
+              "bot_solution": "1. Please check RAM usage in Task Manager.\n2. Close memory-heavy applications.\n3. If RAM constantly at 90%+, more RAM may be needed.\n4. Run Windows Memory Diagnostic tool.\n5. Contact Site IT for RAM upgrade options."
+            },
+            {
+              "issue": "Laptop showing less RAM than installed",
+              "bot_solution": "1. Please check if 32-bit Windows is installed (limits RAM to 4GB).\n2. Check BIOS for RAM detection.\n3. One RAM stick may have failed.\n4. Run Windows Memory Diagnostic.\n5. Contact Site IT for RAM assessment."
+            },
+            {
+              "issue": "Blue screen with memory errors",
+              "bot_solution": "1. Please run Windows Memory Diagnostic (search in Start menu).\n2. Note any error codes.\n3. Memory errors indicate potentially failing RAM.\n4. Backup data.\n5. Contact Site IT for RAM testing and replacement."
+            },
+            {
+              "issue": "Laptop beeping and not starting - RAM issue",
+              "bot_solution": "1. Please note the beep pattern.\n2. Continuous beeping often indicates RAM not detected.\n3. If RAM is accessible, try reseating it.\n4. Otherwise, contact Site IT for RAM troubleshooting and possible replacement."
+            },
+            {
+              "issue": "Applications crashing due to memory issues",
+              "bot_solution": "1. Please check Task Manager for memory usage.\n2. Close unnecessary applications.\n3. Run Memory Diagnostic tool.\n4. Frequent crashes may indicate failing RAM.\n5. Contact Site IT for RAM testing."
+            }
+          ],
+          "Speaker Problem": [
+            {
+              "issue": "Laptop speakers not producing sound",
+              "bot_solution": "1. Please check volume isn't muted (Fn+volume key).\n2. Verify sound device in Settings > System > Sound.\n3. Update audio drivers.\n4. Test with headphones.\n5. Run audio troubleshooter in Windows Settings."
+            },
+            {
+              "issue": "Laptop speakers producing distorted sound",
+              "bot_solution": "1. Please reduce volume to check if distortion stops.\n2. Update audio drivers.\n3. Check for enhancements in Sound settings that may cause distortion.\n4. Blown speakers need replacement - contact Site IT."
+            },
+            {
+              "issue": "Crackling sound from speakers",
+              "bot_solution": "1. Please update audio drivers.\n2. Disable audio enhancements in Sound settings > Properties > Enhancements.\n3. Check for loose speaker connections.\n4. Crackling may indicate speaker damage needing repair."
+            },
+            {
+              "issue": "Only one speaker working",
+              "bot_solution": "1. Please check audio balance in Sound settings > Levels > Balance.\n2. Test with headphones to verify it's speaker not audio.\n3. One-sided audio usually indicates speaker failure.\n4. Contact Site IT for repair."
+            },
+            {
+              "issue": "Speakers making buzzing noise",
+              "bot_solution": "1. Please check if buzz occurs only with certain apps or always.\n2. Update audio drivers.\n3. Check for electrical interference from phone or other devices.\n4. Ground loop issues may require professional diagnosis."
+            }
+          ],
+          "Trackpad Problem": [
+            {
+              "issue": "Trackpad completely unresponsive",
+              "bot_solution": "1. Please check if trackpad is disabled (Fn+F7 or similar key).\n2. Verify Settings > Devices > Touchpad > Touchpad is On.\n3. Update drivers from Device Manager.\n4. Restart laptop.\n5. Use external mouse temporarily."
+            },
+            {
+              "issue": "Trackpad not clicking physically",
+              "bot_solution": "1. Please enable tap-to-click in touchpad settings as workaround.\n2. Check if something is stuck under trackpad.\n3. Physical click mechanism may be broken.\n4. Contact Site IT for repair or use external mouse."
+            },
+            {
+              "issue": "Multi-finger gestures not working",
+              "bot_solution": "1. Please verify gestures are enabled in Settings > Devices > Touchpad.\n2. Ensure precision touchpad drivers are installed.\n3. Update touchpad driver.\n4. Some touchpads don't support multi-finger gestures."
+            },
+            {
+              "issue": "Trackpad too sensitive or not sensitive enough",
+              "bot_solution": "1. Please adjust sensitivity in Settings > Devices > Touchpad.\n2. Try different sensitivity levels.\n3. Check for palm detection settings.\n4. Update touchpad drivers for better performance."
+            },
+            {
+              "issue": "Trackpad cursor drifting on its own",
+              "bot_solution": "1. Please clean trackpad surface thoroughly.\n2. Check no objects are pressing on it.\n3. Update drivers.\n4. Calibrate touchpad if option available.\n5. Ghost touches may indicate hardware issue - contact Site IT."
+            }
+          ],
+          "Wireless Problem": [
+            {
+              "issue": "Laptop WiFi not connecting",
+              "bot_solution": "1. Please verify WiFi is enabled (Fn+WiFi key).\n2. Check airplane mode is off.\n3. Restart router if possible.\n4. Forget network and reconnect.\n5. Update WiFi drivers.\n6. Run network troubleshooter."
+            },
+            {
+              "issue": "WiFi keeps disconnecting",
+              "bot_solution": "1. Please update WiFi drivers.\n2. Disable power management for WiFi adapter (Device Manager > Network Adapters > WiFi > Properties > Power Management).\n3. Move closer to router.\n4. Check for interference."
+            },
+            {
+              "issue": "WiFi very slow on laptop",
+              "bot_solution": "1. Please check signal strength.\n2. Move closer to router.\n3. Update WiFi drivers.\n4. Check if other devices have same issue.\n5. Disable Bluetooth if not needed (can interfere).\n6. Reset network settings."
+            },
+            {
+              "issue": "Laptop not finding any WiFi networks",
+              "bot_solution": "1. Please verify WiFi is enabled in Network settings.\n2. Check if WiFi adapter appears in Device Manager.\n3. Update or reinstall WiFi drivers.\n4. The WiFi adapter may have failed - contact Site IT."
+            },
+            {
+              "issue": "Cannot connect to 5GHz WiFi",
+              "bot_solution": "1. Please verify your laptop supports 5GHz (check adapter specifications). 5GHz has shorter range than 2.4GHz - move closer to router.\n2. Update WiFi drivers.\n3. Check router 5GHz settings."
+            }
+          ]
+        },
+        "Monitor": {
+          "Monitor Problem": [
+            {
+              "issue": "External monitor not detected",
+              "bot_solution": "1. Please check cable connections at both ends.\n2. Try a different video cable.\n3. Press Windows+P to access display options.\n4. Update graphics drivers.\n5. Test monitor with another device to verify it works."
+            },
+            {
+              "issue": "Monitor displaying no signal",
+              "bot_solution": "1. Please verify monitor is on correct input source.\n2. Check cable connections.\n3. Try different port on laptop.\n4. Test with another cable.\n5. If laptop screen works, issue may be with port, cable, or monitor."
+            },
+            {
+              "issue": "Monitor flickering",
+              "bot_solution": "1. Please check cable connections are secure.\n2. Try different cable and port.\n3. Update graphics drivers.\n4. Adjust refresh rate in Display settings.\n5. Monitor may need repair or replacement if flickering persists."
+            },
+            {
+              "issue": "Monitor resolution incorrect",
+              "bot_solution": "1. Please right-click desktop > Display settings.\n2. Select the monitor and choose recommended resolution.\n3. If desired resolution unavailable, update graphics drivers.\n4. Check monitor supports that resolution."
+            },
+            {
+              "issue": "Monitor screen burn-in or image retention",
+              "bot_solution": "1. Please turn off monitor when not in use.\n2. Use screen saver.\n3. Run pixel-refresh utility if available (common in LG monitors).\n4. For severe burn-in, monitor replacement may be needed.\n5. Contact Site IT."
+            },
+            {
+              "issue": "Monitor color looks wrong",
+              "bot_solution": "1. Please check cable connections.\n2. Reset monitor to factory defaults using monitor menu.\n3. Calibrate display in Windows Display settings.\n4. Update graphics drivers.\n5. Try different cable type."
+            }
+          ]
+        }
+      }
+    },
+    "Printer / Scanner / Copier Issues": {
+      "Applications & Software": {
+        "Printer/Scanner/Copier": {
+          "Printer Issues": [
+            {
+              "issue": "Printer driver not installing",
+              "bot_solution": "1. Please download the correct driver from printer manufacturer website.\n2. Run installer as administrator.\n3. If installation fails, contact Site IT for driver installation with admin rights."
+            },
+            {
+              "issue": "Print jobs stuck in queue",
+              "bot_solution": "1. Please open print queue (Control Panel > Printers > Right-click printer > See what's printing).\n2. Cancel all documents.\n3. Restart Print Spooler service from Services.msc.\n4. Try printing again."
+            },
+            {
+              "issue": "Cannot find printer in application",
+              "bot_solution": "1. Please verify printer is installed: Settings > Devices > Printers & scanners.\n2. If not listed, add printer.\n3. Check if printer is set as default.\n4. Restart the application trying to print."
+            },
+            {
+              "issue": "Print preview not matching output",
+              "bot_solution": "1. Please check print settings match document size.\n2. Verify correct paper size selected.\n3. Check scaling settings in print dialog.\n4. Update printer driver.\n5. Try printing from a different application."
+            },
+            {
+              "issue": "Application showing printer offline",
+              "bot_solution": "1. Please check printer is turned on and connected.\n2. Go to Printers & scanners, right-click printer and disable 'Use Printer Offline'.\n3. Restart Print Spooler service.\n4. Check network connection for network printers."
+            }
+          ]
+        }
+      },
+      "Hardware & Connectivity": {
+        "Printer/Scanner/Copier": {
+          "Printer Issue": [
+            {
+              "issue": "Printer not turning on",
+              "bot_solution": "1. Please check power cable is securely connected.\n2. Try different power outlet.\n3. Check if power button has indicator light.\n4. For battery backup units, ensure they're charged.\n5. Contact Site IT if printer won't power on."
+            },
+            {
+              "issue": "Paper jam in printer",
+              "bot_solution": "1. Please turn off printer first.\n2. Open all access panels and gently remove jammed paper (pull in direction of paper path).\n3. Check for small torn pieces.\n4. Close panels and turn on.\n5. Test with single sheet."
+            },
+            {
+              "issue": "Printer printing blank pages",
+              "bot_solution": "1. Please check ink/toner levels - replace if low.\n2. Run printer head cleaning from printer utility.\n3. Check if protective tape was removed from new cartridge.\n4. Print test page from printer settings."
+            },
+            {
+              "issue": "Print quality poor - streaks or fading",
+              "bot_solution": "1. Please check ink/toner levels.\n2. Run head cleaning and alignment from printer software.\n3. For laser printers, shake toner cartridge gently.\n4. Replace cartridge if cleaning doesn't help."
+            },
+            {
+              "issue": "Printer not connecting to network",
+              "bot_solution": "1. Please verify network cable or WiFi connection.\n2. Print network configuration page from printer.\n3. Check IP address settings.\n4. Restart printer and router.\n5. Contact Site IT for network printer configuration."
+            },
+            {
+              "issue": "Printer feeding multiple pages",
+              "bot_solution": "1. Please fan the paper stack before loading.\n2. Don't overfill paper tray.\n3. Check paper guides are snug but not tight.\n4. Clean paper feed rollers with slightly damp cloth.\n5. Use appropriate paper weight."
+            },
+            {
+              "issue": "Scanner not working",
+              "bot_solution": "1. Please check scanner glass is clean.\n2. Verify scanner is selected in scan software.\n3. Update scanner drivers.\n4. Run scanner troubleshooter.\n5. Check USB connection for direct-connected scanners."
+            },
+            {
+              "issue": "Scanner producing poor quality scans",
+              "bot_solution": "1. Please clean the scanner glass with glass cleaner and soft cloth.\n2. Increase scan resolution in settings.\n3. Ensure document is flat on glass.\n4. Check for scratches on glass that may need replacement."
+            },
+            {
+              "issue": "Copier not copying properly",
+              "bot_solution": "1. Please check toner/ink levels.\n2. Clean the scanner glass.\n3. Adjust copy quality settings.\n4. Check paper size and type settings match loaded paper.\n5. Run copier maintenance routine if available."
+            },
+            {
+              "issue": "Printer showing error code",
+              "bot_solution": "1. Please note the exact error code displayed.\n2. Check printer manual or manufacturer website for the specific code meaning.\n3. Common errors include paper jam, low toner, or door open.\n4. Contact Site IT with error code."
+            }
+          ]
+        }
+      }
+    }
+  },
+  "Request": {
+    "Laptop Request": {
+      "Hardware & Connectivity": {
+        "Laptop/ Desktop": {
+          "New Laptop": [
+            {
+              "issue": "Request for new laptop",
+              "bot_solution": "1. Please provide: 1) Employee name 2) Department 3) Justification 4) Preferred specifications (if any).\n2. A ticket will be created for IT procurement."
+            },
+            {
+              "issue": "Laptop replacement request",
+              "bot_solution": "1. Please provide: 1) Current laptop asset tag 2) Reason for replacement 3) Age of current laptop.\n2. A ticket will be created for IT review."
+            },
+            {
+              "issue": "Temporary laptop request",
+              "bot_solution": "1. Please provide: 1) Reason for temporary laptop 2) Duration needed 3) Any specific requirements.\n2. A ticket will be created for IT to arrange a loaner device."
+            }
+          ],
+          "Laptop Upgrade": [
+            {
+              "issue": "RAM upgrade request",
+              "bot_solution": "1. Please provide: 1) Current laptop model 2) Current RAM size 3) Required RAM size.\n2. A ticket will be created for IT to assess compatibility and availability."
+            },
+            {
+              "issue": "Storage upgrade request",
+              "bot_solution": "1. Please provide: 1) Current laptop model 2) Current storage size 3) Required storage size.\n2. A ticket will be created for IT hardware team."
+            },
+            {
+              "issue": "Battery replacement request",
+              "bot_solution": "1. Please provide: 1) Laptop model 2) Current battery health status 3) Warranty status.\n2. A ticket will be created for IT to arrange replacement."
+            }
+          ]
+        }
+      }
+    },
+    "Modification Request": {
+      "Applications & Software": {
+        "Laptop/ Desktop": {
+          "Software Installation": [
+            {
+              "issue": "Request software installation",
+              "bot_solution": "1. Please provide: 1) Software name 2) Version (if specific) 3) Business justification.\n2. A ticket will be created for IT approval and installation."
+            },
+            {
+              "issue": "Request software license",
+              "bot_solution": "1. Please provide: 1) Software name 2) License type needed (individual/team) 3) Business justification.\n2. A ticket will be created for procurement."
+            },
+            {
+              "issue": "Request software update",
+              "bot_solution": "1. Please provide: 1) Software name 2) Current version 3) Required version.\n2. A ticket will be created for IT to schedule the update."
+            }
+          ],
+          "Configuration Change": [
+            {
+              "issue": "System configuration change request",
+              "bot_solution": "1. Please provide: 1) What configuration needs changing 2) Current setting 3) Desired setting 4) Reason for change.\n2. A ticket will be created for IT."
+            },
+            {
+              "issue": "Firewall exception request",
+              "bot_solution": "1. Please provide: 1) Application name 2) Port/protocol needed 3) Destination IP/URL 4) Business justification.\n2. A ticket will be created for security review."
+            },
+            {
+              "issue": "Admin rights request",
+              "bot_solution": "1. Please provide: 1) Reason for admin rights 2) Duration (temporary/permanent) 3) Manager approval.\n2. A ticket will be created for security team review."
+            }
+          ]
+        }
+      }
+    },
+    "Access Request": {
+      "Applications & Software": {
+        "Laptop/ Desktop": {
+          "VPN Access": [
+            {
+              "issue": "Request VPN access",
+              "bot_solution": "1. Please provide: 1) Employee name 2) Department 3) Reason for VPN access 4) Manager name.\n2. A ticket will be created for IT security approval."
+            },
+            {
+              "issue": "VPN access for contractor",
+              "bot_solution": "1. Please provide: 1) Contractor name 2) Company 3) Contract duration 4) Sponsor (internal manager).\n2. A ticket will be created for security review."
+            },
+            {
+              "issue": "VPN access extension",
+              "bot_solution": "1. Please provide: 1) Current VPN account 2) New end date required 3) Reason for extension.\n2. A ticket will be created for IT security."
+            }
+          ],
+          "System Access": [
+            {
+              "issue": "Request access to shared folder",
+              "bot_solution": "1. Please provide: 1) Folder path/name 2) Access level needed (read/write) 3) Business justification.\n2. A ticket will be created for data owner approval."
+            },
+            {
+              "issue": "Request access to application",
+              "bot_solution": "1. Please provide: 1) Application name 2) Access level/role needed 3) Manager approval status.\n2. A ticket will be created for application admin."
+            },
+            {
+              "issue": "Request email distribution list access",
+              "bot_solution": "1. Please provide: 1) Distribution list name 2) Access type (member/owner) 3) Business justification.\n2. A ticket will be created for IT."
+            }
+          ]
+        }
+      }
+    }
+  }
+}

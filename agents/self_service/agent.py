@@ -1,18 +1,11 @@
 """Self-Service Agent using Google ADK"""
-import os
 from google import adk
 from google.adk.planners.built_in_planner import BuiltInPlanner
 from google.genai import types
 from agents.prompts import SELF_SERVICE_AGENT_INSTRUCTION
 from tools.tool_registry import SELF_SERVICE_TOOLS
-from google.adk.models.lite_llm import LiteLlm
 
-# new_model = LiteLlm(model="ollama/qwen2.5:3b-instruct",
-#                     api_base="http://localhost:11434")
-new_model = LiteLlm(
-    model="openrouter/moonshot/moonshot-v1-8k",  # Kimi via OpenRouter
-    api_key=os.environ.get("OPENROUTER_API_KEY", "")
-)
+
 def create_self_service_agent():
     """
     Create and configure the Self-Service Agent.

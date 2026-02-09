@@ -233,12 +233,82 @@ class PostgresDB:
         """
         self.execute_query(query, (assigned, resolved, tech_id))
 
+    def get_on_shift_technician_round_robin(self):
+        """Get next technician for round-robin assignment based on current shift.
+        
+        Finds active technicians whose shift covers the current IST time,
+        then picks the one with the fewest assigned_tickets (round-robin by load).
+        Handles overnight shifts (e.g. 7PM-4AM) where shift_end < shift_start.
+        """
+        from datetime import datetime, timezone, timedelta
+        # Get current IST time
+        ist = timezone(timedelta(hours=5, minutes=30))
+        now_ist = datetime.now(ist).time()
+        
+        # Query active technicians on shift, ordered by assigned_tickets ASC (least loaded first)
+        # Handles both normal shifts (start < end) and overnight shifts (start > end)
+        query = """
+            SELECT * FROM technicians
+            WHERE active_status = true
+              AND shift_start IS NOT NULL
+              AND shift_end IS NOT NULL
+              AND (
+                    -- Normal shift: e.g. 7AM-4PM
+                    (shift_start < shift_end AND %s >= shift_start AND %s < shift_end)
+                    OR
+                    -- Overnight shift: e.g. 7PM-4AM
+                    (shift_start > shift_end AND (%s >= shift_start OR %s < shift_end))
+                  )
+            ORDER BY assigned_tickets ASC, id ASC
+            LIMIT 1
+        """
+        return self.execute_one(query, (now_ist, now_ist, now_ist, now_ist))
+
+    def auto_assign_ticket(self, ticket_id):
+        """Auto-assign a ticket to the next on-shift technician using round-robin.
+        Returns the technician dict if assigned, None otherwise."""
+        tech = self.get_on_shift_technician_round_robin()
+        if not tech:
+            logger.info(f"No on-shift technician available for ticket {ticket_id}")
+            return None
+        
+        query = """
+            UPDATE tickets 
+            SET assigned_to_id = %s, assigned_to = %s, status = 'In Progress', updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s RETURNING *
+        """
+        result = self.execute_one(query, (tech['id'], tech['name'], ticket_id))
+        
+        if result:
+            self.increment_technician_stats(tech['id'], assigned=1)
+            self.create_audit_log('Auto-Assigned', ticket_id, 'SYSTEM', 'Round Robin',
+                                  f"Auto-assigned to {tech['name']} (on-shift, least loaded)")
+            logger.info(f"Ticket {ticket_id} auto-assigned to {tech['name']} ({tech['id']})")
+        
+        return tech
+
     # ==========================================
     # Ticket Methods
     # ==========================================
+    
+    def get_assignment_group(self, smart_category):
+        """Map smart category to assignment group"""
+        # Default mapping - all go to GSS Infradesk IT
+        # Can be extended later for other groups based on category
+        mapping = {
+            'Network Connection Issues': 'GSS Infradesk IT',
+            'Operating System Issues': 'GSS Infradesk IT',
+            'PC / Laptop / Peripherals / Accessories Issues': 'GSS Infradesk IT',
+            'Printer / Scanner / Copier Issues': 'GSS Infradesk IT',
+            'Laptop Request': 'GSS Infradesk IT',
+            'Modification Request': 'GSS Infradesk IT',
+            'Access Request': 'GSS Infradesk IT',
+        }
+        return mapping.get(smart_category, 'GSS Infradesk IT')
+    
     def create_ticket(self, user_id, user_name, user_email, category, subject, description,
-                      subcategory=None, priority='Medium', session_id=None, attachment_urls=None):
-        """Create a new ticket with auto-priority and SLA"""
+                      subcategory=None, priority='P3', session_id=None, attachment_urls=None):
+        """Create a new ticket with auto-priority, SLA, and assignment group"""
         ticket_id = generate_id('TKT')
         
         # Auto-determine priority based on rules
@@ -247,19 +317,31 @@ class PostgresDB:
         # Calculate SLA deadline
         sla_deadline = self.calculate_sla_deadline(priority)
         
+        # Determine assignment group based on smart category (stored in subcategory)
+        assignment_group = self.get_assignment_group(subcategory)
+        
         query = """
             INSERT INTO tickets (id, user_id, user_name, user_email, category, subcategory,
-                                 priority, status, subject, description, attachment_urls, sla_deadline, chatbot_session_id)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Open', %s, %s, %s, %s, %s)
+                                 priority, status, subject, description, attachment_urls, sla_deadline, chatbot_session_id, assignment_group)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, 'Open', %s, %s, %s, %s, %s, %s)
             RETURNING *
         """
         result = self.execute_one(query, (ticket_id, user_id, user_name, user_email, category,
-                                          subcategory, priority, subject, description, attachment_urls, sla_deadline, session_id))
+                                          subcategory, priority, subject, description, attachment_urls, sla_deadline, session_id, assignment_group))
         
         # Create audit log
         if result:
             self.create_audit_log('Ticket Created', ticket_id, user_id, user_name,
                                   f"New ticket created: {subject}")
+            
+            # Auto-assign to on-shift technician via round-robin
+            try:
+                tech = self.auto_assign_ticket(ticket_id)
+                if tech:
+                    # Re-fetch ticket with updated assignment
+                    result = self.get_ticket_by_id(ticket_id)
+            except Exception as assign_err:
+                logger.warning(f"Auto-assignment failed for {ticket_id}: {assign_err}")
         
         return result
     
@@ -419,15 +501,19 @@ class PostgresDB:
         return self.execute_query(query, (rule_id,))
     
     def determine_priority(self, subject, description, category=None):
-        """Determine priority based on rules"""
+        """
+        Determine priority based on rules, smart category mapping, and keyword analysis.
+        Returns P2, P3, P4, or Critical depending on urgency indicators.
+        """
         text = f"{subject} {description}".lower()
         rules = self.get_priority_rules()
         
-        # Priority order: Critical > High > Medium > Low
-        priority_order = {'Critical': 4, 'High': 3, 'Medium': 2, 'Low': 1}
+        # Priority order: Critical > P2 > P3 > P4
+        priority_order = {'Critical': 4, 'P2': 3, 'P3': 2, 'P4': 1}
         max_priority = None
         max_order = 0
         
+        # Check database rules first
         for rule in rules:
             if rule['keyword'].lower() in text:
                 if rule['category'] and rule['category'] != category:
@@ -437,7 +523,77 @@ class PostgresDB:
                     max_order = rule_order
                     max_priority = rule['priority']
         
-        return max_priority
+        # If a high-priority rule matched, return it
+        if max_priority and max_order >= 3:  # P2 or Critical
+            return max_priority
+        
+        # Smart category-based priority mapping
+        smart_category_priorities = {
+            'Network Connection Issues': 'P2',  # Network issues often affect productivity
+            'Operating System Issues': 'P3',    # OS issues vary in severity
+            'PC / Laptop / Peripherals / Accessories Issues': 'P3',
+            'Printer / Scanner / Copier Issues': 'P4',  # Usually lower priority
+        }
+        
+        if category and category in smart_category_priorities:
+            category_priority = smart_category_priorities[category]
+            category_order = priority_order.get(category_priority, 0)
+            if category_order > max_order:
+                max_order = category_order
+                max_priority = category_priority
+        
+        # Extended keyword matching for better priority detection
+        critical_keywords = [
+            'server down', 'outage', 'all users affected', 'entire department', 
+            'production down', 'business critical', 'security breach', 'data loss',
+            'system failure', 'complete failure', 'emergency'
+        ]
+        
+        p2_keywords = [
+            'cannot work', 'blocked', 'unable to access', 'vpn not working',
+            'cannot login', 'authentication failed', 'password expired',
+            'locked out', 'urgent', 'deadline', 'meeting', 'presentation',
+            'network down', 'no internet', 'cannot connect', 'not responding',
+            'frozen', 'crashes', 'blue screen', 'boot failure', 'corrupt'
+        ]
+        
+        p4_keywords = [
+            'question', 'inquiry', 'when', 'how to', 'information',
+            'minor', 'cosmetic', 'font', 'preference', 'suggestion',
+            'would like', 'nice to have', 'improvement', 'training'
+        ]
+        
+        # Check for critical keywords
+        for keyword in critical_keywords:
+            if keyword in text:
+                return 'Critical'
+        
+        # Check for P2 keywords
+        for keyword in p2_keywords:
+            if keyword in text:
+                if max_order < 3:  # Don't downgrade if already Critical
+                    return 'P2'
+        
+        # Check for P4 keywords (only if nothing else matched)
+        if max_priority is None:
+            for keyword in p4_keywords:
+                if keyword in text:
+                    return 'P4'
+        
+        # If a rule matched, return it
+        if max_priority:
+            return max_priority
+        
+        # Smart default based on category presence
+        if category:
+            # If category is provided but no high-priority match, assign P3 or P4
+            # based on simple heuristics
+            import random
+            # 60% P3, 40% P4 for variety when no rules match
+            return random.choice(['P3', 'P3', 'P3', 'P4', 'P4'])
+        
+        # Default to P3 for unmatched cases
+        return 'P3'
 
     # ==========================================
     # Knowledge Base Methods
@@ -629,9 +785,9 @@ class PostgresDB:
             ORDER BY 
                 CASE priority 
                     WHEN 'Critical' THEN 1 
-                    WHEN 'High' THEN 2 
-                    WHEN 'Medium' THEN 3 
-                    WHEN 'Low' THEN 4 
+                    WHEN 'P2' THEN 2 
+                    WHEN 'P3' THEN 3 
+                    WHEN 'P4' THEN 4 
                 END
         """
         return self.execute_query(query, fetch=True)
@@ -663,6 +819,86 @@ class PostgresDB:
             ORDER BY total_assigned DESC
         """
         return self.execute_query(query, fetch=True)
+
+    # ==========================================
+    # Feedback Methods
+    # ==========================================
+    def save_solution_feedback(self, ticket_id=None, session_id=None, solution_index=1, 
+                               solution_text="", was_helpful=None):
+        """Save per-solution helpfulness feedback"""
+        query = """
+            INSERT INTO solution_feedback (ticket_id, session_id, solution_index, solution_text, was_helpful)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING *
+        """
+        return self.execute_one(query, (ticket_id, session_id, solution_index, solution_text, was_helpful))
+    
+    def save_ticket_feedback(self, ticket_id=None, session_id=None, flow_type='incident',
+                             rating=None, feedback_text=None):
+        """Save end-of-flow feedback with rating"""
+        query = """
+            INSERT INTO ticket_feedback (ticket_id, session_id, flow_type, rating, feedback_text)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING *
+        """
+        return self.execute_one(query, (ticket_id, session_id, flow_type, rating, feedback_text))
+    
+    def save_all_feedback(self, feedback_data):
+        """Save all feedback data from conversation state"""
+        ticket_id = feedback_data.get('ticket_id')
+        session_id = feedback_data.get('session_id')
+        flow_type = feedback_data.get('flow_type', 'incident')
+        rating = feedback_data.get('rating')
+        feedback_text = feedback_data.get('feedback_text')
+        solution_feedback = feedback_data.get('solution_feedback', {})
+        solutions_shown = feedback_data.get('solutions_shown', [])
+        
+        # Save per-solution feedback (isolated per-item so one failure doesn't block ticket feedback)
+        for index_str, was_helpful in solution_feedback.items():
+            try:
+                index = int(index_str) if isinstance(index_str, str) else index_str
+                sol_entry = solutions_shown[index - 1] if index <= len(solutions_shown) else ""
+                # Handle both plain strings and dict objects from solutions_list
+                if isinstance(sol_entry, dict):
+                    solution_text = sol_entry.get('text', str(sol_entry))
+                else:
+                    solution_text = str(sol_entry) if sol_entry else ""
+                self.save_solution_feedback(ticket_id, session_id, index, solution_text, was_helpful)
+            except Exception as e:
+                logger.warning(f"Failed to save solution feedback for index {index_str}: {e}")
+        
+        # Save overall ticket feedback (star rating + text)
+        try:
+            if rating is not None or feedback_text:
+                self.save_ticket_feedback(ticket_id, session_id, flow_type, rating, feedback_text)
+        except Exception as e:
+            logger.warning(f"Failed to save ticket feedback: {e}")
+        
+        return True
+    
+    def get_feedback_stats(self):
+        """Get feedback statistics for analytics"""
+        query = """
+            SELECT 
+                ROUND(AVG(rating), 2) as avg_rating,
+                COUNT(*) as total_ratings,
+                SUM(CASE WHEN rating >= 4 THEN 1 ELSE 0 END) as positive_ratings,
+                SUM(CASE WHEN rating <= 2 THEN 1 ELSE 0 END) as negative_ratings
+            FROM ticket_feedback
+            WHERE rating IS NOT NULL
+        """
+        return self.execute_one(query)
+    
+    def get_solution_feedback_stats(self):
+        """Get solution feedback statistics"""
+        query = """
+            SELECT 
+                COUNT(*) as total_solutions,
+                SUM(CASE WHEN was_helpful = true THEN 1 ELSE 0 END) as helpful_count,
+                SUM(CASE WHEN was_helpful = false THEN 1 ELSE 0 END) as not_helpful_count
+            FROM solution_feedback
+        """
+        return self.execute_one(query)
 
 
 # Global database instance

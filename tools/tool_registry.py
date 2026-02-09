@@ -3,7 +3,6 @@
 from typing import Any, Callable, Dict
 from tools.tools import (
     search_knowledge_base,
-    ask_clarification,
     preview_escalation_ticket,
     confirm_and_create_escalation_ticket
 )
@@ -11,16 +10,14 @@ from tools.tools import (
 # Define tool registry with all available tools
 TOOLS_REGISTRY: Dict[str, Callable] = {
     'search_knowledge_base': search_knowledge_base,
-    'ask_clarification': ask_clarification,
     'preview_escalation_ticket': preview_escalation_ticket,
     'confirm_and_create_escalation_ticket': confirm_and_create_escalation_ticket,
 }
 
-# Self-service agent tools
-SELF_SERVICE_TOOLS = [search_knowledge_base, ask_clarification]
+# Self-service agent tools - only KB search (no clarification questions)
+SELF_SERVICE_TOOLS = [search_knowledge_base]
 SELF_SERVICE_TOOLS_DICT = {
     'search_knowledge_base': search_knowledge_base,
-    'ask_clarification': ask_clarification,
 }
 
 # Escalation agent tools

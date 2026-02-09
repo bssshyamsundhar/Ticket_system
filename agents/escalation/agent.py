@@ -1,18 +1,11 @@
 """Escalation Agent using Google ADK - With Ticket Preview & Confirmation"""
-import os
 from google import adk
 from google.adk.planners.built_in_planner import BuiltInPlanner
 from google.genai import types
 from agents.prompts import ESCALATION_AGENT_INSTRUCTION
 from tools.tool_registry import ESCALATION_TOOLS
-from google.adk.models.lite_llm import LiteLlm
 
-# new_model = LiteLlm(model="ollama/qwen2.5:3b-instruct",
-#                     api_base="http://localhost:11434/v1")
-new_model = LiteLlm(
-    model="openrouter/moonshot/moonshot-v1-8k",  # Kimi via OpenRouter
-    api_key=os.environ.get("OPENROUTER_API_KEY", "")
-)
+
 def create_escalation_agent():
     """
     Create and configure the Escalation Agent.

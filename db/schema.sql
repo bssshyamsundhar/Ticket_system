@@ -1,7 +1,10 @@
 -- Enterprise IT Support System Database Schema
 -- Based on Dashboard Schema with enhancements for chatbot integration
+-- Updated: Priority P2/P3/P4, Technician shifts, Feedback tables
 
 -- Drop existing tables if they exist (for fresh start)
+DROP TABLE IF EXISTS ticket_feedback CASCADE;
+DROP TABLE IF EXISTS solution_feedback CASCADE;
 DROP TABLE IF EXISTS audit_logs CASCADE;
 DROP TABLE IF EXISTS kb_updates CASCADE;
 DROP TABLE IF EXISTS conversation_history CASCADE;
@@ -32,7 +35,7 @@ CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_users_role ON users(role);
 
 -- ============================================
--- 2. Technicians Table (Support staff)
+-- 2. Technicians Table (Support staff with shift timings)
 -- ============================================
 CREATE TABLE technicians (
     id VARCHAR(50) PRIMARY KEY,
@@ -45,6 +48,8 @@ CREATE TABLE technicians (
     resolved_tickets INTEGER DEFAULT 0,
     avg_resolution_time VARCHAR(50),
     specialization TEXT[],
+    shift_start TIME,  -- Shift start time (IST)
+    shift_end TIME,    -- Shift end time (IST)
     joined_date DATE NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -52,13 +57,14 @@ CREATE TABLE technicians (
 
 CREATE INDEX idx_technicians_active ON technicians(active_status);
 CREATE INDEX idx_technicians_email ON technicians(email);
+CREATE INDEX idx_technicians_shift ON technicians(shift_start, shift_end);
 
 -- ============================================
--- 3. SLA Configuration Table
+-- 3. SLA Configuration Table (P2/P3/P4 priority levels)
 -- ============================================
 CREATE TABLE sla_config (
     id VARCHAR(50) PRIMARY KEY,
-    priority VARCHAR(50) UNIQUE NOT NULL CHECK (priority IN ('Low', 'Medium', 'High', 'Critical')),
+    priority VARCHAR(50) UNIQUE NOT NULL CHECK (priority IN ('P4', 'P3', 'P2', 'Critical')),
     sla_hours INTEGER NOT NULL,
     description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -72,7 +78,7 @@ CREATE TABLE priority_rules (
     id VARCHAR(50) PRIMARY KEY,
     keyword VARCHAR(255) NOT NULL,
     category VARCHAR(100),
-    priority VARCHAR(50) NOT NULL CHECK (priority IN ('Low', 'Medium', 'High', 'Critical')),
+    priority VARCHAR(50) NOT NULL CHECK (priority IN ('P4', 'P3', 'P2', 'Critical')),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -94,17 +100,18 @@ CREATE TABLE kb_categories (
 );
 
 -- ============================================
--- 6. Tickets Table
+-- 6. Tickets Table (Updated with P2/P3/P4 and new default assignment group)
 -- ============================================
 CREATE TABLE tickets (
     id VARCHAR(50) PRIMARY KEY,
     user_id VARCHAR(50) REFERENCES users(id),
     user_name VARCHAR(255) NOT NULL,
     user_email VARCHAR(255) NOT NULL,
+    ticket_type VARCHAR(20) DEFAULT 'Incident' CHECK (ticket_type IN ('Incident', 'Request')),
     category VARCHAR(100) NOT NULL,
     subcategory VARCHAR(100),
-    priority VARCHAR(50) NOT NULL CHECK (priority IN ('Low', 'Medium', 'High', 'Critical')),
-    status VARCHAR(50) NOT NULL CHECK (status IN ('Open', 'In Progress', 'Resolved', 'Closed')),
+    priority VARCHAR(50) NOT NULL CHECK (priority IN ('P4', 'P3', 'P2', 'Critical')),
+    status VARCHAR(50) NOT NULL CHECK (status IN ('Open', 'In Progress', 'Pending Approval', 'Approved', 'Resolved', 'Closed')),
     assigned_to_id VARCHAR(50) REFERENCES technicians(id),
     assigned_to VARCHAR(255),
     subject TEXT NOT NULL,
@@ -114,6 +121,9 @@ CREATE TABLE tickets (
     sla_deadline TIMESTAMP,
     sla_breached BOOLEAN DEFAULT false,
     chatbot_session_id VARCHAR(255),
+    assignment_group VARCHAR(100) DEFAULT 'GSS Infradesk IT',  -- Updated default
+    manager_approval_status VARCHAR(50) CHECK (manager_approval_status IN ('Pending', 'Approved', 'Rejected')),
+    manager_approval_date TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at TIMESTAMP,
@@ -127,6 +137,7 @@ CREATE INDEX idx_tickets_assigned_to ON tickets(assigned_to_id);
 CREATE INDEX idx_tickets_user ON tickets(user_id);
 CREATE INDEX idx_tickets_created_at ON tickets(created_at);
 CREATE INDEX idx_tickets_sla_deadline ON tickets(sla_deadline);
+CREATE INDEX idx_tickets_type ON tickets(ticket_type);
 
 -- ============================================
 -- 7. Knowledge Articles Table (for admin management)
@@ -207,31 +218,65 @@ CREATE INDEX idx_conv_session ON conversation_history(session_id);
 CREATE INDEX idx_conv_ticket ON conversation_history(ticket_id);
 
 -- ============================================
--- Insert default SLA config
+-- 11. Solution Feedback Table (Per-solution helpfulness)
 -- ============================================
-INSERT INTO sla_config (id, priority, sla_hours, description) VALUES
-    ('SLA-001', 'Low', 48, 'Non-urgent issues - general inquiries'),
-    ('SLA-002', 'Medium', 24, 'Standard priority issues - productivity impact'),
-    ('SLA-003', 'High', 8, 'Important issues affecting multiple users'),
-    ('SLA-004', 'Critical', 2, 'Business-critical issues - system outages');
+CREATE TABLE solution_feedback (
+    id SERIAL PRIMARY KEY,
+    ticket_id VARCHAR(50) REFERENCES tickets(id),
+    session_id VARCHAR(255),
+    solution_index INTEGER NOT NULL,  -- Which solution (1, 2, 3, etc.)
+    solution_text TEXT NOT NULL,
+    was_helpful BOOLEAN,  -- True = Yes, False = No, NULL = not answered
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_solution_feedback_ticket ON solution_feedback(ticket_id);
+CREATE INDEX idx_solution_feedback_session ON solution_feedback(session_id);
+CREATE INDEX idx_solution_feedback_helpful ON solution_feedback(was_helpful);
 
 -- ============================================
--- Insert default priority rules
+-- 12. Ticket Feedback Table (End-of-flow ratings)
+-- ============================================
+CREATE TABLE ticket_feedback (
+    id SERIAL PRIMARY KEY,
+    ticket_id VARCHAR(50) REFERENCES tickets(id),
+    session_id VARCHAR(255),
+    flow_type VARCHAR(20) CHECK (flow_type IN ('incident', 'request')),
+    rating INTEGER CHECK (rating >= 1 AND rating <= 5),  -- 1-5 stars
+    feedback_text TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_ticket_feedback_ticket ON ticket_feedback(ticket_id);
+CREATE INDEX idx_ticket_feedback_session ON ticket_feedback(session_id);
+CREATE INDEX idx_ticket_feedback_rating ON ticket_feedback(rating);
+
+-- ============================================
+-- Insert default SLA config (P2=8hrs, P3=72hrs, P4=168hrs)
+-- ============================================
+INSERT INTO sla_config (id, priority, sla_hours, description) VALUES
+    ('SLA-001', 'P4', 168, 'Low priority - 7 days resolution time'),
+    ('SLA-002', 'P3', 72, 'Medium priority - 3 days resolution time'),
+    ('SLA-003', 'P2', 8, 'High priority - 8 hours resolution time'),
+    ('SLA-004', 'Critical', 2, 'Critical - Business-critical issues, 2 hours');
+
+-- ============================================
+-- Insert default priority rules (Updated for P2/P3/P4)
 -- ============================================
 INSERT INTO priority_rules (id, keyword, category, priority) VALUES
-    ('PR-001', 'urgent', NULL, 'High'),
+    ('PR-001', 'urgent', NULL, 'P2'),
     ('PR-002', 'critical', NULL, 'Critical'),
     ('PR-003', 'emergency', NULL, 'Critical'),
-    ('PR-004', 'cannot access', NULL, 'High'),
+    ('PR-004', 'cannot access', NULL, 'P2'),
     ('PR-005', 'server down', NULL, 'Critical'),
     ('PR-006', 'outage', NULL, 'Critical'),
-    ('PR-007', 'slow', NULL, 'Medium'),
-    ('PR-008', 'error', NULL, 'Medium'),
-    ('PR-009', 'help', NULL, 'Low'),
-    ('PR-010', 'question', NULL, 'Low'),
-    ('PR-011', 'vpn', 'VPN', 'High'),
-    ('PR-012', 'email', 'Email', 'Medium'),
-    ('PR-013', 'password', 'Account', 'High');
+    ('PR-007', 'slow', NULL, 'P3'),
+    ('PR-008', 'error', NULL, 'P3'),
+    ('PR-009', 'help', NULL, 'P4'),
+    ('PR-010', 'question', NULL, 'P4'),
+    ('PR-011', 'vpn', 'VPN', 'P2'),
+    ('PR-012', 'email', 'Email', 'P3'),
+    ('PR-013', 'password', 'Account', 'P2');
 
 -- ============================================
 -- Insert default KB categories
@@ -243,7 +288,7 @@ INSERT INTO kb_categories (id, name, display_name, icon, display_order) VALUES
     ('CAT-004', 'Zoom', 'Zoom & Meetings', '📹', 4),
     ('CAT-005', 'Network', 'Network Drives', '📁', 5),
     ('CAT-006', 'Software', 'Software Installation', '📦', 6),
-    ('CAT-007', 'Hardware', 'Hardware Requests', '🖥️', 7),
+    ('CAT-007', 'Hardware', 'Hardware Issues', '🖥️', 7),
     ('CAT-008', 'Account', 'Password & Account', '🔑', 8),
     ('CAT-009', 'Other', 'Other Issues', '❓', 99);
 
@@ -265,9 +310,22 @@ VALUES (
 );
 
 -- ============================================
--- Insert default technicians
+-- Insert 10 technicians with shift timings (IST)
+-- Shift 1: 7AM-4PM (4 technicians)
+-- Shift 2: 2PM-11PM (3 technicians)
+-- Shift 3: 7PM-4AM (3 technicians)
 -- ============================================
-INSERT INTO technicians (id, name, email, role, department, specialization, joined_date) VALUES
-    ('TECH-001', 'John Smith', 'john.smith@company.com', 'L1 Support', 'IT Support', ARRAY['Windows', 'Email', 'VPN'], '2024-01-15'),
-    ('TECH-002', 'Sarah Johnson', 'sarah.johnson@company.com', 'L2 Support', 'IT Support', ARRAY['Network', 'Server', 'Security'], '2023-06-01'),
-    ('TECH-003', 'Mike Chen', 'mike.chen@company.com', 'Senior Engineer', 'IT Support', ARRAY['Infrastructure', 'Cloud', 'Database'], '2022-03-20');
+INSERT INTO technicians (id, name, email, role, department, specialization, shift_start, shift_end, joined_date) VALUES
+    -- Shift 1: 7AM-4PM (4 technicians)
+    ('TECH-001', 'Rajesh Kumar', 'rajesh.kumar@company.com', 'L1 Support', 'IT Support', ARRAY['Windows', 'Email', 'VPN'], '07:00:00', '16:00:00', '2024-01-15'),
+    ('TECH-002', 'Priya Sharma', 'priya.sharma@company.com', 'L1 Support', 'IT Support', ARRAY['Hardware', 'Software', 'Network'], '07:00:00', '16:00:00', '2024-02-01'),
+    ('TECH-003', 'Amit Patel', 'amit.patel@company.com', 'L2 Support', 'IT Support', ARRAY['Network', 'Server', 'Security'], '07:00:00', '16:00:00', '2023-06-01'),
+    ('TECH-004', 'Sneha Gupta', 'sneha.gupta@company.com', 'Senior Engineer', 'IT Support', ARRAY['Infrastructure', 'Cloud', 'Database'], '07:00:00', '16:00:00', '2022-03-20'),
+    -- Shift 2: 2PM-11PM (3 technicians)
+    ('TECH-005', 'Vikram Singh', 'vikram.singh@company.com', 'L1 Support', 'IT Support', ARRAY['Windows', 'Email', 'Zoom'], '14:00:00', '23:00:00', '2024-03-10'),
+    ('TECH-006', 'Ananya Reddy', 'ananya.reddy@company.com', 'L2 Support', 'IT Support', ARRAY['Software', 'VPN', 'Account'], '14:00:00', '23:00:00', '2023-09-15'),
+    ('TECH-007', 'Karthik Iyer', 'karthik.iyer@company.com', 'L1 Support', 'IT Support', ARRAY['Hardware', 'Network', 'Printing'], '14:00:00', '23:00:00', '2024-01-20'),
+    -- Shift 3: 7PM-4AM (3 technicians)
+    ('TECH-008', 'Deepak Verma', 'deepak.verma@company.com', 'L1 Support', 'IT Support', ARRAY['Windows', 'VPN', 'Email'], '19:00:00', '04:00:00', '2024-04-05'),
+    ('TECH-009', 'Meera Nair', 'meera.nair@company.com', 'L2 Support', 'IT Support', ARRAY['Server', 'Security', 'Network'], '19:00:00', '04:00:00', '2023-11-01'),
+    ('TECH-010', 'Rohit Joshi', 'rohit.joshi@company.com', 'Senior Engineer', 'IT Support', ARRAY['Infrastructure', 'Database', 'Cloud'], '19:00:00', '04:00:00', '2022-08-15');

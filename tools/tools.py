@@ -183,7 +183,7 @@ def confirm_and_create_escalation_ticket(
                     category=category,
                     subject=issue_summary[:200] if issue_summary else "Support Request",
                     description=refined_query or issue_summary or "User requested support",
-                    priority=ticket.get('priority', 'Medium')
+                    priority=ticket.get('priority', 'P3')
                 )
             except Exception as email_error:
                 logger.warning(f"Failed to send ticket creation email: {email_error}")
@@ -220,102 +220,6 @@ def confirm_and_create_escalation_ticket(
             "Please email support@company.com with your issue and mention "
             "you encountered an error creating a ticket via chat."
         )
-
-
-# Additional utility tools (not directly used by agents but available for admin)
-
-def create_ticket(
-    user_id, 
-    issue_summary: str, 
-    refined_query: Optional[str] = None, 
-    confidence_score: Optional[float] = None
-) -> Dict:
-    """
-    Direct ticket creation (used by orchestrator, not agents).
-    
-    Args:
-        user_id: ID of the user creating the ticket
-        issue_summary: Summary of the issue
-        refined_query: Refined version of the query
-        confidence_score: Confidence score from KB search
-        
-    Returns:
-        Dictionary with ticket information
-    """
-    try:
-        if isinstance(user_id, str):
-            user_id = int(user_id)
-        
-        ticket_id = db.create_ticket(
-            user_id=user_id,
-            issue_summary=issue_summary,
-            refined_query=refined_query,
-            confidence_score=confidence_score
-        )
-        
-        if ticket_id:
-            logger.info(f"Created ticket #{ticket_id} for user {user_id}")
-            return {
-                "success": True,
-                "ticket_id": ticket_id,
-                "message": f"Ticket #{ticket_id} created successfully."
-            }
-        else:
-            return {
-                "success": False,
-                "message": "Failed to create ticket."
-            }
-    
-    except Exception as e:
-        logger.error(f"Error creating ticket: {e}")
-        return {
-            "success": False,
-            "message": f"Error: {str(e)}"
-        }
-
-
-def update_ticket_status(
-    ticket_id: int, 
-    status: str, 
-    resolution_text: Optional[str] = None, 
-    resolved_by: Optional[int] = None
-) -> Dict:
-    """
-    Update the status of a support ticket (admin function).
-    
-    Args:
-        ticket_id: ID of the ticket to update
-        status: New status (open, in_progress, resolved, closed)
-        resolution_text: Resolution description
-        resolved_by: ID of the admin who resolved the ticket
-        
-    Returns:
-        Dictionary with update result
-    """
-    try:
-        valid_statuses = ['open', 'in_progress', 'resolved', 'closed']
-        if status not in valid_statuses:
-            return {
-                "success": False,
-                "message": f"Invalid status. Must be one of: {', '.join(valid_statuses)}"
-            }
-        
-        db.update_ticket_status(ticket_id, status, resolution_text, resolved_by)
-        
-        logger.info(f"Updated ticket #{ticket_id} to status: {status}")
-        return {
-            "success": True,
-            "ticket_id": ticket_id,
-            "status": status,
-            "message": f"Ticket #{ticket_id} updated to {status}"
-        }
-    
-    except Exception as e:
-        logger.error(f"Error updating ticket: {e}")
-        return {
-            "success": False,
-            "message": f"Error: {str(e)}"
-        }
 
 
 def update_knowledge_base(issue: str, solution: str, source: str = "Admin Approved") -> Dict:
