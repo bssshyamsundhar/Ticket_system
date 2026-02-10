@@ -155,10 +155,6 @@ def confirm_and_create_escalation_ticket(
         Formatted confirmation message with ticket ID
     """
     try:
-        # Convert user_id to int if it's a string
-        if isinstance(user_id, str):
-            user_id = int(user_id)
-        
         # Create the ticket in database with correct parameters
         ticket = db.create_ticket(
             user_id=user_id,

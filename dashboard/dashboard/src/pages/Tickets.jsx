@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, Plus, Eye, UserPlus, Edit, XCircle } from 'lucide-react';
+import { Search, Filter, Eye, UserPlus, Edit, XCircle, Download, Calendar } from 'lucide-react';
 import Card from '../components/UI/Card';
 import Table from '../components/UI/Table';
 import Button from '../components/UI/Button';
@@ -16,6 +16,9 @@ const Tickets = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('all');
     const [filterPriority, setFilterPriority] = useState('all');
+    const [filterDatePreset, setFilterDatePreset] = useState('all');
+    const [filterDateFrom, setFilterDateFrom] = useState('');
+    const [filterDateTo, setFilterDateTo] = useState('');
     const [selectedTicket, setSelectedTicket] = useState(null);
     const [showDetailModal, setShowDetailModal] = useState(false);
 
@@ -124,8 +127,122 @@ const Tickets = () => {
             ticket.subject.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesStatus = filterStatus === 'all' || ticket.status === filterStatus;
         const matchesPriority = filterPriority === 'all' || ticket.priority === filterPriority;
-        return matchesSearch && matchesStatus && matchesPriority;
+
+        // Date filter
+        let matchesDate = true;
+        if (filterDateFrom || filterDateTo) {
+            const ticketDate = new Date(ticket.createdAt);
+            if (filterDateFrom) {
+                const from = new Date(filterDateFrom);
+                from.setHours(0, 0, 0, 0);
+                if (ticketDate < from) matchesDate = false;
+            }
+            if (filterDateTo) {
+                const to = new Date(filterDateTo);
+                to.setHours(23, 59, 59, 999);
+                if (ticketDate > to) matchesDate = false;
+            }
+        }
+
+        return matchesSearch && matchesStatus && matchesPriority && matchesDate;
     });
+
+    const handleDatePresetChange = (preset) => {
+        setFilterDatePreset(preset);
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+
+        switch (preset) {
+            case 'today': {
+                setFilterDateFrom(today);
+                setFilterDateTo(today);
+                break;
+            }
+            case 'yesterday': {
+                const yesterday = new Date(now);
+                yesterday.setDate(yesterday.getDate() - 1);
+                const yd = yesterday.toISOString().split('T')[0];
+                setFilterDateFrom(yd);
+                setFilterDateTo(yd);
+                break;
+            }
+            case 'this_week': {
+                const startOfWeek = new Date(now);
+                startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+                setFilterDateFrom(startOfWeek.toISOString().split('T')[0]);
+                setFilterDateTo(today);
+                break;
+            }
+            case 'this_month': {
+                const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                setFilterDateFrom(startOfMonth.toISOString().split('T')[0]);
+                setFilterDateTo(today);
+                break;
+            }
+            case 'last_30': {
+                const last30 = new Date(now);
+                last30.setDate(last30.getDate() - 30);
+                setFilterDateFrom(last30.toISOString().split('T')[0]);
+                setFilterDateTo(today);
+                break;
+            }
+            case 'custom':
+                // Keep current from/to — user will pick manually
+                break;
+            default:
+                setFilterDateFrom('');
+                setFilterDateTo('');
+        }
+    };
+
+    const handleDownloadCSV = () => {
+        if (filteredTickets.length === 0) return;
+
+        const headers = [
+            'Ticket ID', 'User', 'Email', 'Category', 'Priority', 'Status',
+            'Assigned To', 'Assignment Group', 'Subject', 'Description',
+            'SLA Deadline', 'SLA Breached', 'Created At', 'Updated At', 'Resolved At'
+        ];
+
+        const escapeCSV = (val) => {
+            if (val === null || val === undefined) return '';
+            const str = String(val);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        const rows = filteredTickets.map(t => [
+            t.id,
+            t.userName,
+            t.userEmail,
+            t.category,
+            t.priority,
+            t.status,
+            t.assignedTo || '',
+            t.assignmentGroup || '',
+            t.subject,
+            t.description,
+            t.slaDeadline ? new Date(t.slaDeadline).toLocaleString() : '',
+            t.slaBreached ? 'Yes' : 'No',
+            t.createdAt ? new Date(t.createdAt).toLocaleString() : '',
+            t.updatedAt ? new Date(t.updatedAt).toLocaleString() : '',
+            t.resolvedAt ? new Date(t.resolvedAt).toLocaleString() : ''
+        ].map(escapeCSV));
+
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const dateStr = new Date().toISOString().split('T')[0];
+        link.download = `tickets_${dateStr}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
 
     const columns = [
         { key: 'id', label: 'Ticket ID', sortable: true },
@@ -170,7 +287,7 @@ const Tickets = () => {
             key: 'slaDeadline',
             label: 'SLA',
             sortable: true,
-            render: (value, row) => <SLATimer slaDeadline={value} slaBreached={row.slaBreached} />
+            render: (value, row) => <SLATimer slaDeadline={value} slaBreached={row.slaBreached} status={row.status} />
         },
         {
             key: 'actions',
@@ -197,9 +314,6 @@ const Tickets = () => {
                     <h1>Ticket Management</h1>
                     <p className="page-subtitle">Manage and track all support tickets</p>
                 </div>
-                <Button variant="primary" icon={<Plus size={18} />}>
-                    Create Ticket
-                </Button>
             </div>
 
             <Card className="filters-card" glass>
@@ -238,8 +352,53 @@ const Tickets = () => {
                             <option value="P4">P4 (Low)</option>
                             <option value="P3">P3 (Medium)</option>
                             <option value="P2">P2 (High)</option>
-                            <option value="Critical">Critical</option>
                         </select>
+                    </div>
+                </div>
+
+                {/* Date / Period Filter Row */}
+                <div className="filters-row filters-row-date">
+                    <div className="filter-group">
+                        <Calendar size={18} />
+                        <select
+                            value={filterDatePreset}
+                            onChange={(e) => handleDatePresetChange(e.target.value)}
+                            className="filter-select"
+                        >
+                            <option value="all">All Time</option>
+                            <option value="today">Today</option>
+                            <option value="yesterday">Yesterday</option>
+                            <option value="this_week">This Week</option>
+                            <option value="this_month">This Month</option>
+                            <option value="last_30">Last 30 Days</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+
+                        {filterDatePreset === 'custom' && (
+                            <>
+                                <input
+                                    type="date"
+                                    value={filterDateFrom}
+                                    onChange={(e) => setFilterDateFrom(e.target.value)}
+                                    className="filter-date-input"
+                                    placeholder="From"
+                                />
+                                <span className="date-range-separator">to</span>
+                                <input
+                                    type="date"
+                                    value={filterDateTo}
+                                    onChange={(e) => setFilterDateTo(e.target.value)}
+                                    className="filter-date-input"
+                                    placeholder="To"
+                                />
+                            </>
+                        )}
+
+                        {filterDatePreset !== 'all' && filterDatePreset !== 'custom' && filterDateFrom && (
+                            <span className="date-range-label">
+                                {filterDateFrom}{filterDateTo && filterDateTo !== filterDateFrom ? ` — ${filterDateTo}` : ''}
+                            </span>
+                        )}
                     </div>
                 </div>
             </Card>
@@ -247,6 +406,15 @@ const Tickets = () => {
             <Card className="table-card">
                 <div className="table-header">
                     <h3>All Tickets ({filteredTickets.length})</h3>
+                    <Button
+                        variant="secondary"
+                        onClick={handleDownloadCSV}
+                        disabled={filteredTickets.length === 0}
+                        className="download-btn"
+                    >
+                        <Download size={16} />
+                        Download CSV
+                    </Button>
                 </div>
                 {loading ? (
                     <div className="loading-state">Loading tickets...</div>
@@ -341,46 +509,76 @@ const Tickets = () => {
                             <div className="detail-value">{selectedTicket.description}</div>
                         </div>
 
+                        {/* Helpful Solutions - solutions that helped the user */}
+                        {selectedTicket.solutionFeedback && selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'helpful' || s.feedbackType === 'tried').length > 0 && (
+                            <div className="detail-section">
+                                <label>💡 Solutions That Helped</label>
+                                <div className="feedback-solutions-list">
+                                    {selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'helpful' || s.feedbackType === 'tried').map((sol, idx) => (
+                                        <div key={idx} className={`feedback-solution-item ${sol.feedbackType === 'helpful' ? 'feedback-helpful' : 'feedback-tried'}`}>
+                                            <span><strong>Step {sol.index}:</strong> {sol.text}</span>
+                                            <span className="feedback-badge-label">
+                                                {sol.feedbackType === 'helpful' ? '👍 Helpful' : '✅ Tried'}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Not Helpful Solutions */}
+                        {selectedTicket.solutionFeedback && selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'not_helpful').length > 0 && (
+                            <div className="detail-section">
+                                <label>👎 Solutions Not Helpful</label>
+                                <div className="feedback-solutions-list">
+                                    {selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'not_helpful').map((sol, idx) => (
+                                        <div key={idx} className="feedback-solution-item feedback-not-helpful">
+                                            <span><strong>Step {sol.index}:</strong> {sol.text}</span>
+                                            <span className="feedback-badge-label">
+                                                👎 Not Helpful
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Feedback Summary Counts (only shown if more than 1 feedback) */}
+                        {selectedTicket.solutionFeedback && selectedTicket.solutionFeedback.length > 1 && (
+                            <div className="detail-section">
+                                <label>📊 Feedback Summary</label>
+                                <div className="feedback-summary">
+                                    {selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'helpful').length > 0 && (
+                                        <span className="feedback-count-helpful">
+                                            👍 {selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'helpful').length} found helpful
+                                        </span>
+                                    )}
+                                    {selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'not_helpful').length > 0 && (
+                                        <span className="feedback-count-not-helpful">
+                                            👎 {selectedTicket.solutionFeedback.filter(s => s.feedbackType === 'not_helpful').length} found not helpful
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Support both attachmentUrls (array) and legacy attachmentUrl (string) */}
                         {(selectedTicket.attachmentUrls?.length > 0 || selectedTicket.attachmentUrl) && (
                             <div className="detail-section">
                                 <label>Attachments ({(selectedTicket.attachmentUrls || [selectedTicket.attachmentUrl].filter(Boolean)).length})</label>
-                                <div className="attachments-grid" style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))',
-                                    gap: '12px',
-                                    marginTop: '8px'
-                                }}>
+                                <div className="attachments-grid">
                                     {(selectedTicket.attachmentUrls || [selectedTicket.attachmentUrl].filter(Boolean)).map((url, index) => (
-                                        <div key={index} className="attachment-item" style={{
-                                            border: '1px solid #e2e8f0',
-                                            borderRadius: '8px',
-                                            overflow: 'hidden',
-                                            background: '#f8fafc'
-                                        }}>
+                                        <div key={index} className="attachment-item">
                                             <img
                                                 src={url}
                                                 alt={`Attachment ${index + 1}`}
-                                                style={{
-                                                    width: '100%',
-                                                    height: '120px',
-                                                    objectFit: 'cover',
-                                                    display: 'block'
-                                                }}
+                                                className="attachment-img"
                                             />
                                             <a
                                                 href={url}
                                                 target="_blank"
                                                 rel="noopener noreferrer"
-                                                style={{
-                                                    display: 'block',
-                                                    padding: '8px',
-                                                    color: '#667eea',
-                                                    textDecoration: 'none',
-                                                    fontSize: '12px',
-                                                    textAlign: 'center',
-                                                    borderTop: '1px solid #e2e8f0'
-                                                }}
+                                                className="attachment-link"
                                             >
                                                 🔗 Open #{index + 1}
                                             </a>

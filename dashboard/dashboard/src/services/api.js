@@ -87,6 +87,8 @@ const transformTechnician = (tech) => {
         activeStatus: t.activeStatus !== undefined ? t.activeStatus : true,
         assignedTickets: t.assignedTickets || 0,
         resolvedTickets: t.resolvedTickets || 0,
+        shiftStart: t.shiftStart || null,
+        shiftEnd: t.shiftEnd || null,
     };
 };
 
@@ -357,11 +359,30 @@ export const analyticsAPI = {
                 totalTickets: stats.total || 0,
                 openTickets: stats.open || 0,
                 inProgressTickets: stats.in_progress || 0,
-                resolvedToday: stats.resolved || 0,
-                highPriorityTickets: 0, // Will calculate from priority data
-                criticalTickets: 0,
+                resolvedToday: stats.resolved_today || stats.resolved || 0,
+                p2Tickets: stats.p2_tickets || 0,
+                p3Tickets: stats.p3_tickets || 0,
+                p4Tickets: stats.p4_tickets || 0,
                 slaBreached: stats.sla_breached || 0,
-                avgResolutionTime: 'N/A',
+                avgResolutionTime: stats.avg_resolution_time || 'N/A',
+                activeTechnicians: stats.active_technicians || 0,
+                // Real trends from backend
+                totalTrend: stats.total_trend || '0%',
+                totalTrendUp: stats.total_trend_up ?? true,
+                openTrend: stats.open_trend || '0%',
+                openTrendUp: stats.open_trend_up ?? true,
+                inProgressTrend: stats.in_progress_trend || '0%',
+                inProgressTrendUp: stats.in_progress_trend_up ?? false,
+                resolvedTrend: stats.resolved_trend || '0%',
+                resolvedTrendUp: stats.resolved_trend_up ?? true,
+                slaTrend: stats.sla_breached_trend || '0%',
+                slaTrendUp: stats.sla_breached_trend_up ?? false,
+                p2Trend: stats.p2_trend || '0%',
+                p2TrendUp: stats.p2_trend_up ?? true,
+                p3Trend: stats.p3_trend || '0%',
+                p3TrendUp: stats.p3_trend_up ?? true,
+                p4Trend: stats.p4_trend || '0%',
+                p4TrendUp: stats.p4_trend_up ?? false,
                 byCategory: data.by_category || [],
                 byPriority: data.by_priority || []
             }
@@ -430,8 +451,40 @@ export const analyticsAPI = {
         return { data: data.workload || [] };
     },
 
+    getSLACompliance: async () => {
+        const response = await apiClient.get('/api/analytics/sla');
+        const data = extractData(response);
+        return { data: data.sla || {} };
+    },
+
+    getResolutionTimeDistribution: async () => {
+        const response = await apiClient.get('/api/analytics/resolution-time');
+        const data = extractData(response);
+        return { data: data.distribution || [] };
+    },
+
+    getStatusBreakdown: async () => {
+        const response = await apiClient.get('/api/analytics/status');
+        const data = extractData(response);
+        return { data: data.statuses || [] };
+    },
+
+    getResolutionTrend: async (days = 30) => {
+        const response = await apiClient.get('/api/analytics/resolution-trend', { params: { days } });
+        const data = extractData(response);
+        return { data: data.trend || [] };
+    },
+
     exportReport: async (reportType, dateRange) => {
         return { data: 'Report export not implemented' };
+    },
+};
+
+export const techStatsAPI = {
+    getRealStats: async () => {
+        const response = await apiClient.get('/api/technicians/real-stats');
+        const data = extractData(response);
+        return { data: data.stats || [] };
     },
 };
 

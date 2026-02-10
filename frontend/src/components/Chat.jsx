@@ -381,6 +381,14 @@ function Chat({ user, token }) {
         );
         setShowAttachmentUpload(isTicketConfirmation);
 
+        // Handle per-solution feedback data from backend (agent responses)
+        if (response.data.solutions_with_feedback && response.data.solutions_with_feedback.length > 0) {
+          setSolutionsWithFeedback(response.data.solutions_with_feedback);
+          setSolutionFeedback({}); // Reset feedback for new solutions
+        } else {
+          setSolutionsWithFeedback([]);
+        }
+
         // Handle show_text_input flag from backend (for follow-up questions)
         if (response.data.show_text_input) {
           setShowOtherInput(true);
@@ -565,37 +573,77 @@ function Chat({ user, token }) {
     }
   };
 
-  // Render per-solution feedback UI (Yes/No for each numbered solution)
+  // Render per-solution feedback UI (Two-step: Tried/Not Tried → Helpful/Not Helpful)
   const renderSolutionFeedback = () => {
     if (!solutionsWithFeedback || solutionsWithFeedback.length === 0) return null;
 
     return (
       <div className="solution-feedback-container">
         <div className="solution-feedback-header">
-          <span>📋 Was each step helpful?</span>
+          <span>📋 Rate each solution step:</span>
         </div>
         <div className="solution-feedback-list">
-          {solutionsWithFeedback.map((solution, index) => (
-            <div key={index} className="solution-feedback-item">
-              <div className="solution-text">
-                <strong>{solution.index}.</strong> {solution.text}
+          {solutionsWithFeedback.map((solution, index) => {
+            const feedback = solutionFeedback[solution.index];
+            const isStep2 = feedback === 'tried'; // Show step 2 after clicking Tried
+            const isDone = feedback === 'not_tried' || feedback === 'helpful' || feedback === 'not_helpful';
+
+            return (
+              <div key={index} className={`solution-feedback-item ${isDone ? 'done' : ''}`}>
+                <div className="solution-text">
+                  <strong>{solution.index}.</strong> {solution.text}
+                </div>
+                <div className="solution-feedback-buttons">
+                  {/* Step 1: Tried / Not Tried */}
+                  {!feedback && (
+                    <>
+                      <button
+                        className="feedback-btn tried-btn"
+                        onClick={() => handleSolutionFeedback(solution.index, 'tried')}
+                      >
+                        ✅ Tried
+                      </button>
+                      <button
+                        className="feedback-btn not-tried-btn"
+                        onClick={() => handleSolutionFeedback(solution.index, 'not_tried')}
+                      >
+                        ⏭️ Not Tried
+                      </button>
+                    </>
+                  )}
+
+                  {/* Step 2: Helpful / Not Helpful (after clicking Tried) */}
+                  {isStep2 && (
+                    <>
+                      <button
+                        className="feedback-btn helpful-btn"
+                        onClick={() => handleSolutionFeedback(solution.index, 'helpful')}
+                      >
+                        👍 Helpful
+                      </button>
+                      <button
+                        className="feedback-btn not-helpful-btn"
+                        onClick={() => handleSolutionFeedback(solution.index, 'not_helpful')}
+                      >
+                        👎 Not Helpful
+                      </button>
+                    </>
+                  )}
+
+                  {/* Final state badges */}
+                  {feedback === 'not_tried' && (
+                    <span className="feedback-badge not-tried">⏭️ Not Tried</span>
+                  )}
+                  {feedback === 'helpful' && (
+                    <span className="feedback-badge helpful">👍 Helpful</span>
+                  )}
+                  {feedback === 'not_helpful' && (
+                    <span className="feedback-badge not-helpful">👎 Not Helpful</span>
+                  )}
+                </div>
               </div>
-              <div className="solution-feedback-buttons">
-                <button
-                  className={`helpful-button yes ${solutionFeedback[solution.index] === 'yes' ? 'selected' : ''}`}
-                  onClick={() => handleSolutionFeedback(solution.index, 'yes')}
-                >
-                  👍 Yes
-                </button>
-                <button
-                  className={`helpful-button no ${solutionFeedback[solution.index] === 'no' ? 'selected' : ''}`}
-                  onClick={() => handleSolutionFeedback(solution.index, 'no')}
-                >
-                  👎 No
-                </button>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     );
@@ -613,9 +661,8 @@ function Chat({ user, token }) {
       return null;  // The text input area has its own back button
     }
 
-    // Star rating display
+    // Star rating display - Traditional star rating (Amazon-style)
     if (showStarRating) {
-      const ratingButtons = currentButtons.filter(btn => btn.action === 'submit_rating');
       const otherButtons = currentButtons.filter(btn => btn.action !== 'submit_rating');
 
       return (
@@ -623,23 +670,39 @@ function Chat({ user, token }) {
           <div className="star-rating-header">
             <span>⭐ Rate your experience:</span>
           </div>
-          <div className="star-rating-buttons">
+          <div className="star-rating-stars">
             {[1, 2, 3, 4, 5].map((star) => (
-              <button
+              <span
                 key={star}
-                className={`star-button ${selectedRating >= star ? 'selected' : ''}`}
+                className={`star-icon ${selectedRating >= star ? 'filled' : 'empty'}`}
                 onClick={() => {
                   setSelectedRating(star);
                   setShowStarRating(false);
                   handleButtonClick({ action: 'submit_rating', value: String(star), label: `${'⭐'.repeat(star)}` });
                 }}
-                disabled={loading}
+                onMouseEnter={(e) => {
+                  // Highlight stars up to hovered star
+                  const stars = e.currentTarget.parentElement.querySelectorAll('.star-icon');
+                  stars.forEach((s, i) => {
+                    if (i < star) s.classList.add('hover');
+                    else s.classList.remove('hover');
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  const stars = e.currentTarget.parentElement.querySelectorAll('.star-icon');
+                  stars.forEach(s => s.classList.remove('hover'));
+                }}
+                role="button"
+                tabIndex={0}
                 title={`${star} star${star > 1 ? 's' : ''}`}
               >
-                {'⭐'.repeat(star)}
-              </button>
+                ★
+              </span>
             ))}
           </div>
+          {selectedRating > 0 && (
+            <div className="star-rating-label">{selectedRating} of 5 stars</div>
+          )}
           {otherButtons.length > 0 && (
             <div className="star-rating-skip">
               {otherButtons.map((button, index) => (
@@ -755,7 +818,7 @@ function Chat({ user, token }) {
       );
     }
 
-    // Solution response buttons
+    // Solution response buttons - show immediately alongside solution feedback
     if (isSolutionResponse) {
       return (
         <div className="button-container solution-response-container">
@@ -949,6 +1012,11 @@ function Chat({ user, token }) {
                       <span className="ticket-priority priority-{ticket.priority?.toLowerCase()}">
                         {ticket.priority}
                       </span>
+                      {ticket.technician_name && (
+                        <span className="ticket-technician" style={{ color: '#2e7d32', fontSize: '12px' }}>
+                          👨‍💻 {ticket.technician_name}
+                        </span>
+                      )}
                       <span className="ticket-date">
                         {new Date(ticket.created_at).toLocaleDateString()}
                       </span>

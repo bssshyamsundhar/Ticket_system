@@ -92,6 +92,79 @@ function TicketPreview({ ticket, onClose }) {
               </div>
             )}
 
+            {/* Helpful Solutions - solutions user tried or marked as helpful */}
+            {ticket.solution_feedback && ticket.solution_feedback.filter(s => s.feedback_type === 'helpful' || s.feedback_type === 'tried').length > 0 && (
+              <div className="info-section">
+                <span className="label">💡 Solutions That Helped:</span>
+                <div className="value-block" style={{ padding: '8px 0' }}>
+                  {ticket.solution_feedback.filter(s => s.feedback_type === 'helpful' || s.feedback_type === 'tried').map((sol, idx) => (
+                    <div key={idx} style={{
+                      padding: '8px 12px',
+                      margin: '4px 0',
+                      background: sol.feedback_type === 'helpful' ? '#f0fff4' : '#eff6ff',
+                      border: `1px solid ${sol.feedback_type === 'helpful' ? '#c6f6d5' : '#bfdbfe'}`,
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      color: sol.feedback_type === 'helpful' ? '#276749' : '#1e40af',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span><strong>Step {sol.index}:</strong> {sol.text}</span>
+                      <span style={{ fontSize: '11px', opacity: 0.8 }}>
+                        {sol.feedback_type === 'helpful' ? '👍 Helpful' : '✅ Tried'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Not Helpful Solutions */}
+            {ticket.solution_feedback && ticket.solution_feedback.filter(s => s.feedback_type === 'not_helpful').length > 0 && (
+              <div className="info-section">
+                <span className="label">👎 Solutions Not Helpful:</span>
+                <div className="value-block" style={{ padding: '8px 0' }}>
+                  {ticket.solution_feedback.filter(s => s.feedback_type === 'not_helpful').map((sol, idx) => (
+                    <div key={idx} style={{
+                      padding: '8px 12px',
+                      margin: '4px 0',
+                      background: '#fff5f5',
+                      border: '1px solid #fed7d7',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      color: '#9b2c2c',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}>
+                      <span><strong>Step {sol.index}:</strong> {sol.text}</span>
+                      <span style={{ fontSize: '11px', opacity: 0.8 }}>👎 Not Helpful</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Feedback Summary Counts (only shown if more than 1 feedback) */}
+            {ticket.solution_feedback && ticket.solution_feedback.length > 1 && (
+              <div className="info-section">
+                <span className="label">📊 Feedback Summary:</span>
+                <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                  {ticket.solution_feedback.filter(s => s.feedback_type === 'helpful').length > 0 && (
+                    <span style={{ color: '#276749', fontWeight: '600', fontSize: '13px' }}>
+                      👍 {ticket.solution_feedback.filter(s => s.feedback_type === 'helpful').length} found helpful
+                    </span>
+                  )}
+                  {ticket.solution_feedback.filter(s => s.feedback_type === 'not_helpful').length > 0 && (
+                    <span style={{ color: '#9b2c2c', fontWeight: '600', fontSize: '13px' }}>
+                      👎 {ticket.solution_feedback.filter(s => s.feedback_type === 'not_helpful').length} found not helpful
+                    </span>
+                  )}
+                </div>
+              </div>
+            )}
+
             {ticket.resolved_at && (
               <div className="info-row">
                 <span className="label">Resolved At:</span>

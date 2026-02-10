@@ -231,7 +231,7 @@ class EmailService:
     
     def send_ticket_assigned(self, user_email: str, user_name: str, ticket_id: str,
                             subject: str, technician_name: str, technician_email: str):
-        """Send notification when ticket is assigned to a technician"""
+        """Send notification when ticket is assigned to a technician (standalone, not combined with creation)"""
         html_body = f"""
         <!DOCTYPE html>
         <html>
@@ -300,6 +300,97 @@ class EmailService:
         return self._send_email(
             user_email,
             f"[{ticket_id}] Technician Assigned: {technician_name}",
+            html_body,
+            text_body
+        )
+    
+    def send_ticket_created_with_assignment(self, user_email: str, user_name: str, ticket_id: str,
+                                             category: str, subject: str, description: str, 
+                                             priority: str, technician_name: str, technician_email: str):
+        """Send a single combined email when a ticket is created AND auto-assigned to a technician"""
+        html_body = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+                .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+                .header {{ background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 8px 8px 0 0; }}
+                .content {{ background: #f9f9f9; padding: 20px; border: 1px solid #ddd; border-top: none; border-radius: 0 0 8px 8px; }}
+                .ticket-info {{ background: white; padding: 15px; border-radius: 8px; margin: 15px 0; }}
+                .ticket-id {{ font-size: 24px; font-weight: bold; color: #667eea; }}
+                .label {{ font-weight: bold; color: #555; }}
+                .priority {{ display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: bold; }}
+                .priority-low {{ background: #e3f2fd; color: #1976d2; }}
+                .priority-medium {{ background: #fff3e0; color: #f57c00; }}
+                .priority-high {{ background: #ffebee; color: #d32f2f; }}
+                .priority-critical {{ background: #d32f2f; color: white; }}
+                .technician-card {{ background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%); padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; }}
+                .tech-name {{ font-size: 18px; font-weight: bold; color: #2e7d32; }}
+                .tech-email {{ color: #558b2f; }}
+                .footer {{ text-align: center; margin-top: 20px; color: #888; font-size: 12px; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>🎫 Ticket Created & Assigned</h1>
+                </div>
+                <div class="content">
+                    <p>Hi {user_name},</p>
+                    <p>Your support ticket has been created and a technician has been assigned to it.</p>
+                    
+                    <div class="ticket-info">
+                        <div class="ticket-id">{ticket_id}</div>
+                        <p><span class="label">Category:</span> {category}</p>
+                        <p><span class="label">Subject:</span> {subject}</p>
+                        <p><span class="label">Priority:</span> <span class="priority priority-{priority.lower()}">{priority}</span></p>
+                        <p><span class="label">Description:</span></p>
+                        <p style="background: #f5f5f5; padding: 10px; border-radius: 4px;">{description[:500]}{'...' if len(description) > 500 else ''}</p>
+                    </div>
+                    
+                    <div class="technician-card">
+                        <p style="margin: 0; color: #666;">Assigned Technician</p>
+                        <p class="tech-name">👤 {technician_name}</p>
+                        <p class="tech-email">📧 {technician_email}</p>
+                    </div>
+                    
+                    <p>You can track the status of your ticket by logging into the IT Support Portal.</p>
+                    <p>Thank you for your patience!</p>
+                </div>
+                <div class="footer">
+                    <p>IT Support System - Powered by AI</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        """
+        
+        text_body = f"""
+        Hi {user_name},
+        
+        Your support ticket has been created and assigned to a technician.
+        
+        Ticket ID: {ticket_id}
+        Category: {category}
+        Subject: {subject}
+        Priority: {priority}
+        
+        Description:
+        {description[:500]}{'...' if len(description) > 500 else ''}
+        
+        Assigned Technician: {technician_name}
+        Email: {technician_email}
+        
+        Our team will review your ticket and get back to you soon.
+        
+        Thank you,
+        IT Support Team
+        """
+        
+        return self._send_email(
+            user_email,
+            f"[{ticket_id}] Ticket Created & Assigned: {subject}",
             html_body,
             text_body
         )

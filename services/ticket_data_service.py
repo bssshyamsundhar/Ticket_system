@@ -55,17 +55,15 @@ class TicketDataService:
         return [
             {
                 "id": "incident",
-                "label": "🔧 Report an Issue (Incident)",
+                "label": "Incident",
                 "action": "select_ticket_type",
-                "value": "Incident",
-                "description": "Report problems or issues that need resolution"
+                "value": "Incident"
             },
             {
                 "id": "request",
-                "label": "📝 Make a Request",
+                "label": "Request",
                 "action": "select_ticket_type",
-                "value": "Request",
-                "description": "Request new equipment, access, or services"
+                "value": "Request"
             }
         ]
     
@@ -173,6 +171,15 @@ class TicketDataService:
                     "icon": type_icons.get(type_name, "📋")
                 })
             
+            # Add "Other" option at the end of types
+            types.append({
+                "id": "other_type",
+                "label": "📝 Other (Not Listed)",
+                "action": "other_issue",
+                "value": "other",
+                "is_other": True
+            })
+            
             return types
         except Exception as e:
             logger.error(f"Error getting types: {e}")
@@ -202,6 +209,15 @@ class TicketDataService:
                     "value": item_name,
                     "issue_count": issue_count
                 })
+            
+            # Add "Other" option at the end of items
+            items.append({
+                "id": "other_item",
+                "label": "📝 Other (Not Listed)",
+                "action": "other_issue",
+                "value": "other",
+                "is_other": True
+            })
             
             return items
         except Exception as e:

@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Moon, Sun, User, Search, LogOut } from 'lucide-react';
+import { Moon, Sun, User, Search, LogOut } from 'lucide-react';
 import './Header.css';
 
 const Header = ({ user, onLogout }) => {
     const [darkMode, setDarkMode] = useState(false);
-    const [notifications, setNotifications] = useState(3);
 
     useEffect(() => {
         // Check for saved theme preference
@@ -46,13 +45,6 @@ const Header = ({ user, onLogout }) => {
                     aria-label="Toggle dark mode"
                 >
                     {darkMode ? <Sun size={20} /> : <Moon size={20} />}
-                </button>
-
-                <button className="header-action-btn notification-btn" aria-label="Notifications">
-                    <Bell size={20} />
-                    {notifications > 0 && (
-                        <span className="notification-badge">{notifications}</span>
-                    )}
                 </button>
 
                 <div className="header-user">

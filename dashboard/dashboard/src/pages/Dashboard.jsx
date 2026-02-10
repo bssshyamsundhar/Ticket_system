@@ -19,16 +19,26 @@ const Dashboard = () => {
     const [statsExpanded, setStatsExpanded] = useState(false);
     const [recentActivity, setRecentActivity] = useState([]);
     const [activityLoading, setActivityLoading] = useState(true);
+    const [lastUpdated, setLastUpdated] = useState(new Date());
 
     useEffect(() => {
         loadDashboardData();
         loadRecentActivity();
+        
+        // Auto-refresh every 30 seconds for real-time data
+        const refreshInterval = setInterval(() => {
+            loadDashboardData();
+            loadRecentActivity();
+        }, 30000);
+        
+        return () => clearInterval(refreshInterval);
     }, []);
 
     const loadDashboardData = async () => {
         try {
             const response = await analyticsAPI.getDashboardStats();
             setStats(response.data);
+            setLastUpdated(new Date());
         } catch (error) {
             console.error('Error loading dashboard data:', error);
         } finally {
@@ -98,8 +108,8 @@ const Dashboard = () => {
         value: stats?.totalTickets || 0,
         icon: Activity,
         color: 'primary',
-        trend: '+12%',
-        trendUp: true,
+        trend: stats?.totalTrend || '0%',
+        trendUp: stats?.totalTrendUp ?? true,
     };
 
     // Expandable child stats  
@@ -109,52 +119,60 @@ const Dashboard = () => {
             value: stats?.openTickets || 0,
             icon: AlertCircle,
             color: 'info',
-            trend: '+5%',
-            trendUp: true,
+            trend: stats?.openTrend || '0%',
+            trendUp: stats?.openTrendUp ?? true,
         },
         {
             title: 'In Progress',
             value: stats?.inProgressTickets || 0,
             icon: Clock,
             color: 'warning',
-            trend: '-3%',
-            trendUp: false,
+            trend: stats?.inProgressTrend || '0%',
+            trendUp: stats?.inProgressTrendUp ?? false,
         },
         {
             title: 'Resolved Today',
             value: stats?.resolvedToday || 0,
             icon: CheckCircle,
             color: 'success',
-            trend: '+8%',
-            trendUp: true,
+            trend: stats?.resolvedTrend || '0%',
+            trendUp: stats?.resolvedTrendUp ?? true,
         },
         {
             title: 'SLA Breached',
             value: stats?.slaBreached || 0,
             icon: AlertCircle,
             color: 'danger',
-            trend: '-1%',
-            trendUp: false,
+            trend: stats?.slaTrend || '0%',
+            trendUp: stats?.slaTrendUp ?? false,
         },
     ];
 
     // Additional stats that always show
     const additionalStats = [
         {
-            title: 'High Priority',
-            value: stats?.highPriorityTickets || 0,
+            title: 'P2 (High)',
+            value: stats?.p2Tickets || 0,
             icon: TrendingUp,
             color: 'warning',
-            trend: '+2%',
-            trendUp: true,
+            trend: stats?.p2Trend || '0%',
+            trendUp: stats?.p2TrendUp ?? true,
         },
         {
-            title: 'Critical Tickets',
-            value: stats?.criticalTickets || 0,
-            icon: AlertCircle,
-            color: 'danger',
-            trend: '-1%',
-            trendUp: false,
+            title: 'P3 (Medium)',
+            value: stats?.p3Tickets || 0,
+            icon: Activity,
+            color: 'info',
+            trend: stats?.p3Trend || '0%',
+            trendUp: stats?.p3TrendUp ?? true,
+        },
+        {
+            title: 'P4 (Low)',
+            value: stats?.p4Tickets || 0,
+            icon: CheckCircle,
+            color: 'success',
+            trend: stats?.p4Trend || '0%',
+            trendUp: stats?.p4TrendUp ?? false,
         },
     ];
 
@@ -166,7 +184,7 @@ const Dashboard = () => {
                     <p className="dashboard-subtitle">Welcome back! Here's what's happening today.</p>
                 </div>
                 <div className="dashboard-actions">
-                    <span className="last-updated">Last updated: {new Date().toLocaleTimeString()}</span>
+                    <span className="last-updated">Last updated: {lastUpdated.toLocaleTimeString()}</span>
                 </div>
             </div>
 
@@ -254,11 +272,7 @@ const Dashboard = () => {
                         </div>
                         <div className="quick-stat-item">
                             <span className="quick-stat-label">Active Technicians</span>
-                            <span className="quick-stat-value">4</span>
-                        </div>
-                        <div className="quick-stat-item">
-                            <span className="quick-stat-label">KB Articles</span>
-                            <span className="quick-stat-value">25</span>
+                            <span className="quick-stat-value">{stats?.activeTechnicians || 0}</span>
                         </div>
                     </div>
                 </Card>

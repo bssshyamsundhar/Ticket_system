@@ -504,7 +504,7 @@ class ChatHandler:
         
         return {
             "success": True,
-            "response": f"💡 **{solution_data['issue']}**\n\n{solution_data['bot_solution']}\n\n---\n\n**Did this resolve your issue?**",
+            "response": f"💡 **{solution_data['issue']}**\n\nPlease rate each solution step below:",
             "buttons": [
                 {"id": "resolved", "label": "✅ Yes, Issue Resolved!", "action": "solution_resolved", "value": "yes"},
                 {"id": "not_resolved", "label": "❌ No, Still Need Help", "action": "solution_not_resolved", "value": "no"}
@@ -573,6 +573,17 @@ class ChatHandler:
             conversation_state['request_item'] = message
             action = conversation_state.get('software_action', 'install')
             conversation_state['justification'] = f"Requesting {action} of {message}"
+            conversation_state['state'] = 'request_preview'
+            return request_handler.build_request_preview(conversation_state)
+        
+        elif current_state == 'request_hardware_brand':
+            # "Other Hardware" or "Other brand" - user typed the hardware description
+            hardware_other_type = conversation_state.get('hardware_other_type', '')
+            if hardware_other_type:
+                conversation_state['request_item'] = f"{message} ({hardware_other_type})"
+            else:
+                conversation_state['request_item'] = message
+            conversation_state['justification'] = f"Requesting {conversation_state['request_item']}"
             conversation_state['state'] = 'request_preview'
             return request_handler.build_request_preview(conversation_state)
         
@@ -664,7 +675,7 @@ class ChatHandler:
                 
                 return {
                     "success": True,
-                    "response": agent_response + "\n\n---\n\n**Did this resolve your issue?**",
+                    "response": "💡 **Here are some solutions for your issue.**\n\nPlease rate each solution step below:",
                     "buttons": [
                         {"id": "resolved", "label": "✅ Yes, Issue Resolved!", "action": "solution_resolved", "value": "yes"},
                         {"id": "not_resolved", "label": "❌ No, Still Need Help", "action": "solution_not_resolved", "value": "no"}
@@ -707,7 +718,7 @@ class ChatHandler:
             
             return {
                 "success": True,
-                "response": f"💡 **I found a possible solution for your issue:**\n\n**{best_match['issue']}**\n\n{best_match['bot_solution']}\n\n---\n\n**Did this resolve your issue?**",
+                "response": f"💡 **I found a possible solution for your issue:**\n\n**{best_match['issue']}**\n\nPlease rate each solution step below:",
                 "buttons": [
                     {"id": "resolved", "label": "✅ Yes, Issue Resolved!", "action": "solution_resolved", "value": "yes"},
                     {"id": "not_resolved", "label": "❌ No, Create Ticket", "action": "solution_not_resolved", "value": "no"}
@@ -789,13 +800,37 @@ class ChatHandler:
         bot_solution = conversation_state.get('bot_solution', '')
         free_text = conversation_state.get('free_text_description', '')
         
-        # Build description
+        # Build description - only include solutions the user marked as helpful
         description_parts = []
         if issue_text:
             description_parts.append(f"**Issue:** {issue_text}")
         if free_text and free_text != issue_text:
             description_parts.append(f"**Additional Details:** {free_text}")
-        if bot_solution:
+        
+        # Filter to only helpful/tried solutions
+        solution_feedback = conversation_state.get('solution_feedback', {})
+        solutions_list = conversation_state.get('solutions_list', [])
+        
+        helpful_solutions = []
+        not_helpful_solutions = []
+        for idx_str, feedback_type in solution_feedback.items():
+            idx = int(idx_str) if isinstance(idx_str, str) else idx_str
+            if idx <= len(solutions_list) and solutions_list[idx - 1]:
+                if feedback_type in ('helpful', 'tried'):
+                    helpful_solutions.append(solutions_list[idx - 1])
+                elif feedback_type == 'not_helpful':
+                    not_helpful_solutions.append(solutions_list[idx - 1])
+        
+        if helpful_solutions:
+            solutions_text = '\n'.join(f"  {i+1}. {s}" for i, s in enumerate(helpful_solutions))
+            description_parts.append(f"\n**Solutions That Helped:**\n{solutions_text}")
+        
+        if not_helpful_solutions:
+            solutions_text = '\n'.join(f"  {i+1}. {s}" for i, s in enumerate(not_helpful_solutions))
+            description_parts.append(f"\n**Solutions Not Helpful:**\n{solutions_text}")
+        
+        if not helpful_solutions and not not_helpful_solutions and bot_solution:
+            # Fallback: if no per-solution feedback, include full solution
             description_parts.append(f"\n**Solution Attempted:**\n{bot_solution}")
         
         description = "\n\n".join(description_parts) if description_parts else "User requested support"

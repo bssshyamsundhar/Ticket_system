@@ -59,6 +59,32 @@ CORS(app)
 # Enable JSON minification in production
 app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
+# Custom JSON encoder: naive datetime objects are treated as UTC and serialized with 'Z' suffix
+# Flask's default uses http_date() which treats naive datetimes as UTC in RFC 2822 format,
+# but our DB was storing IST times, causing a +5:30h offset on the frontend.
+from flask.json.provider import DefaultJSONProvider
+from datetime import date as date_type, time as time_type
+
+class UTCJSONProvider(DefaultJSONProvider):
+    """Ensures all datetime objects are serialized as UTC ISO 8601 strings with 'Z' suffix."""
+    def default(self, o):
+        # datetime must be checked before date (datetime is subclass of date)
+        if isinstance(o, datetime):
+            # If naive (no tzinfo), assume UTC (guaranteed by DB connection TimeZone=UTC)
+            if o.tzinfo is None:
+                return o.isoformat() + 'Z'
+            # If aware, convert to UTC then format
+            utc_dt = o.astimezone(timezone.utc)
+            return utc_dt.strftime('%Y-%m-%dT%H:%M:%SZ')
+        if isinstance(o, date_type):
+            return o.isoformat()  # "2026-02-10"
+        if isinstance(o, time_type):
+            return o.isoformat()  # "09:00:00"
+        return super().default(o)
+
+app.json_provider_class = UTCJSONProvider
+app.json = UTCJSONProvider(app)
+
 # JWT Secret (from environment variables)
 JWT_SECRET = os.getenv('JWT_SECRET', 'your-secret-key-change-in-production')
 JWT_EXPIRATION_HOURS = 24
@@ -457,33 +483,24 @@ def create_ticket_from_chat():
         )
         
         if ticket:
-            # Send email notification to user
-            try:
-                email_service.send_ticket_created(
-                    user_email=request.user_email,
-                    user_name=request.user_name,
-                    ticket_id=ticket['id'],
-                    category=category,
-                    subject=subject,
-                    description=description,
-                    priority=ticket.get('priority', 'P3')
-                )
-            except Exception as email_error:
-                logger.warning(f"Failed to send ticket creation email: {email_error}")
-            
-            # Send auto-assignment emails if ticket was assigned
+            # Send auto-assignment emails if ticket was assigned (combined email)
             if ticket.get('assigned_to_id'):
                 try:
                     tech_info = db.get_technician_by_id(ticket['assigned_to_id'])
                     if tech_info:
-                        email_service.send_ticket_assigned(
+                        # Send single combined creation+assignment email to user
+                        email_service.send_ticket_created_with_assignment(
                             user_email=request.user_email,
                             user_name=request.user_name,
                             ticket_id=ticket['id'],
+                            category=category,
                             subject=subject,
+                            description=description,
+                            priority=ticket.get('priority', 'P3'),
                             technician_name=tech_info.get('name', ''),
                             technician_email=tech_info.get('email', '')
                         )
+                        # Send separate notification to technician
                         email_service.send_technician_assignment(
                             tech_email=tech_info.get('email', ''),
                             tech_name=tech_info.get('name', ''),
@@ -496,6 +513,20 @@ def create_ticket_from_chat():
                         )
                 except Exception as assign_email_err:
                     logger.warning(f"Failed to send auto-assignment emails: {assign_email_err}")
+            else:
+                # No auto-assignment - send just the creation email
+                try:
+                    email_service.send_ticket_created(
+                        user_email=request.user_email,
+                        user_name=request.user_name,
+                        ticket_id=ticket['id'],
+                        category=category,
+                        subject=subject,
+                        description=description,
+                        priority=ticket.get('priority', 'P3')
+                    )
+                except Exception as email_error:
+                    logger.warning(f"Failed to send ticket creation email: {email_error}")
             
             return jsonify({
                 "success": True,
@@ -611,37 +642,26 @@ def chat():
             if ticket:
                 conversation_state['ticket_id'] = ticket['id']
                 
-                # Send email notification
-                try:
-                    email_service.send_ticket_created(
-                        user_email=user_email,
-                        user_name=user_name,
-                        ticket_id=ticket['id'],
-                        category=ticket_data.get('category', 'General'),
-                        subject=ticket_data.get('subject', 'Support Request'),
-                        description=ticket_data.get('description', ''),
-                        priority=ticket.get('priority', 'P3')
-                    )
-                except Exception as email_error:
-                    logger.warning(f"Failed to send ticket creation email: {email_error}")
-                
-                # Send assignment emails if ticket was auto-assigned
+                # Send assignment emails if ticket was auto-assigned (combined email)
                 assigned_tech_id = ticket.get('assigned_to_id')
                 assigned_tech_name = ticket.get('assigned_to')
                 if assigned_tech_id:
                     try:
                         tech_info = db.get_technician_by_id(assigned_tech_id)
                         if tech_info:
-                            # Notify user about assignment
-                            email_service.send_ticket_assigned(
+                            # Send single combined creation+assignment email to user
+                            email_service.send_ticket_created_with_assignment(
                                 user_email=user_email,
                                 user_name=user_name,
                                 ticket_id=ticket['id'],
+                                category=ticket_data.get('category', 'General'),
                                 subject=ticket_data.get('subject', 'Support Request'),
+                                description=ticket_data.get('description', ''),
+                                priority=ticket.get('priority', 'P3'),
                                 technician_name=tech_info.get('name', 'Support Technician'),
                                 technician_email=tech_info.get('email', '')
                             )
-                            # Notify technician
+                            # Notify technician separately
                             email_service.send_technician_assignment(
                                 tech_email=tech_info.get('email', ''),
                                 tech_name=tech_info.get('name', ''),
@@ -654,6 +674,20 @@ def chat():
                             )
                     except Exception as assign_email_err:
                         logger.warning(f"Failed to send auto-assignment emails: {assign_email_err}")
+                else:
+                    # No auto-assignment - send just the creation email
+                    try:
+                        email_service.send_ticket_created(
+                            user_email=user_email,
+                            user_name=user_name,
+                            ticket_id=ticket['id'],
+                            category=ticket_data.get('category', 'General'),
+                            subject=ticket_data.get('subject', 'Support Request'),
+                            description=ticket_data.get('description', ''),
+                            priority=ticket.get('priority', 'P3')
+                        )
+                    except Exception as email_error:
+                        logger.warning(f"Failed to send ticket creation email: {email_error}")
                 
                 # Check if this is a Request ticket with manager simulation
                 if handler_response.get('simulate_manager_approval'):
@@ -1451,9 +1485,29 @@ def get_user_tickets(user_id):
             }), 403
         
         tickets = db.get_user_tickets(user_id)
+        ticket_list = [dict(ticket) for ticket in tickets] if tickets else []
+        
+        # Attach solution feedback to each ticket
+        for t in ticket_list:
+            try:
+                feedback_rows = db.get_helpful_solutions_for_ticket(t['id'])
+                if feedback_rows:
+                    t['solution_feedback'] = [
+                        {
+                            'index': row['solution_index'],
+                            'text': row['solution_text'],
+                            'feedback_type': row['feedback_type']
+                        }
+                        for row in feedback_rows
+                    ]
+                else:
+                    t['solution_feedback'] = []
+            except Exception:
+                t['solution_feedback'] = []
+        
         return jsonify({
             "success": True,
-            "tickets": [dict(ticket) for ticket in tickets] if tickets else []
+            "tickets": ticket_list
         })
     except Exception as e:
         logger.error(f"Error getting user tickets: {e}")
@@ -1474,9 +1528,29 @@ def get_all_tickets():
         limit = request.args.get('limit', 100, type=int)
         
         tickets = db.get_all_tickets(status=status, priority=priority, category=category, limit=limit)
+        ticket_list = [dict(ticket) for ticket in tickets] if tickets else []
+        
+        # Attach solution feedback to each ticket
+        for t in ticket_list:
+            try:
+                feedback_rows = db.get_helpful_solutions_for_ticket(t['id'])
+                if feedback_rows:
+                    t['solution_feedback'] = [
+                        {
+                            'index': row['solution_index'],
+                            'text': row['solution_text'],
+                            'feedback_type': row['feedback_type']
+                        }
+                        for row in feedback_rows
+                    ]
+                else:
+                    t['solution_feedback'] = []
+            except Exception:
+                t['solution_feedback'] = []
+        
         return jsonify({
             "success": True,
-            "tickets": [dict(ticket) for ticket in tickets] if tickets else []
+            "tickets": ticket_list
         })
     except Exception as e:
         logger.error(f"Error getting all tickets: {e}")
@@ -1500,9 +1574,28 @@ def get_ticket(ticket_id):
                     "error": "Unauthorized"
                 }), 403
             
+            ticket_dict = dict(ticket)
+            
+            # Include solution feedback
+            try:
+                feedback_rows = db.get_helpful_solutions_for_ticket(ticket_id)
+                if feedback_rows:
+                    ticket_dict['solution_feedback'] = [
+                        {
+                            'index': row['solution_index'],
+                            'text': row['solution_text'],
+                            'feedback_type': row['feedback_type']
+                        }
+                        for row in feedback_rows
+                    ]
+                else:
+                    ticket_dict['solution_feedback'] = []
+            except Exception:
+                ticket_dict['solution_feedback'] = []
+            
             return jsonify({
                 "success": True,
-                "ticket": dict(ticket)
+                "ticket": ticket_dict
             })
         else:
             return jsonify({
@@ -1678,10 +1771,8 @@ def serialize_technician(tech):
     # Convert date objects to strings
     if 'joined_date' in tech_dict and tech_dict['joined_date'] is not None:
         tech_dict['joined_date'] = str(tech_dict['joined_date'])
-    if 'created_at' in tech_dict and tech_dict['created_at'] is not None:
-        tech_dict['created_at'] = tech_dict['created_at'].isoformat() if hasattr(tech_dict['created_at'], 'isoformat') else str(tech_dict['created_at'])
-    if 'updated_at' in tech_dict and tech_dict['updated_at'] is not None:
-        tech_dict['updated_at'] = tech_dict['updated_at'].isoformat() if hasattr(tech_dict['updated_at'], 'isoformat') else str(tech_dict['updated_at'])
+    # Datetime fields: let Flask's UTCJSONProvider handle them via jsonify
+    # No need to manually convert — just ensure they're datetime objects (not pre-converted strings)
     return tech_dict
 
 @app.route('/api/technicians', methods=['GET'])
@@ -1741,6 +1832,8 @@ def create_technician():
         role = data.get('role')
         department = data.get('department', 'IT Support')
         specialization = data.get('specialization')
+        shift_start = data.get('shift_start')
+        shift_end = data.get('shift_end')
         
         if not all([name, email, role]):
             return jsonify({
@@ -1748,7 +1841,7 @@ def create_technician():
                 "error": "name, email, and role are required"
             }), 400
         
-        tech = db.create_technician(name, email, role, department, specialization)
+        tech = db.create_technician(name, email, role, department, specialization, shift_start=shift_start, shift_end=shift_end)
         if tech:
             return jsonify({
                 "success": True,
@@ -1786,6 +1879,31 @@ def update_technician(tech_id):
             }), 404
     except Exception as e:
         logger.error(f"Error updating technician: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/technicians/<tech_id>', methods=['DELETE'])
+@admin_required
+def delete_technician(tech_id):
+    """Delete a technician"""
+    try:
+        tech = db.get_technician_by_id(tech_id)
+        if not tech:
+            return jsonify({
+                "success": False,
+                "error": "Technician not found"
+            }), 404
+        
+        db.delete_technician(tech_id)
+        return jsonify({
+            "success": True,
+            "message": f"Technician {tech['name']} deleted successfully"
+        })
+    except Exception as e:
+        logger.error(f"Error deleting technician: {e}")
         return jsonify({
             "success": False,
             "error": str(e)
@@ -2253,15 +2371,26 @@ def update_notification_settings():
 @app.route('/api/analytics/tickets', methods=['GET'])
 @token_required
 def get_ticket_analytics():
-    """Get ticket statistics"""
+    """Get ticket statistics with real-time data and trends"""
     try:
+        # First, sync SLA breach flags so the DB column stays up to date
+        db.check_and_update_sla_breaches()
+        
         stats = db.get_ticket_stats()
         by_category = db.get_tickets_by_category()
         by_priority = db.get_tickets_by_priority()
+        active_techs = db.get_active_technician_count()
+        avg_resolution = db.get_avg_resolution_time()
+        trends = db.get_ticket_trends()
+        
+        stats_dict = dict(stats) if stats else {}
+        stats_dict['active_technicians'] = active_techs
+        stats_dict['avg_resolution_time'] = avg_resolution
+        stats_dict.update(trends)
         
         return jsonify({
             "success": True,
-            "stats": dict(stats) if stats else {},
+            "stats": stats_dict,
             "by_category": [dict(c) for c in by_category] if by_category else [],
             "by_priority": [dict(p) for p in by_priority] if by_priority else []
         })
@@ -2304,6 +2433,99 @@ def get_technician_workload():
         })
     except Exception as e:
         logger.error(f"Error getting workload: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/analytics/sla', methods=['GET'])
+@token_required
+def get_sla_analytics():
+    """Get SLA compliance analytics"""
+    try:
+        db.check_and_update_sla_breaches()
+        sla = db.get_sla_compliance_stats()
+        return jsonify({
+            "success": True,
+            "sla": dict(sla) if sla else {}
+        })
+    except Exception as e:
+        logger.error(f"Error getting SLA analytics: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/analytics/resolution-time', methods=['GET'])
+@token_required
+def get_resolution_time_analytics():
+    """Get resolution time distribution"""
+    try:
+        distribution = db.get_resolution_time_distribution()
+        return jsonify({
+            "success": True,
+            "distribution": [dict(d) for d in distribution] if distribution else []
+        })
+    except Exception as e:
+        logger.error(f"Error getting resolution time analytics: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/analytics/status', methods=['GET'])
+@token_required
+def get_status_analytics():
+    """Get ticket status breakdown"""
+    try:
+        db.check_and_update_sla_breaches()
+        statuses = db.get_tickets_by_status()
+        return jsonify({
+            "success": True,
+            "statuses": [dict(s) for s in statuses] if statuses else []
+        })
+    except Exception as e:
+        logger.error(f"Error getting status analytics: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/analytics/resolution-trend', methods=['GET'])
+@token_required
+def get_resolution_trend():
+    """Get daily resolution trend"""
+    try:
+        days = request.args.get('days', 30, type=int)
+        trend = db.get_daily_resolution_trend(days)
+        return jsonify({
+            "success": True,
+            "trend": [dict(t) for t in trend] if trend else []
+        })
+    except Exception as e:
+        logger.error(f"Error getting resolution trend: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+@app.route('/api/technicians/real-stats', methods=['GET'])
+@token_required
+def get_technician_real_stats():
+    """Get real-time technician stats from tickets table"""
+    try:
+        stats = db.get_technician_real_stats()
+        return jsonify({
+            "success": True,
+            "stats": [dict(s) for s in stats] if stats else []
+        })
+    except Exception as e:
+        logger.error(f"Error getting technician real stats: {e}")
         return jsonify({
             "success": False,
             "error": str(e)

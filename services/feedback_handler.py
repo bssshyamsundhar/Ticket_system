@@ -50,6 +50,45 @@ def format_solutions_with_feedback(bot_solution):
     if not solutions:
         solutions = [bot_solution.strip()]
     
+    # Filter out filler/intro/outro sentences that aren't actionable solution steps
+    filler_patterns = [
+        "here's how to resolve",
+        "here is how to resolve",
+        "here are some solutions",
+        "here's how to fix",
+        "try the following",
+        "follow these steps",
+        "if this doesn't resolve your issue",
+        "if this doesn't work",
+        "if the issue persists",
+        "if none of the above",
+        "i can create a support ticket",
+        "i can create a ticket",
+        "let me create a support ticket",
+        "create a support ticket for you",
+        "you can create a ticket",
+        "contact support for further",
+        "please let me know if",
+        "hope this helps",
+        "i hope this resolves",
+        "let me know if you need",
+    ]
+    
+    filtered_solutions = []
+    for sol in solutions:
+        sol_lower = sol.lower().strip()
+        # Skip empty or very short solutions
+        if len(sol_lower) < 5:
+            continue
+        # Skip if it matches any filler pattern
+        is_filler = any(pattern in sol_lower for pattern in filler_patterns)
+        if not is_filler:
+            filtered_solutions.append(sol)
+    
+    # Use filtered list, but fall back to original if all were filtered
+    if filtered_solutions:
+        solutions = filtered_solutions
+    
     # Format as numbered list
     formatted_lines = []
     for i, sol in enumerate(solutions, 1):
@@ -61,22 +100,46 @@ def format_solutions_with_feedback(bot_solution):
 
 
 def get_solution_feedback_buttons(solution_index, total_solutions):
-    """Get Yes/No feedback buttons for a specific solution"""
+    """Get Step 1 feedback buttons: Tried / Not Tried"""
     return {
         "solution_index": solution_index,
         "total_solutions": total_solutions,
+        "step": 1,
         "buttons": [
             {
-                'id': f'helpful_yes_{solution_index}',
-                'label': '👍 Yes',
+                'id': f'tried_{solution_index}',
+                'label': '✅ Tried',
                 'action': 'solution_helpful',
-                'value': f'{solution_index}:yes'
+                'value': f'{solution_index}:tried'
             },
             {
-                'id': f'helpful_no_{solution_index}',
-                'label': '👎 No',
+                'id': f'not_tried_{solution_index}',
+                'label': '⏭️ Not Tried',
                 'action': 'solution_helpful',
-                'value': f'{solution_index}:no'
+                'value': f'{solution_index}:not_tried'
+            }
+        ]
+    }
+
+
+def get_solution_helpfulness_buttons(solution_index, total_solutions):
+    """Get Step 2 feedback buttons: Helpful / Not Helpful (shown after 'Tried')"""
+    return {
+        "solution_index": solution_index,
+        "total_solutions": total_solutions,
+        "step": 2,
+        "buttons": [
+            {
+                'id': f'helpful_{solution_index}',
+                'label': '👍 Helpful',
+                'action': 'solution_helpful',
+                'value': f'{solution_index}:helpful'
+            },
+            {
+                'id': f'not_helpful_{solution_index}',
+                'label': '👎 Not Helpful',
+                'action': 'solution_helpful',
+                'value': f'{solution_index}:not_helpful'
             }
         ]
     }
@@ -111,25 +174,25 @@ def build_solution_with_feedback_ui(issue_text, bot_solution):
 
 
 def handle_solution_helpful(value, conversation_state):
-    """Handle per-solution helpfulness feedback"""
+    """Handle per-solution feedback (tried/not_tried/helpful/not_helpful)"""
     parts = value.split(':')
     if len(parts) != 2:
         return None
     
     solution_index = int(parts[0])
-    was_helpful = parts[1] == 'yes'
+    feedback_type = parts[1]  # 'tried', 'not_tried', 'helpful', 'not_helpful'
     
     # Store feedback in conversation state
     if 'solution_feedback' not in conversation_state:
         conversation_state['solution_feedback'] = {}
     
-    conversation_state['solution_feedback'][solution_index] = was_helpful
+    conversation_state['solution_feedback'][solution_index] = feedback_type
     
     return {
         "success": True,
         "feedback_recorded": True,
         "solution_index": solution_index,
-        "was_helpful": was_helpful
+        "feedback_type": feedback_type
     }
 
 

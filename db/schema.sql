@@ -27,8 +27,8 @@ CREATE TABLE users (
     password_hash VARCHAR(255),
     department VARCHAR(100),
     role VARCHAR(50) DEFAULT 'user',  -- 'user', 'admin'
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_users_email ON users(email);
@@ -51,8 +51,8 @@ CREATE TABLE technicians (
     shift_start TIME,  -- Shift start time (IST)
     shift_end TIME,    -- Shift end time (IST)
     joined_date DATE NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_technicians_active ON technicians(active_status);
@@ -64,11 +64,11 @@ CREATE INDEX idx_technicians_shift ON technicians(shift_start, shift_end);
 -- ============================================
 CREATE TABLE sla_config (
     id VARCHAR(50) PRIMARY KEY,
-    priority VARCHAR(50) UNIQUE NOT NULL CHECK (priority IN ('P4', 'P3', 'P2', 'Critical')),
+    priority VARCHAR(50) UNIQUE NOT NULL CHECK (priority IN ('P4', 'P3', 'P2')),
     sla_hours INTEGER NOT NULL,
     description TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
@@ -78,9 +78,9 @@ CREATE TABLE priority_rules (
     id VARCHAR(50) PRIMARY KEY,
     keyword VARCHAR(255) NOT NULL,
     category VARCHAR(100),
-    priority VARCHAR(50) NOT NULL CHECK (priority IN ('P4', 'P3', 'P2', 'Critical')),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    priority VARCHAR(50) NOT NULL CHECK (priority IN ('P4', 'P3', 'P2')),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_priority_rules_keyword ON priority_rules(keyword);
@@ -96,7 +96,7 @@ CREATE TABLE kb_categories (
     icon VARCHAR(50),
     display_order INTEGER DEFAULT 0,
     enabled BOOLEAN DEFAULT true,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
@@ -110,7 +110,7 @@ CREATE TABLE tickets (
     ticket_type VARCHAR(20) DEFAULT 'Incident' CHECK (ticket_type IN ('Incident', 'Request')),
     category VARCHAR(100) NOT NULL,
     subcategory VARCHAR(100),
-    priority VARCHAR(50) NOT NULL CHECK (priority IN ('P4', 'P3', 'P2', 'Critical')),
+    priority VARCHAR(50) NOT NULL CHECK (priority IN ('P4', 'P3', 'P2')),
     status VARCHAR(50) NOT NULL CHECK (status IN ('Open', 'In Progress', 'Pending Approval', 'Approved', 'Resolved', 'Closed')),
     assigned_to_id VARCHAR(50) REFERENCES technicians(id),
     assigned_to VARCHAR(255),
@@ -118,16 +118,16 @@ CREATE TABLE tickets (
     description TEXT NOT NULL,
     attachment_urls TEXT[],  -- Array of Cloudinary image URLs
     resolution_notes TEXT,
-    sla_deadline TIMESTAMP,
+    sla_deadline TIMESTAMPTZ,
     sla_breached BOOLEAN DEFAULT false,
     chatbot_session_id VARCHAR(255),
     assignment_group VARCHAR(100) DEFAULT 'GSS Infradesk IT',  -- Updated default
     manager_approval_status VARCHAR(50) CHECK (manager_approval_status IN ('Pending', 'Approved', 'Rejected')),
-    manager_approval_date TIMESTAMP,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    resolved_at TIMESTAMP,
-    closed_at TIMESTAMP
+    manager_approval_date TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    resolved_at TIMESTAMPTZ,
+    closed_at TIMESTAMPTZ
 );
 
 CREATE INDEX idx_tickets_status ON tickets(status);
@@ -155,8 +155,8 @@ CREATE TABLE knowledge_articles (
     author VARCHAR(255),
     enabled BOOLEAN DEFAULT true,
     source VARCHAR(255),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_kb_category ON knowledge_articles(category);
@@ -175,7 +175,7 @@ CREATE TABLE audit_logs (
     user_name VARCHAR(255),
     details TEXT,
     ip_address VARCHAR(50),
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    timestamp TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_audit_logs_action ON audit_logs(action);
@@ -195,7 +195,7 @@ CREATE TABLE notification_settings (
     notify_on_status_change BOOLEAN DEFAULT true,
     notify_on_sla_breach BOOLEAN DEFAULT true,
     notify_on_resolution BOOLEAN DEFAULT true,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ============================================
@@ -210,7 +210,7 @@ CREATE TABLE conversation_history (
     buttons_shown JSONB,
     button_clicked VARCHAR(255),
     ticket_id VARCHAR(50) REFERENCES tickets(id),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_conv_user_session ON conversation_history(user_id, session_id);
@@ -226,13 +226,13 @@ CREATE TABLE solution_feedback (
     session_id VARCHAR(255),
     solution_index INTEGER NOT NULL,  -- Which solution (1, 2, 3, etc.)
     solution_text TEXT NOT NULL,
-    was_helpful BOOLEAN,  -- True = Yes, False = No, NULL = not answered
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    feedback_type VARCHAR(20) CHECK (feedback_type IN ('tried', 'not_tried', 'helpful', 'not_helpful')),
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_solution_feedback_ticket ON solution_feedback(ticket_id);
 CREATE INDEX idx_solution_feedback_session ON solution_feedback(session_id);
-CREATE INDEX idx_solution_feedback_helpful ON solution_feedback(was_helpful);
+CREATE INDEX idx_solution_feedback_type ON solution_feedback(feedback_type);
 
 -- ============================================
 -- 12. Ticket Feedback Table (End-of-flow ratings)
@@ -244,7 +244,7 @@ CREATE TABLE ticket_feedback (
     flow_type VARCHAR(20) CHECK (flow_type IN ('incident', 'request')),
     rating INTEGER CHECK (rating >= 1 AND rating <= 5),  -- 1-5 stars
     feedback_text TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX idx_ticket_feedback_ticket ON ticket_feedback(ticket_id);
@@ -257,19 +257,18 @@ CREATE INDEX idx_ticket_feedback_rating ON ticket_feedback(rating);
 INSERT INTO sla_config (id, priority, sla_hours, description) VALUES
     ('SLA-001', 'P4', 168, 'Low priority - 7 days resolution time'),
     ('SLA-002', 'P3', 72, 'Medium priority - 3 days resolution time'),
-    ('SLA-003', 'P2', 8, 'High priority - 8 hours resolution time'),
-    ('SLA-004', 'Critical', 2, 'Critical - Business-critical issues, 2 hours');
+    ('SLA-003', 'P2', 8, 'High priority - 8 hours resolution time');
 
 -- ============================================
 -- Insert default priority rules (Updated for P2/P3/P4)
 -- ============================================
 INSERT INTO priority_rules (id, keyword, category, priority) VALUES
     ('PR-001', 'urgent', NULL, 'P2'),
-    ('PR-002', 'critical', NULL, 'Critical'),
-    ('PR-003', 'emergency', NULL, 'Critical'),
+    ('PR-002', 'critical', NULL, 'P2'),
+    ('PR-003', 'emergency', NULL, 'P2'),
     ('PR-004', 'cannot access', NULL, 'P2'),
-    ('PR-005', 'server down', NULL, 'Critical'),
-    ('PR-006', 'outage', NULL, 'Critical'),
+    ('PR-005', 'server down', NULL, 'P2'),
+    ('PR-006', 'outage', NULL, 'P2'),
     ('PR-007', 'slow', NULL, 'P3'),
     ('PR-008', 'error', NULL, 'P3'),
     ('PR-009', 'help', NULL, 'P4'),

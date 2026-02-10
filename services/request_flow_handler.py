@@ -11,42 +11,50 @@ HARDWARE_BRANDS = {
         {'id': 'dell_laptop', 'label': '💻 Dell', 'value': 'Dell Laptop'},
         {'id': 'lenovo_laptop', 'label': '💻 Lenovo', 'value': 'Lenovo Laptop'},
         {'id': 'macbook', 'label': '🍎 MacBook', 'value': 'Apple MacBook'},
+        {'id': 'other_laptop', 'label': '📝 Other', 'value': 'Other Laptop'},
     ],
     'Desktop': [
         {'id': 'hp_desktop', 'label': '🖥️ HP', 'value': 'HP Desktop'},
         {'id': 'dell_desktop', 'label': '🖥️ Dell', 'value': 'Dell Desktop'},
         {'id': 'lenovo_desktop', 'label': '🖥️ Lenovo', 'value': 'Lenovo Desktop'},
+        {'id': 'other_desktop', 'label': '📝 Other', 'value': 'Other Desktop'},
     ],
     'Monitor': [
         {'id': 'dell_monitor', 'label': '🖵 Dell', 'value': 'Dell Monitor'},
         {'id': 'hp_monitor', 'label': '🖵 HP', 'value': 'HP Monitor'},
         {'id': 'lg_monitor', 'label': '🖵 LG', 'value': 'LG Monitor'},
         {'id': 'samsung_monitor', 'label': '🖵 Samsung', 'value': 'Samsung Monitor'},
+        {'id': 'other_monitor', 'label': '📝 Other', 'value': 'Other Monitor'},
     ],
     'Keyboard': [
         {'id': 'standard_kb', 'label': '⌨️ Standard Keyboard', 'value': 'Standard Keyboard'},
         {'id': 'ergonomic_kb', 'label': '⌨️ Ergonomic Keyboard', 'value': 'Ergonomic Keyboard'},
         {'id': 'wireless_kb', 'label': '⌨️ Wireless Keyboard', 'value': 'Wireless Keyboard'},
+        {'id': 'other_kb', 'label': '📝 Other', 'value': 'Other Keyboard'},
     ],
     'Mouse': [
         {'id': 'standard_mouse', 'label': '🖱️ Standard Mouse', 'value': 'Standard Mouse'},
         {'id': 'ergonomic_mouse', 'label': '🖱️ Ergonomic Mouse', 'value': 'Ergonomic Mouse'},
         {'id': 'wireless_mouse', 'label': '🖱️ Wireless Mouse', 'value': 'Wireless Mouse'},
+        {'id': 'other_mouse', 'label': '📝 Other', 'value': 'Other Mouse'},
     ],
     'Headset': [
         {'id': 'jabra', 'label': '🎧 Jabra', 'value': 'Jabra Headset'},
         {'id': 'plantronics', 'label': '🎧 Plantronics', 'value': 'Plantronics Headset'},
         {'id': 'logitech_hs', 'label': '🎧 Logitech', 'value': 'Logitech Headset'},
+        {'id': 'other_headset', 'label': '📝 Other', 'value': 'Other Headset'},
     ],
     'Webcam': [
         {'id': 'logitech_cam', 'label': '📷 Logitech', 'value': 'Logitech Webcam'},
         {'id': 'hp_cam', 'label': '📷 HP', 'value': 'HP Webcam'},
         {'id': 'dell_cam', 'label': '📷 Dell', 'value': 'Dell Webcam'},
+        {'id': 'other_webcam', 'label': '📝 Other', 'value': 'Other Webcam'},
     ],
     'Docking Station': [
         {'id': 'hp_dock', 'label': '🔌 HP', 'value': 'HP Docking Station'},
         {'id': 'dell_dock', 'label': '🔌 Dell', 'value': 'Dell Docking Station'},
         {'id': 'lenovo_dock', 'label': '🔌 Lenovo', 'value': 'Lenovo Docking Station'},
+        {'id': 'other_dock', 'label': '📝 Other', 'value': 'Other Docking Station'},
     ],
 }
 
@@ -66,6 +74,7 @@ REQUEST_CATEGORIES = {
             {'id': 'headset', 'label': '🎧 Headset', 'value': 'Headset'},
             {'id': 'webcam', 'label': '📷 Webcam', 'value': 'Webcam'},
             {'id': 'docking_station', 'label': '🔌 Docking Station', 'value': 'Docking Station'},
+            {'id': 'other_hardware', 'label': '📝 Other Hardware', 'value': 'Other Hardware'},
         ]
     },
     'software': {
@@ -195,6 +204,17 @@ def handle_hardware_item(value, conversation_state):
     conversation_state['state'] = STATE_REQUEST_HARDWARE_BRAND
     conversation_state.setdefault('navigation_stack', []).append(('request_hardware_type', value))
     
+    # "Other Hardware" - prompt for free text description
+    if value == 'Other Hardware':
+        conversation_state['state'] = STATE_REQUEST_HARDWARE_BRAND
+        return {
+            "success": True,
+            "response": "📝 **Other Hardware Request**\n\nPlease describe the hardware you need:",
+            "buttons": [{'id': 'back', 'label': '⬅️ Go Back', 'action': 'go_back', 'value': 'back'}],
+            "state": STATE_REQUEST_HARDWARE_BRAND,
+            "show_text_input": True
+        }
+    
     brands = HARDWARE_BRANDS.get(value, [])
     if not brands:
         # Fallback: go directly to preview
@@ -216,7 +236,19 @@ def handle_hardware_item(value, conversation_state):
 
 
 def handle_hardware_brand(value, conversation_state):
-    """Handle hardware brand selection - go directly to preview"""
+    """Handle hardware brand selection - go directly to preview or show text input for Other"""
+    # If user selected "Other" brand, prompt for specification
+    if value.startswith('Other '):
+        conversation_state['hardware_other_type'] = value.replace('Other ', '')
+        conversation_state['state'] = STATE_REQUEST_HARDWARE_BRAND
+        return {
+            "success": True,
+            "response": f"📝 **Other {value.replace('Other ', '')}**\n\nPlease specify the brand/model you need:",
+            "buttons": [{'id': 'back', 'label': '⬅️ Go Back', 'action': 'go_back', 'value': 'back'}],
+            "state": STATE_REQUEST_HARDWARE_BRAND,
+            "show_text_input": True
+        }
+    
     conversation_state['request_item'] = value  # e.g. "HP Laptop"
     conversation_state['justification'] = f"Requesting {value}"
     conversation_state['state'] = STATE_REQUEST_PREVIEW

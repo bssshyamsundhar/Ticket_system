@@ -142,6 +142,17 @@
     background: rgba(239, 68, 68, 0.1);
 }
 
+/* Dark mode trend overrides */
+[data-theme="dark"] .trend-up {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.2);
+}
+
+[data-theme="dark"] .trend-down {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.2);
+}
+
 .stat-body {
     display: flex;
     flex-direction: column;
@@ -348,6 +359,25 @@
     padding: var(--spacing-xl);
     color: var(--color-text-tertiary);
     font-size: var(--font-size-sm);
+}
+
+/* Dark mode Dashboard overrides */
+[data-theme="dark"] .expandable-card .expand-toggle {
+    background: rgba(102, 126, 234, 0.2);
+}
+
+[data-theme="dark"] .expandable-card:hover .expand-toggle {
+    background: rgba(102, 126, 234, 0.3);
+}
+
+[data-theme="dark"] .activity-item {
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--color-border);
+}
+
+[data-theme="dark"] .activity-item:hover {
+    background: rgba(99, 102, 241, 0.08);
+    border-color: rgba(99, 102, 241, 0.2);
 }
 
 /* Responsive */

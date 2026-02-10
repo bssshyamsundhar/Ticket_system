@@ -10,7 +10,7 @@ from config import config
 import logging
 import threading
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -33,9 +33,12 @@ class PostgresDB:
             'port': config.POSTGRES_PORT,
             'database': config.POSTGRES_DB,
             'user': config.POSTGRES_USER,
-            'password': config.POSTGRES_PASSWORD
+            'password': config.POSTGRES_PASSWORD,
+            'options': '-c TimeZone=UTC'
         }
         self._ensure_pool()
+        # Migrate TIMESTAMP columns to TIMESTAMPTZ on first init
+        self._migrate_to_timestamptz()
 
     def _ensure_pool(self):
         with self._pool_lock:
@@ -46,6 +49,90 @@ class PostgresDB:
                     **self.connection_params
                 )
                 logger.info("PostgreSQL connection pool initialized")
+
+    def _migrate_to_timestamptz(self):
+        """
+        One-time migration: convert all TIMESTAMP WITHOUT TIME ZONE columns to
+        TIMESTAMP WITH TIME ZONE (TIMESTAMPTZ).
+
+        IMPORTANT: This uses a SEPARATE connection WITHOUT TimeZone=UTC so that
+        PostgreSQL's ALTER TYPE interprets existing naive timestamps using the
+        server's native timezone (e.g. Asia/Kolkata).  After the ALTER, the data
+        is stored internally as UTC, and subsequent reads through the pool
+        (TimeZone=UTC) return proper UTC-aware datetimes.
+        """
+        # All (table, column) pairs that need migration
+        columns_to_migrate = [
+            ('tickets', 'sla_deadline'),
+            ('tickets', 'created_at'),
+            ('tickets', 'updated_at'),
+            ('tickets', 'resolved_at'),
+            ('tickets', 'closed_at'),
+            ('tickets', 'manager_approval_date'),
+            ('users', 'created_at'),
+            ('users', 'updated_at'),
+            ('technicians', 'created_at'),
+            ('technicians', 'updated_at'),
+            ('sla_config', 'created_at'),
+            ('sla_config', 'updated_at'),
+            ('priority_rules', 'created_at'),
+            ('priority_rules', 'updated_at'),
+            ('knowledge_articles', 'created_at'),
+            ('knowledge_articles', 'updated_at'),
+            ('kb_categories', 'created_at'),
+            ('audit_logs', 'timestamp'),
+            ('solution_feedback', 'created_at'),
+            ('ticket_feedback', 'created_at'),
+            ('conversation_history', 'created_at'),
+            ('notification_settings', 'updated_at'),
+        ]
+
+        # Use a fresh connection WITHOUT TimeZone=UTC so the server's native
+        # timezone (e.g. Asia/Kolkata) is used for the TIMESTAMP→TIMESTAMPTZ cast.
+        native_params = {
+            'host': config.POSTGRES_HOST,
+            'port': config.POSTGRES_PORT,
+            'database': config.POSTGRES_DB,
+            'user': config.POSTGRES_USER,
+            'password': config.POSTGRES_PASSWORD,
+        }
+
+        try:
+            conn = psycopg2.connect(**native_params)
+            conn.autocommit = True
+            cur = conn.cursor()
+
+            # Check which columns still need migration
+            cur.execute("""
+                SELECT table_name, column_name
+                FROM information_schema.columns
+                WHERE table_schema = 'public'
+                  AND data_type = 'timestamp without time zone'
+            """)
+            existing = set((r[0], r[1]) for r in cur.fetchall())
+
+            migrated = 0
+            for table, col in columns_to_migrate:
+                if (table, col) in existing:
+                    try:
+                        cur.execute(
+                            f'ALTER TABLE {table} ALTER COLUMN {col} '
+                            f'TYPE TIMESTAMPTZ USING {col} AT TIME ZONE current_setting(\'timezone\')'
+                        )
+                        migrated += 1
+                    except Exception as col_err:
+                        logger.warning(f"Could not migrate {table}.{col}: {col_err}")
+
+            cur.close()
+            conn.close()
+
+            if migrated:
+                logger.info(f"Timezone migration: converted {migrated} columns from TIMESTAMP to TIMESTAMPTZ")
+            else:
+                logger.info("Timezone migration: all columns already TIMESTAMPTZ, nothing to do")
+
+        except Exception as e:
+            logger.warning(f"Timezone migration skipped (non-fatal): {e}")
 
     @contextmanager
     def get_connection(self):
@@ -191,20 +278,20 @@ class PostgresDB:
         query = "SELECT * FROM technicians WHERE id = %s"
         return self.execute_one(query, (tech_id,))
     
-    def create_technician(self, name, email, role, department='IT Support', specialization=None, joined_date=None):
+    def create_technician(self, name, email, role, department='IT Support', specialization=None, joined_date=None, shift_start=None, shift_end=None):
         """Create a new technician"""
         tech_id = generate_id('TECH')
         joined_date = joined_date or datetime.now().date()
         query = """
-            INSERT INTO technicians (id, name, email, role, department, specialization, joined_date)
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            INSERT INTO technicians (id, name, email, role, department, specialization, joined_date, shift_start, shift_end)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             RETURNING *
         """
-        return self.execute_one(query, (tech_id, name, email, role, department, specialization, joined_date))
+        return self.execute_one(query, (tech_id, name, email, role, department, specialization, joined_date, shift_start, shift_end))
     
     def update_technician(self, tech_id, **kwargs):
         """Update technician fields"""
-        allowed_fields = ['name', 'email', 'role', 'department', 'active_status', 'specialization']
+        allowed_fields = ['name', 'email', 'role', 'department', 'active_status', 'specialization', 'shift_start', 'shift_end']
         updates = []
         values = []
         for field, value in kwargs.items():
@@ -222,6 +309,16 @@ class PostgresDB:
         """
         return self.execute_one(query, tuple(values))
     
+    def delete_technician(self, tech_id):
+        """Delete a technician by ID. Unassigns their tickets first."""
+        # Unassign tickets from this technician
+        self.execute_query(
+            "UPDATE tickets SET assigned_to_id = NULL, assigned_to = NULL WHERE assigned_to_id = %s",
+            (tech_id,)
+        )
+        query = "DELETE FROM technicians WHERE id = %s"
+        return self.execute_query(query, (tech_id,))
+    
     def increment_technician_stats(self, tech_id, assigned=0, resolved=0):
         """Increment technician statistics"""
         query = """
@@ -234,32 +331,38 @@ class PostgresDB:
         self.execute_query(query, (assigned, resolved, tech_id))
 
     def get_on_shift_technician_round_robin(self):
-        """Get next technician for round-robin assignment based on current shift.
+        """Get next technician for strict round-robin assignment based on current shift.
         
         Finds active technicians whose shift covers the current IST time,
-        then picks the one with the fewest assigned_tickets (round-robin by load).
+        then picks the one who was assigned a ticket LEAST RECENTLY (strict turn-based).
         Handles overnight shifts (e.g. 7PM-4AM) where shift_end < shift_start.
+        A technician with no recent assignment (NULL last_assigned_at or no tickets) goes first.
         """
         from datetime import datetime, timezone, timedelta
         # Get current IST time
         ist = timezone(timedelta(hours=5, minutes=30))
         now_ist = datetime.now(ist).time()
         
-        # Query active technicians on shift, ordered by assigned_tickets ASC (least loaded first)
-        # Handles both normal shifts (start < end) and overnight shifts (start > end)
+        # Strict round-robin: pick the on-shift technician who was assigned longest ago
+        # Uses LEFT JOIN on tickets to find the MAX updated_at for assignments
+        # Technicians with no assignments go first (NULLS FIRST)
         query = """
-            SELECT * FROM technicians
-            WHERE active_status = true
-              AND shift_start IS NOT NULL
-              AND shift_end IS NOT NULL
+            SELECT t.*, 
+                   MAX(tk.updated_at) as last_assigned_at
+            FROM technicians t
+            LEFT JOIN tickets tk ON t.id = tk.assigned_to_id
+            WHERE t.active_status = true
+              AND t.shift_start IS NOT NULL
+              AND t.shift_end IS NOT NULL
               AND (
                     -- Normal shift: e.g. 7AM-4PM
-                    (shift_start < shift_end AND %s >= shift_start AND %s < shift_end)
+                    (t.shift_start < t.shift_end AND %s >= t.shift_start AND %s < t.shift_end)
                     OR
                     -- Overnight shift: e.g. 7PM-4AM
-                    (shift_start > shift_end AND (%s >= shift_start OR %s < shift_end))
+                    (t.shift_start > t.shift_end AND (%s >= t.shift_start OR %s < t.shift_end))
                   )
-            ORDER BY assigned_tickets ASC, id ASC
+            GROUP BY t.id
+            ORDER BY last_assigned_at ASC NULLS FIRST, t.id ASC
             LIMIT 1
         """
         return self.execute_one(query, (now_ist, now_ist, now_ist, now_ist))
@@ -472,11 +575,11 @@ class PostgresDB:
         return self.execute_one(query, (sla_hours, description, sla_id))
     
     def calculate_sla_deadline(self, priority):
-        """Calculate SLA deadline based on priority"""
+        """Calculate SLA deadline based on priority (UTC)"""
         sla = self.get_sla_by_priority(priority)
         if sla:
-            return datetime.now() + timedelta(hours=sla['sla_hours'])
-        return datetime.now() + timedelta(hours=24)  # Default 24 hours
+            return datetime.now(timezone.utc) + timedelta(hours=sla['sla_hours'])
+        return datetime.now(timezone.utc) + timedelta(hours=24)  # Default 24 hours
 
     # ==========================================
     # Priority Rules Methods
@@ -508,8 +611,8 @@ class PostgresDB:
         text = f"{subject} {description}".lower()
         rules = self.get_priority_rules()
         
-        # Priority order: Critical > P2 > P3 > P4
-        priority_order = {'Critical': 4, 'P2': 3, 'P3': 2, 'P4': 1}
+        # Priority order: P2 > P3 > P4
+        priority_order = {'P2': 3, 'P3': 2, 'P4': 1}
         max_priority = None
         max_order = 0
         
@@ -524,7 +627,7 @@ class PostgresDB:
                     max_priority = rule['priority']
         
         # If a high-priority rule matched, return it
-        if max_priority and max_order >= 3:  # P2 or Critical
+        if max_priority and max_order >= 3:  # P2
             return max_priority
         
         # Smart category-based priority mapping
@@ -543,13 +646,10 @@ class PostgresDB:
                 max_priority = category_priority
         
         # Extended keyword matching for better priority detection
-        critical_keywords = [
+        p2_keywords = [
             'server down', 'outage', 'all users affected', 'entire department', 
             'production down', 'business critical', 'security breach', 'data loss',
-            'system failure', 'complete failure', 'emergency'
-        ]
-        
-        p2_keywords = [
+            'system failure', 'complete failure', 'emergency',
             'cannot work', 'blocked', 'unable to access', 'vpn not working',
             'cannot login', 'authentication failed', 'password expired',
             'locked out', 'urgent', 'deadline', 'meeting', 'presentation',
@@ -563,15 +663,10 @@ class PostgresDB:
             'would like', 'nice to have', 'improvement', 'training'
         ]
         
-        # Check for critical keywords
-        for keyword in critical_keywords:
-            if keyword in text:
-                return 'Critical'
-        
         # Check for P2 keywords
         for keyword in p2_keywords:
             if keyword in text:
-                if max_order < 3:  # Don't downgrade if already Critical
+                if max_order < 3:  # Don't downgrade if already P2
                     return 'P2'
         
         # Check for P4 keywords (only if nothing else matched)
@@ -753,7 +848,7 @@ class PostgresDB:
     # Analytics Methods
     # ==========================================
     def get_ticket_stats(self):
-        """Get ticket statistics"""
+        """Get ticket statistics with real-time data including live SLA breach detection"""
         query = """
             SELECT 
                 COUNT(*) as total,
@@ -761,10 +856,125 @@ class PostgresDB:
                 SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
                 SUM(CASE WHEN status = 'Resolved' THEN 1 ELSE 0 END) as resolved,
                 SUM(CASE WHEN status = 'Closed' THEN 1 ELSE 0 END) as closed,
-                SUM(CASE WHEN sla_breached = true THEN 1 ELSE 0 END) as sla_breached
+                SUM(CASE WHEN (
+                    sla_breached = true 
+                    OR (sla_deadline IS NOT NULL AND sla_deadline < CURRENT_TIMESTAMP AND status NOT IN ('Resolved', 'Closed'))
+                ) THEN 1 ELSE 0 END) as sla_breached,
+                SUM(CASE WHEN priority = 'P2' THEN 1 ELSE 0 END) as p2_tickets,
+                SUM(CASE WHEN priority = 'P3' THEN 1 ELSE 0 END) as p3_tickets,
+                SUM(CASE WHEN priority = 'P4' THEN 1 ELSE 0 END) as p4_tickets,
+                SUM(CASE WHEN status = 'Resolved' AND resolved_at >= CURRENT_DATE THEN 1 ELSE 0 END) as resolved_today
             FROM tickets
         """
         return self.execute_one(query)
+    
+    def get_active_technician_count(self):
+        """Get count of technicians currently on shift (real-time based on IST time)"""
+        query = """
+            SELECT COUNT(*) as count
+            FROM technicians
+            WHERE active_status = true
+            AND shift_start IS NOT NULL AND shift_end IS NOT NULL
+            AND (
+                CASE 
+                    WHEN shift_start <= shift_end THEN
+                        (CURRENT_TIME AT TIME ZONE 'Asia/Kolkata')::time BETWEEN shift_start AND shift_end
+                    ELSE
+                        (CURRENT_TIME AT TIME ZONE 'Asia/Kolkata')::time >= shift_start 
+                        OR (CURRENT_TIME AT TIME ZONE 'Asia/Kolkata')::time <= shift_end
+                END
+            )
+        """
+        result = self.execute_one(query)
+        return result['count'] if result else 0
+    
+    def get_avg_resolution_time(self):
+        """Get average resolution time for resolved tickets"""
+        query = """
+            SELECT 
+                ROUND(AVG(EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600), 1) as avg_hours
+            FROM tickets
+            WHERE status IN ('Resolved', 'Closed') 
+            AND resolved_at IS NOT NULL
+        """
+        result = self.execute_one(query)
+        if result and result['avg_hours'] is not None:
+            hours = float(result['avg_hours'])
+            if hours >= 24:
+                days = hours / 24
+                return f"{days:.1f}d"
+            return f"{hours:.1f}h"
+        return 'N/A'
+    
+    def get_ticket_trends(self):
+        """Get ticket trend comparisons (this week vs last week) for real trend percentages"""
+        query = """
+            WITH this_week AS (
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open,
+                    SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+                    SUM(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) as resolved,
+                    SUM(CASE WHEN (
+                        sla_breached = true 
+                        OR (sla_deadline IS NOT NULL AND sla_deadline < CURRENT_TIMESTAMP AND status NOT IN ('Resolved', 'Closed'))
+                    ) THEN 1 ELSE 0 END) as sla_breached,
+                    SUM(CASE WHEN priority = 'P2' THEN 1 ELSE 0 END) as p2,
+                    SUM(CASE WHEN priority = 'P3' THEN 1 ELSE 0 END) as p3,
+                    SUM(CASE WHEN priority = 'P4' THEN 1 ELSE 0 END) as p4
+                FROM tickets
+                WHERE created_at >= date_trunc('week', CURRENT_DATE)
+            ),
+            last_week AS (
+                SELECT 
+                    COUNT(*) as total,
+                    SUM(CASE WHEN status = 'Open' THEN 1 ELSE 0 END) as open,
+                    SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
+                    SUM(CASE WHEN status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) as resolved,
+                    SUM(CASE WHEN (
+                        sla_breached = true 
+                        OR (sla_deadline IS NOT NULL AND sla_deadline < CURRENT_TIMESTAMP AND status NOT IN ('Resolved', 'Closed'))
+                    ) THEN 1 ELSE 0 END) as sla_breached,
+                    SUM(CASE WHEN priority = 'P2' THEN 1 ELSE 0 END) as p2,
+                    SUM(CASE WHEN priority = 'P3' THEN 1 ELSE 0 END) as p3,
+                    SUM(CASE WHEN priority = 'P4' THEN 1 ELSE 0 END) as p4
+                FROM tickets
+                WHERE created_at >= date_trunc('week', CURRENT_DATE) - INTERVAL '7 days'
+                AND created_at < date_trunc('week', CURRENT_DATE)
+            )
+            SELECT 
+                tw.total as tw_total, lw.total as lw_total,
+                tw.open as tw_open, lw.open as lw_open,
+                tw.in_progress as tw_in_progress, lw.in_progress as lw_in_progress,
+                tw.resolved as tw_resolved, lw.resolved as lw_resolved,
+                tw.sla_breached as tw_sla_breached, lw.sla_breached as lw_sla_breached,
+                tw.p2 as tw_p2, lw.p2 as lw_p2,
+                tw.p3 as tw_p3, lw.p3 as lw_p3,
+                tw.p4 as tw_p4, lw.p4 as lw_p4
+            FROM this_week tw, last_week lw
+        """
+        result = self.execute_one(query)
+        if not result:
+            return {}
+        
+        def calc_trend(current, previous):
+            current = current or 0
+            previous = previous or 0
+            if previous == 0:
+                if current > 0:
+                    return '+100%', True
+                return '0%', True
+            change = ((current - previous) / previous) * 100
+            sign = '+' if change >= 0 else ''
+            return f'{sign}{change:.0f}%', change >= 0
+        
+        trends = {}
+        for key in ['total', 'open', 'in_progress', 'resolved', 'sla_breached', 'p2', 'p3', 'p4']:
+            trend_str, trend_up = calc_trend(result.get(f'tw_{key}'), result.get(f'lw_{key}'))
+            trends[f'{key}_trend'] = trend_str
+            trends[f'{key}_trend_up'] = trend_up
+        
+        return trends
     
     def get_tickets_by_category(self):
         """Get ticket count by category"""
@@ -784,10 +994,9 @@ class PostgresDB:
             GROUP BY priority
             ORDER BY 
                 CASE priority 
-                    WHEN 'Critical' THEN 1 
-                    WHEN 'P2' THEN 2 
-                    WHEN 'P3' THEN 3 
-                    WHEN 'P4' THEN 4 
+                    WHEN 'P2' THEN 1 
+                    WHEN 'P3' THEN 2 
+                    WHEN 'P4' THEN 3 
                 END
         """
         return self.execute_query(query, fetch=True)
@@ -804,19 +1013,99 @@ class PostgresDB:
         return self.execute_query(query, (days,), fetch=True)
     
     def get_technician_workload(self):
-        """Get workload per technician"""
+        """Get real-time workload per technician from tickets table"""
         query = """
             SELECT 
                 t.id, t.name,
                 COUNT(tk.id) as total_assigned,
                 SUM(CASE WHEN tk.status = 'Open' THEN 1 ELSE 0 END) as open_tickets,
                 SUM(CASE WHEN tk.status = 'In Progress' THEN 1 ELSE 0 END) as in_progress,
-                t.resolved_tickets
+                SUM(CASE WHEN tk.status IN ('Resolved', 'Closed') THEN 1 ELSE 0 END) as resolved_tickets
             FROM technicians t
             LEFT JOIN tickets tk ON t.id = tk.assigned_to_id
             WHERE t.active_status = true
-            GROUP BY t.id, t.name, t.resolved_tickets
+            GROUP BY t.id, t.name
             ORDER BY total_assigned DESC
+        """
+        return self.execute_query(query, fetch=True)
+
+    def get_tickets_by_status(self):
+        """Get ticket count by status"""
+        query = """
+            SELECT status, COUNT(*) as count
+            FROM tickets
+            GROUP BY status
+            ORDER BY count DESC
+        """
+        return self.execute_query(query, fetch=True)
+
+    def get_sla_compliance_stats(self):
+        """Get real-time SLA compliance statistics (computes breaches live from sla_deadline)"""
+        query = """
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN (
+                    sla_breached = true 
+                    OR (sla_deadline < CURRENT_TIMESTAMP AND status NOT IN ('Resolved', 'Closed'))
+                ) THEN 1 ELSE 0 END) as breached,
+                SUM(CASE WHEN NOT (
+                    sla_breached = true 
+                    OR (sla_deadline < CURRENT_TIMESTAMP AND status NOT IN ('Resolved', 'Closed'))
+                ) THEN 1 ELSE 0 END) as within_sla,
+                ROUND(
+                    SUM(CASE WHEN NOT (
+                        sla_breached = true 
+                        OR (sla_deadline < CURRENT_TIMESTAMP AND status NOT IN ('Resolved', 'Closed'))
+                    ) THEN 1 ELSE 0 END)::numeric / 
+                    NULLIF(COUNT(*), 0) * 100, 1
+                ) as compliance_rate
+            FROM tickets
+            WHERE sla_deadline IS NOT NULL
+        """
+        return self.execute_one(query)
+
+    def get_resolution_time_distribution(self):
+        """Get distribution of resolution times in hour buckets"""
+        query = """
+            SELECT 
+                CASE 
+                    WHEN EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600 < 1 THEN '< 1h'
+                    WHEN EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600 < 4 THEN '1-4h'
+                    WHEN EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600 < 8 THEN '4-8h'
+                    WHEN EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600 < 24 THEN '8-24h'
+                    WHEN EXTRACT(EPOCH FROM (resolved_at - created_at)) / 3600 < 48 THEN '1-2d'
+                    ELSE '2d+'
+                END as bucket,
+                COUNT(*) as count
+            FROM tickets
+            WHERE resolved_at IS NOT NULL
+            GROUP BY bucket
+            ORDER BY MIN(EXTRACT(EPOCH FROM (resolved_at - created_at)))
+        """
+        return self.execute_query(query, fetch=True)
+
+    def get_daily_resolution_trend(self, days=30):
+        """Get daily resolved ticket count for last N days"""
+        query = """
+            SELECT DATE(resolved_at) as date, COUNT(*) as count
+            FROM tickets
+            WHERE resolved_at >= CURRENT_DATE - INTERVAL '%s days'
+            AND resolved_at IS NOT NULL
+            GROUP BY DATE(resolved_at)
+            ORDER BY date
+        """
+        return self.execute_query(query, (days,), fetch=True)
+
+    def get_technician_real_stats(self):
+        """Get real-time resolved ticket counts for all technicians from tickets table"""
+        query = """
+            SELECT 
+                t.id,
+                COUNT(CASE WHEN tk.status IN ('Resolved', 'Closed') THEN 1 END) as real_resolved,
+                COUNT(CASE WHEN tk.status NOT IN ('Resolved', 'Closed') THEN 1 END) as real_assigned
+            FROM technicians t
+            LEFT JOIN tickets tk ON t.id = tk.assigned_to_id
+            GROUP BY t.id
         """
         return self.execute_query(query, fetch=True)
 
@@ -824,14 +1113,14 @@ class PostgresDB:
     # Feedback Methods
     # ==========================================
     def save_solution_feedback(self, ticket_id=None, session_id=None, solution_index=1, 
-                               solution_text="", was_helpful=None):
-        """Save per-solution helpfulness feedback"""
+                               solution_text="", feedback_type=None):
+        """Save per-solution feedback (tried/not_tried/helpful/not_helpful)"""
         query = """
-            INSERT INTO solution_feedback (ticket_id, session_id, solution_index, solution_text, was_helpful)
+            INSERT INTO solution_feedback (ticket_id, session_id, solution_index, solution_text, feedback_type)
             VALUES (%s, %s, %s, %s, %s)
             RETURNING *
         """
-        return self.execute_one(query, (ticket_id, session_id, solution_index, solution_text, was_helpful))
+        return self.execute_one(query, (ticket_id, session_id, solution_index, solution_text, feedback_type))
     
     def save_ticket_feedback(self, ticket_id=None, session_id=None, flow_type='incident',
                              rating=None, feedback_text=None):
@@ -854,7 +1143,7 @@ class PostgresDB:
         solutions_shown = feedback_data.get('solutions_shown', [])
         
         # Save per-solution feedback (isolated per-item so one failure doesn't block ticket feedback)
-        for index_str, was_helpful in solution_feedback.items():
+        for index_str, feedback_type in solution_feedback.items():
             try:
                 index = int(index_str) if isinstance(index_str, str) else index_str
                 sol_entry = solutions_shown[index - 1] if index <= len(solutions_shown) else ""
@@ -863,7 +1152,7 @@ class PostgresDB:
                     solution_text = sol_entry.get('text', str(sol_entry))
                 else:
                     solution_text = str(sol_entry) if sol_entry else ""
-                self.save_solution_feedback(ticket_id, session_id, index, solution_text, was_helpful)
+                self.save_solution_feedback(ticket_id, session_id, index, solution_text, feedback_type)
             except Exception as e:
                 logger.warning(f"Failed to save solution feedback for index {index_str}: {e}")
         
@@ -894,11 +1183,23 @@ class PostgresDB:
         query = """
             SELECT 
                 COUNT(*) as total_solutions,
-                SUM(CASE WHEN was_helpful = true THEN 1 ELSE 0 END) as helpful_count,
-                SUM(CASE WHEN was_helpful = false THEN 1 ELSE 0 END) as not_helpful_count
+                SUM(CASE WHEN feedback_type = 'helpful' THEN 1 ELSE 0 END) as helpful_count,
+                SUM(CASE WHEN feedback_type = 'not_helpful' THEN 1 ELSE 0 END) as not_helpful_count,
+                SUM(CASE WHEN feedback_type = 'tried' THEN 1 ELSE 0 END) as tried_count,
+                SUM(CASE WHEN feedback_type = 'not_tried' THEN 1 ELSE 0 END) as not_tried_count
             FROM solution_feedback
         """
         return self.execute_one(query)
+    
+    def get_helpful_solutions_for_ticket(self, ticket_id):
+        """Get solutions that were tried or marked helpful for a ticket"""
+        query = """
+            SELECT solution_index, solution_text, feedback_type
+            FROM solution_feedback
+            WHERE ticket_id = %s
+            ORDER BY solution_index
+        """
+        return self.execute_query(query, (ticket_id,), fetch=True)
 
 
 # Global database instance
