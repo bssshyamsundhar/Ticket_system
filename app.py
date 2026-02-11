@@ -694,6 +694,10 @@ def chat():
                     # Simulate manager approval
                     simulated_manager = handler_response.get('simulated_manager', 'Your Manager')
                     
+                    # Generate a visual REQ- ID (not stored in DB)
+                    import time, random
+                    req_id = f"REQ-{int(time.time()) % 100000:05d}-{random.randint(100, 999)}"
+                    
                     # Update ticket status to In Progress (manager approved)
                     try:
                         db.update_ticket_status(ticket['id'], 'In Progress', user_id, 'Manager Simulation',
@@ -703,7 +707,7 @@ def chat():
                     
                     handler_response = {
                         "success": True,
-                        "response": f"✅ **Request Approved!** (Ticket: **{ticket['id']}**)\n\n👤 **Manager {simulated_manager}** has reviewed and approved your request.\n\n📧 You will receive a confirmation email shortly.\n\n---\n\nWould you like to do anything else?",
+                        "response": f"✅ **Request Approved!** (Ticket: **{ticket['id']}**)\n\n🆔 **Request ID:** {req_id}\n\n👤 **Manager {simulated_manager}** has reviewed and approved your request.\n\n📧 You will receive a confirmation email shortly.\n\n---\n\nWould you like to do anything else?",
                         "ticket_id": ticket['id'],
                         "buttons": [
                             {"id": "new", "label": "🆕 New Request", "action": "start", "value": "new"},
@@ -865,7 +869,7 @@ def chat_legacy():
         if action == 'start' or conversation_state['state'] == 'initial':
             # Show category buttons
             categories = kb.get_categories_structure()
-            response_data["response"] = f"Hi {user_name}! 👋\n\nI'm FlexAssist, your AI-powered IT chatbot, here to make things simple and easy for you. Whether you need help, answers, or just a little guidance, I'm always ready to assist.\n\nHow can I help you today? 😊\n\nIf you would like to report issues with applications not listed below, just ask! I will give you the option to connect with our support engineers if necessary."
+            response_data["response"] = f"Hi {user_name}! 👋\n\nI'm Flexi5, your AI-powered IT chatbot, here to make things simple and easy for you. Whether you need help, answers, or just a little guidance, I'm always ready to assist.\n\nHow can I help you today? 😊\n\nIf you would like to report issues with applications not listed below, just ask! I will give you the option to connect with our support engineers if necessary."
             response_data["buttons"] = [
                 {
                     "id": cat['id'],
@@ -1133,7 +1137,7 @@ def chat_legacy():
             conversation_state['state'] = 'completed'
         
         elif action == 'end':
-            response_data["response"] = "Thank you for using IT Support! Have a great day! 👋"
+            response_data["response"] = "Thank you for using Flexi5! Have a great day! 👋"
             response_data["buttons"] = [
                 {"id": "new", "label": "🆕 Start New Conversation", "action": "start", "value": "new"}
             ]

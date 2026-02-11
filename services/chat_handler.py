@@ -227,7 +227,7 @@ class ChatHandler:
         
         return {
             "success": True,
-            "response": f"Hi {user_name}! 👋\n\nI'm **Flex Assist**, your IT Support Assistant. I'm here to help you with any technical issues or requests.\n\nPlease select an option to get started:",
+            "response": f"Hi {user_name}! 👋\n\nI'm **Flexi5**, your IT Support Assistant. I'm here to help you with any technical issues or requests.\n\nPlease select an option to get started:",
             "buttons": self.data_service.get_ticket_types(),
             "state": self.STATE_AWAITING_TICKET_TYPE,
             "show_text_input": False
@@ -752,9 +752,27 @@ class ChatHandler:
         star_buttons = star_ui.get('buttons', [])
         star_buttons.append({"id": "skip", "label": "⏭️ Skip Rating", "action": "skip_rating", "value": "skip"})
         
+        # Generate a visual ticket ID for bot-resolved tracking (not stored in DB)
+        import time as _time, random as _random
+        bot_ticket_id = f"TKT-{int(_time.time()) % 100000:05d}-{_random.randint(100, 999)}"
+        
+        category = conversation_state.get('smart_category', 'General')
+        issue_text = conversation_state.get('issue_text', 'Reported issue')
+        
+        ticket_simulation = (
+            f"\n\n---\n"
+            f"\n🎫 **Ticket Auto-Resolved**\n"
+            f"\n📋 **Ticket ID:** {bot_ticket_id}"
+            f"\n📂 **Category:** {category}"
+            f"\n📝 **Issue:** {issue_text}"
+            f"\n✅ **Status:** Resolved"
+            f"\n🤖 **Resolved by:** Flexi5 Bot"
+            f"\n\n---"
+        )
+        
         return {
             "success": True,
-            "response": "🎉 **Great!** I'm glad the solution helped resolve your issue.\n\n📊 **How was your experience?** Please rate your interaction:",
+            "response": f"🎉 **Great!** I'm glad the solution helped resolve your issue.{ticket_simulation}\n\n📊 **How was your experience?** Please rate your interaction:",
             "show_star_rating": True,
             "buttons": star_buttons,
             "state": self.STATE_END_RATING,
@@ -1213,7 +1231,7 @@ Would you like to create this ticket?"""
         
         return {
             "success": True,
-            "response": "Thank you for using IT Support! Have a great day! 👋\n\nFeel free to come back anytime you need help.",
+            "response": "Thank you for using Flexi5! Have a great day! 👋\n\nFeel free to come back anytime you need help.",
             "buttons": [
                 {"id": "new", "label": "🔄 Start New Conversation", "action": "start", "value": "new"}
             ],

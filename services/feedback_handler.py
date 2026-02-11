@@ -234,10 +234,16 @@ def handle_rating_submit(rating, conversation_state):
     conversation_state['end_rating'] = int(rating)
     conversation_state['state'] = STATE_END_FEEDBACK_TEXT
     
+    # Emotion emojis based on rating
+    rating_emotions = {1: '😞', 2: '😕', 3: '😐', 4: '😊', 5: '🤩'}
+    rating_labels = {1: 'We\'re sorry to hear that', 2: 'We\'ll work to improve', 3: 'Thanks for your feedback', 4: 'Glad we could help', 5: 'Awesome! We\'re thrilled'}
+    emotion = rating_emotions.get(int(rating), '⭐')
+    label = rating_labels.get(int(rating), 'Thank you')
+    
     # Show text feedback prompt
     return {
         "success": True,
-        "response": f"⭐ **Rating: {rating}/5** - Thank you!\n\n📝 Would you like to leave any additional comments? (Optional)",
+        "response": f"{emotion} **Rating: {rating}/5** — {label}!\n\n📝 Would you like to leave any additional comments? (Optional)",
         "buttons": [
             {'id': 'submit', 'label': '✅ Submit', 'action': 'submit_feedback_text', 'value': 'submit'},
             {'id': 'skip', 'label': '⏭️ Skip', 'action': 'skip_feedback_text', 'value': 'skip'}
@@ -275,10 +281,13 @@ def get_feedback_complete_response(conversation_state):
     """Get the feedback complete response"""
     rating = conversation_state.get('end_rating')
     
+    rating_emotions = {1: '😞', 2: '😕', 3: '😐', 4: '😊', 5: '🤩'}
+    
     if rating:
-        thank_you = f"Thank you for your feedback! (⭐ {rating}/5)"
+        emotion = rating_emotions.get(rating, '⭐')
+        thank_you = f"Thank you for your feedback! {emotion} ({rating}/5)"
     else:
-        thank_you = "Thank you for using IT Support!"
+        thank_you = "Thank you for using Flexi5!"
     
     return {
         "success": True,

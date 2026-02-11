@@ -1,10 +1,10 @@
 .tickets-page {
-    padding: var(--spacing-xl);
-    max-width: 1250px;
-    /* Reduced from 1600px for better visual match with Dashboard */
-    margin: 0 auto;
+    padding: var(--spacing-lg);
     width: 100%;
-    /* Page controls its own width */
+    max-width: 100%;
+    margin: 0;
+    box-sizing: border-box;
+    overflow-x: hidden;
 }
 
 .page-header {
@@ -95,8 +95,7 @@
 
 .table-card {
     padding: 0;
-    overflow: visible;
-    /* Allow table to scroll within card */
+    overflow: hidden;
     position: relative;
 }
 

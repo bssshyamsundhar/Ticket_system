@@ -51,7 +51,7 @@ function Login({ onLogin }) {
             />
           </div>
           <h1>Admin Dashboard</h1>
-          <p>IT Support System</p>
+          <p>Flexi5</p>
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">

@@ -29,7 +29,7 @@ const parseUTCDate = (value) => {
  * Displays a countdown timer for ticket SLA deadlines with color-coded urgency
  * Colors: Green (>50% remaining), Yellow (25-50%), Red (<25% or breached)
  */
-const SLATimer = ({ slaDeadline, slaBreached, status }) => {
+const SLATimer = React.memo(({ slaDeadline, slaBreached, status }) => {
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [urgencyLevel, setUrgencyLevel] = useState('normal');
 
@@ -117,7 +117,7 @@ const SLATimer = ({ slaDeadline, slaBreached, status }) => {
             )}
         </span>
     );
-};
+});
 
 /**
  * SLADueDate Component

@@ -76,10 +76,10 @@ function App() {
           <Header user={user} onLogout={handleLogout} />
           <main className="page-content">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
+              <Route path="/" element={<Analytics />} />
               <Route path="/tickets" element={<Tickets />} />
               <Route path="/technicians" element={<Technicians />} />
-              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/analytics" element={<Dashboard />} />
               <Route path="/roles" element={<Roles />} />
               <Route path="/audit-logs" element={<AuditLogs />} />
               <Route path="/login" element={<Navigate to="/" replace />} />

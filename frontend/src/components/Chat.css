@@ -1557,88 +1557,92 @@
    ========================================== */
 
 .star-rating-container {
-  padding: 16px 24px;
-  background: #f8fafc;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
   border-top: 1px solid #e2e8f0;
   text-align: center;
 }
 
 .star-rating-header {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   font-size: 15px;
   font-weight: 600;
   color: #4a5568;
 }
 
+.star-rating-emoji-area {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+}
+
+.star-rating-emoji {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: opacity 0.2s ease;
+}
+
+.star-rating-emoji .rating-emoji {
+  font-size: 42px;
+  line-height: 1;
+  margin-bottom: 4px;
+  transition: transform 0.2s ease;
+}
+
+.star-rating-emoji .rating-label-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #4a5568;
+  transition: color 0.2s ease;
+}
+
+.star-rating-emoji .rating-label-text.rating-1 { color: #ef4444; }
+.star-rating-emoji .rating-label-text.rating-2 { color: #f97316; }
+.star-rating-emoji .rating-label-text.rating-3 { color: #eab308; }
+.star-rating-emoji .rating-label-text.rating-4 { color: #22c55e; }
+.star-rating-emoji .rating-label-text.rating-5 { color: #10b981; }
+
 .star-rating-stars {
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 10px;
   margin-bottom: 12px;
+  padding: 8px 0;
 }
 
 .star-icon {
-  font-size: 36px;
+  font-size: 38px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: color 0.15s ease, transform 0.15s ease, text-shadow 0.15s ease;
   user-select: none;
   line-height: 1;
+  display: inline-block;
 }
 
 .star-icon.empty {
   color: #d1d5db;
+  transform: scale(1);
 }
 
 .star-icon.filled {
   color: #fbbf24;
   text-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+  transform: scale(1);
 }
 
 .star-icon.hover {
   color: #fbbf24;
-  transform: scale(1.2);
-  text-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
-}
-
-.star-icon:hover {
-  transform: scale(1.2);
+  transform: scale(1.15);
+  text-shadow: 0 2px 12px rgba(251, 191, 36, 0.5);
 }
 
 .star-rating-label {
   font-size: 13px;
   color: #718096;
   margin-bottom: 8px;
-}
-
-.star-rating-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.star-button {
-  padding: 12px 20px;
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  cursor: pointer;
-  font-size: 18px;
-  transition: all 0.2s ease;
-  min-width: 60px;
-}
-
-.star-button:hover {
-  border-color: #fbbf24;
-  background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-}
-
-.star-button.selected {
-  border-color: #f59e0b;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-  color: white;
 }
 
 .star-rating-skip {
@@ -2021,55 +2025,8 @@
 }
 
 /* ==========================================
-   Star Rating UI
+   Star Rating UI (skip button styles)
    ========================================== */
-
-.star-rating-container {
-  padding: 16px;
-  text-align: center;
-}
-
-.star-rating-header {
-  margin-bottom: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  color: #4a5568;
-}
-
-.star-rating-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-
-.star-button {
-  padding: 10px 20px;
-  background: white;
-  border: 2px solid #e2e8f0;
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 18px;
-  transition: all 0.2s ease;
-  text-align: center;
-}
-
-.star-button:hover {
-  background: #fffbeb;
-  border-color: #f59e0b;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.2);
-}
-
-.star-button.selected {
-  background: #fffbeb;
-  border-color: #f59e0b;
-  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
-}
-
-.star-rating-skip {
-  margin-top: 8px;
-}
 
 .star-rating-skip .skip-button {
   padding: 8px 16px;

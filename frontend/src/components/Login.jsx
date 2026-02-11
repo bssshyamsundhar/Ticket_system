@@ -55,7 +55,7 @@ function Login({ onLoginSuccess }) {
     <div className="login-container">
       <div className="login-box">
         <div className="login-header">
-          <h1>FlexAssist</h1>
+          <h1>Flexi5</h1>
           <p>{isLogin ? 'Sign In' : 'Create Account'}</p>
         </div>
 

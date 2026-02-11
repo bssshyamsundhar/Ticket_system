@@ -33,6 +33,7 @@ function Chat({ user, token }) {
   // Star rating and feedback state
   const [showStarRating, setShowStarRating] = useState(false);
   const [selectedRating, setSelectedRating] = useState(0);
+  const [hoveredStar, setHoveredStar] = useState(0);
   const [feedbackText, setFeedbackText] = useState('');
   const [showFeedbackText, setShowFeedbackText] = useState(false);
 
@@ -282,6 +283,8 @@ function Chat({ user, token }) {
         // Handle show_text_input flag from backend (for "need more help" and free text modes)
         if (response.data.show_text_input) {
           setShowOtherInput(true);
+        } else {
+          setShowOtherInput(false);
         }
 
         // If state is 'end', show restart option
@@ -661,47 +664,55 @@ function Chat({ user, token }) {
       return null;  // The text input area has its own back button
     }
 
-    // Star rating display - Traditional star rating (Amazon-style)
+    // Star rating display - Traditional star rating with emotion emojis
+    const ratingEmojis = { 1: '😞', 2: '😕', 3: '😐', 4: '😊', 5: '🤩' };
+    const ratingLabels = { 1: 'Terrible', 2: 'Poor', 3: 'Average', 4: 'Good', 5: 'Excellent' };
+
     if (showStarRating) {
       const otherButtons = currentButtons.filter(btn => btn.action !== 'submit_rating');
+      const activeRating = hoveredStar || selectedRating;
 
       return (
         <div className="button-container star-rating-container">
           <div className="star-rating-header">
             <span>⭐ Rate your experience:</span>
           </div>
+          <div className="star-rating-emoji-area">
+            {activeRating > 0 ? (
+              <div className="star-rating-emoji" key={activeRating}>
+                <span className="rating-emoji">{ratingEmojis[activeRating]}</span>
+                <span className={`rating-label-text rating-${activeRating}`}>{ratingLabels[activeRating]}</span>
+              </div>
+            ) : (
+              <div className="star-rating-emoji">
+                <span className="rating-emoji" style={{ opacity: 0.3 }}>🌟</span>
+                <span className="rating-label-text" style={{ color: '#a0aec0' }}>Select a rating</span>
+              </div>
+            )}
+          </div>
           <div className="star-rating-stars">
             {[1, 2, 3, 4, 5].map((star) => (
               <span
                 key={star}
-                className={`star-icon ${selectedRating >= star ? 'filled' : 'empty'}`}
+                className={`star-icon ${selectedRating >= star ? 'filled' : 'empty'} ${hoveredStar >= star ? 'hover' : ''}`}
                 onClick={() => {
                   setSelectedRating(star);
                   setShowStarRating(false);
-                  handleButtonClick({ action: 'submit_rating', value: String(star), label: `${'⭐'.repeat(star)}` });
+                  setHoveredStar(0);
+                  handleButtonClick({ action: 'submit_rating', value: String(star), label: `${ratingEmojis[star]} ${'⭐'.repeat(star)}` });
                 }}
-                onMouseEnter={(e) => {
-                  // Highlight stars up to hovered star
-                  const stars = e.currentTarget.parentElement.querySelectorAll('.star-icon');
-                  stars.forEach((s, i) => {
-                    if (i < star) s.classList.add('hover');
-                    else s.classList.remove('hover');
-                  });
-                }}
-                onMouseLeave={(e) => {
-                  const stars = e.currentTarget.parentElement.querySelectorAll('.star-icon');
-                  stars.forEach(s => s.classList.remove('hover'));
-                }}
+                onMouseEnter={() => setHoveredStar(star)}
+                onMouseLeave={() => setHoveredStar(0)}
                 role="button"
                 tabIndex={0}
-                title={`${star} star${star > 1 ? 's' : ''}`}
+                title={`${star} star${star > 1 ? 's' : ''} - ${ratingEmojis[star]} ${ratingLabels[star]}`}
               >
                 ★
               </span>
             ))}
           </div>
           {selectedRating > 0 && (
-            <div className="star-rating-label">{selectedRating} of 5 stars</div>
+            <div className="star-rating-label">{ratingEmojis[selectedRating]} {selectedRating} of 5 stars - {ratingLabels[selectedRating]}</div>
           )}
           {otherButtons.length > 0 && (
             <div className="star-rating-skip">
@@ -798,8 +809,8 @@ function Chat({ user, token }) {
                 onClick={() => handleButtonClick(button)}
                 disabled={loading}
               >
-                <span className="button-icon">📁</span>
-                <span className="button-label">{button.label}</span>
+                <span className="button-icon">{button.icon || '📁'}</span>
+                <span className="button-label">{button.value || button.label}</span>
               </button>
             ))}
           </div>
@@ -1035,7 +1046,7 @@ function Chat({ user, token }) {
     <div className="chat-container">
       <div className="chat-sidebar">
         <div className="sidebar-header">
-          <h3> IT Support</h3>
+          <h3> Flexi5</h3>
           <p className="user-greeting">Hello, {user.username}!</p>
         </div>
 
@@ -1063,7 +1074,7 @@ function Chat({ user, token }) {
       <div className="chat-main">
         <div className="chat-header">
           <div className="header-info">
-            <span className="header-title"> IT Support Assistant</span>
+            <span className="header-title"> Flexi5</span>
             <span className="header-status">● Online</span>
           </div>
         </div>
@@ -1127,12 +1138,12 @@ function Chat({ user, token }) {
         {showOtherInput && (
           <div className="other-input-container">
             <div className="other-input-header">
-              <span> Describe your issue:</span>
+              <span>{showFeedbackText ? ' Share your feedback:' : ' Describe your issue:'}</span>
             </div>
             <div className="other-input-form">
               <textarea
                 className="other-input"
-                placeholder="Please describe your IT issue in detail..."
+                placeholder={showFeedbackText ? "Share your thoughts or suggestions..." : "Please describe your IT issue in detail..."}
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyPress={handleKeyPress}

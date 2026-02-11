@@ -463,9 +463,14 @@ def handle_submit_request(conversation_state, user_info):
     conversation_state['simulated_manager'] = simulated_manager
     conversation_state['state'] = 'request_complete'
     
+    # Generate a visual REQ- ID (not stored in DB)
+    import time as _time
+    req_id = f"REQ-{int(_time.time()) % 100000:05d}-{random.randint(100, 999)}"
+    conversation_state['req_id'] = req_id
+    
     return {
         "success": True,
-        "response": f"✅ **Request Submitted Successfully!**\n\nYour request for **{item}** has been forwarded to **Manager {simulated_manager}** for approval.\n\n📧 We'll notify you via email once the manager approves your request.\n\n---\n\nWould you like to do anything else?",
+        "response": f"✅ **Request Submitted Successfully!**\n\n🆔 **Request ID:** {req_id}\n\nYour request for **{item}** has been forwarded to **Manager {simulated_manager}** for approval.\n\n📧 We'll notify you via email once the manager approves your request.\n\n---\n\nWould you like to do anything else?",
         "buttons": [
             {'id': 'new', 'label': '🆕 New Request', 'action': 'start', 'value': 'new'},
             {'id': 'done', 'label': '✅ I\'m Done', 'action': 'end', 'value': 'done'}
@@ -479,11 +484,14 @@ def handle_check_approval(conversation_state):
     """Simulate manager approval check - always approves"""
     simulated_manager = conversation_state.get('simulated_manager', 'Your Manager')
     item = conversation_state.get('request_item', 'Unknown')
+    req_id = conversation_state.get('req_id', '')
     conversation_state['state'] = 'manager_approved'
+    
+    req_line = f"\n\n🆔 **Request ID:** {req_id}" if req_id else ""
     
     return {
         "success": True,
-        "response": f"✅ **Request Approved!**\n\n👤 **Manager {simulated_manager}** has reviewed and approved your request for **{item}**.\n\n📧 You will receive a confirmation email shortly.\n\n---\n\nWould you like to do anything else?",
+        "response": f"✅ **Request Approved!**{req_line}\n\n👤 **Manager {simulated_manager}** has reviewed and approved your request for **{item}**.\n\n📧 You will receive a confirmation email shortly.\n\n---\n\nWould you like to do anything else?",
         "buttons": [
             {'id': 'new', 'label': '🆕 New Request', 'action': 'start', 'value': 'new'},
             {'id': 'done', 'label': '✅ I\'m Done', 'action': 'end', 'value': 'done'}
@@ -493,14 +501,15 @@ def handle_check_approval(conversation_state):
     }
 
 
-def get_manager_approval_message(manager_name=None, ticket_id=None):
+def get_manager_approval_message(manager_name=None, ticket_id=None, req_id=None):
     """Get the manager approval confirmation message with simulated approval"""
     manager_name = manager_name or "Your Manager"
     ticket_msg = f" (Ticket: **{ticket_id}**)" if ticket_id else ""
+    req_line = f"\n\n🆔 **Request ID:** {req_id}" if req_id else ""
     
     return {
         "success": True,
-        "response": f"✅ **Request Approved!**{ticket_msg}\n\n👤 **Manager {manager_name}** has reviewed and approved your request.\n\n📧 You will receive a confirmation email shortly.\n\n---\n\nWould you like to do anything else?",
+        "response": f"✅ **Request Approved!**{ticket_msg}{req_line}\n\n👤 **Manager {manager_name}** has reviewed and approved your request.\n\n📧 You will receive a confirmation email shortly.\n\n---\n\nWould you like to do anything else?",
         "buttons": [
             {'id': 'new', 'label': '🆕 New Request', 'action': 'start', 'value': 'new'},
             {'id': 'done', 'label': '✅ I\'m Done', 'action': 'end', 'value': 'done'}

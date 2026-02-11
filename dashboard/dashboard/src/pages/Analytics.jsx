@@ -306,10 +306,10 @@ const Analytics = () => {
         <div className="analytics-page animate-fade-in">
             <div className="analytics-header">
                 <div>
-                    <h1>Reports & Analytics</h1>
+                    <h1>Dashboard</h1>
                     <p className="analytics-subtitle">Comprehensive insights into support operations</p>
                 </div>
-                <div className="analytics-controls">
+                {/* <div className="analytics-controls">
                     <div className="trend-period-selector">
                         {[7, 14, 30, 60].map(d => (
                             <button
@@ -324,7 +324,7 @@ const Analytics = () => {
                     <button className="refresh-btn" onClick={loadAnalytics} title="Refresh">
                         <RefreshCw size={18} />
                     </button>
-                </div>
+                </div> */}
             </div>
 
             {/* KPI Summary Cards */}

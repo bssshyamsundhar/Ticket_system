@@ -70,8 +70,8 @@ function App() {
         <div className="header-content">
           {/* Logo on Left */}
           <div className="header-logo">
-            <img src={flexLogo} alt="FlexAssist" className="header-logo-img" />
-            <h1 className="header-title">FlexAssist</h1>
+            <img src={flexLogo} alt="Flexi5" className="header-logo-img" />
+            <h1 className="header-title">Flexi5</h1>
           </div>
 
           {/* User Info on Right */}

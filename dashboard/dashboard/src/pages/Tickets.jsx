@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Search, Filter, Eye, UserPlus, Edit, XCircle, Download, Calendar } from 'lucide-react';
 import Card from '../components/UI/Card';
 import Table from '../components/UI/Table';
@@ -121,7 +121,7 @@ const Tickets = () => {
         }
     };
 
-    const filteredTickets = tickets.filter(ticket => {
+    const filteredTickets = useMemo(() => tickets.filter(ticket => {
         const matchesSearch = ticket.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ticket.userName.toLowerCase().includes(searchTerm.toLowerCase()) ||
             ticket.subject.toLowerCase().includes(searchTerm.toLowerCase());
@@ -145,7 +145,7 @@ const Tickets = () => {
         }
 
         return matchesSearch && matchesStatus && matchesPriority && matchesDate;
-    });
+    }), [tickets, searchTerm, filterStatus, filterPriority, filterDateFrom, filterDateTo]);
 
     const handleDatePresetChange = (preset) => {
         setFilterDatePreset(preset);
@@ -270,12 +270,6 @@ const Tickets = () => {
             label: 'Assigned To',
             sortable: true,
             render: (value) => value || <span className="text-muted">Unassigned</span>
-        },
-        {
-            key: 'assignmentGroup',
-            label: 'Assignment Group',
-            sortable: true,
-            render: (value) => value || <span className="text-muted">-</span>
         },
         {
             key: 'createdAt',

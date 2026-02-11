@@ -91,7 +91,7 @@ const Dashboard = () => {
         return (
             <div className="dashboard">
                 <div className="dashboard-header">
-                    <h1>Dashboard</h1>
+                    <h1>Report and Analytics</h1>
                 </div>
                 <div className="stats-grid">
                     {[1, 2, 3, 4, 5, 6].map(i => (
@@ -180,7 +180,7 @@ const Dashboard = () => {
         <div className="dashboard animate-fade-in">
             <div className="dashboard-header">
                 <div>
-                    <h1>Dashboard</h1>
+                    <h1>Report and Analytics</h1>
                     <p className="dashboard-subtitle">Welcome back! Here's what's happening today.</p>
                 </div>
                 <div className="dashboard-actions">

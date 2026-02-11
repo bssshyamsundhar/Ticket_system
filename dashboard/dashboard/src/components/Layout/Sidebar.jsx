@@ -12,10 +12,10 @@ import './Sidebar.css';
 
 const Sidebar = ({ isCollapsed, onToggle }) => {
     const menuItems = [
-        { path: '/', icon: LayoutDashboard, label: 'Dashboard' },
+        { path: '/', icon: BarChart3, label: 'Dashboard' },
         { path: '/tickets', icon: Ticket, label: 'Tickets' },
         { path: '/technicians', icon: Users, label: 'Technicians' },
-        { path: '/analytics', icon: BarChart3, label: 'Analytics' },
+        { path: '/analytics', icon: LayoutDashboard, label: 'Analytics' },
         { path: '/roles', icon: Shield, label: 'Roles & Access' },
         { path: '/audit-logs', icon: FileText, label: 'Audit Logs' },
     ];

@@ -31,7 +31,7 @@ const Header = ({ user, onLogout }) => {
         <header className="header">
             {/* Logo Section - Left Side */}
             <div className="header-logo">
-                <span className="header-logo-text">IT Support Admin</span>
+                <span className="header-logo-text">Flexi5 Admin</span>
             </div>
 
             {/* Actions Section - Right Side */}
