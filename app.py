@@ -865,7 +865,7 @@ def chat_legacy():
         if action == 'start' or conversation_state['state'] == 'initial':
             # Show category buttons
             categories = kb.get_categories_structure()
-            response_data["response"] = f"Hi {user_name}! 👋\n\nI'm Eve, your AI-powered IT chatbot, here to make things simple and easy for you. Whether you need help, answers, or just a little guidance, I'm always ready to assist.\n\nHow can I help you today? 😊\n\nIf you would like to report issues with applications not listed below, just ask! I will give you the option to connect with our support engineers if necessary."
+            response_data["response"] = f"Hi {user_name}! 👋\n\nI'm FlexAssist, your AI-powered IT chatbot, here to make things simple and easy for you. Whether you need help, answers, or just a little guidance, I'm always ready to assist.\n\nHow can I help you today? 😊\n\nIf you would like to report issues with applications not listed below, just ask! I will give you the option to connect with our support engineers if necessary."
             response_data["buttons"] = [
                 {
                     "id": cat['id'],

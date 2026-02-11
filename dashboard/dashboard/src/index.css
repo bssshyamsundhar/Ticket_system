@@ -3,48 +3,46 @@
    Premium Design System
    =================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 /* ===================================
    CSS CUSTOM PROPERTIES (DESIGN TOKENS)
    =================================== */
 
 :root {
   /* Colors - Premium Palette */
-  --color-primary: #6366f1;
-  --color-primary-dark: #4f46e5;
+  --color-primary: #005486;
+  --color-primary-dark: #0f50f5;
   --color-primary-light: #818cf8;
-  
-  --color-secondary: #8b5cf6;
+
+  --color-secondary: #1d42ba;
   --color-accent: #ec4899;
   --color-success: #10b981;
   --color-warning: #f59e0b;
   --color-danger: #ef4444;
   --color-info: #3b82f6;
-  
+
   /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-primary: linear-gradient(135deg,  #009ADD 0%, #103989 100%);
   --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  --gradient-danger: linear-gradient(135deg, #ef4444 0%, #d38585 100%);
   --gradient-info: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  
+
   /* Neutral Colors - Light Mode */
   --color-bg-primary: #f8fafc;
   --color-bg-secondary: #f1f5f9;
   --color-bg-tertiary: #ffffff;
-  --color-text-primary: #0f172a;
+  --color-text-primary: #40495e;
   --color-text-secondary: #475569;
   --color-text-tertiary: #94a3b8;
   --color-border: #e2e8f0;
   --color-shadow: rgba(15, 23, 42, 0.1);
-  
+
   /* Glassmorphism */
   --glass-bg: rgba(255, 255, 255, 0.7);
   --glass-border: rgba(255, 255, 255, 0.3);
   --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   --glass-blur: blur(10px);
-  
+
   /* Spacing */
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
@@ -52,27 +50,27 @@
   --spacing-lg: 1.5rem;
   --spacing-xl: 2rem;
   --spacing-2xl: 3rem;
-  
+
   /* Border Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-full: 9999px;
-  
+
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-  
+
   /* Transitions */
   --transition-fast: 150ms ease-in-out;
   --transition-base: 250ms ease-in-out;
   --transition-slow: 350ms ease-in-out;
-  
+
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-family: 'Century Gothic', 'CenturyGothic', 'AppleGothic', sans-serif;
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
   --font-size-base: 1rem;
@@ -91,13 +89,13 @@
   --color-text-primary: #f8fafc;
   --color-text-secondary: #e2e8f0;
   --color-text-tertiary: #94a3b8;
-  --color-border: #334155;
+  --color-border: #101111;
   --color-shadow: rgba(0, 0, 0, 0.4);
-  
+
   --glass-bg: rgba(30, 41, 59, 0.8);
   --glass-border: rgba(148, 163, 184, 0.15);
   --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
-  
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.3);
@@ -133,19 +131,41 @@ body {
    TYPOGRAPHY
    =================================== */
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 700;
   line-height: 1.2;
   margin-bottom: var(--spacing-md);
   color: var(--color-text-primary);
 }
 
-h1 { font-size: var(--font-size-4xl); }
-h2 { font-size: var(--font-size-3xl); }
-h3 { font-size: var(--font-size-2xl); }
-h4 { font-size: var(--font-size-xl); }
-h5 { font-size: var(--font-size-lg); }
-h6 { font-size: var(--font-size-base); }
+h1 {
+  font-size: var(--font-size-4xl);
+}
+
+h2 {
+  font-size: var(--font-size-3xl);
+}
+
+h3 {
+  font-size: var(--font-size-2xl);
+}
+
+h4 {
+  font-size: var(--font-size-xl);
+}
+
+h5 {
+  font-size: var(--font-size-lg);
+}
+
+h6 {
+  font-size: var(--font-size-base);
+}
 
 p {
   margin-bottom: var(--spacing-md);
@@ -193,26 +213,61 @@ a:hover {
   justify-content: center;
 }
 
-.gap-sm { gap: var(--spacing-sm); }
-.gap-md { gap: var(--spacing-md); }
-.gap-lg { gap: var(--spacing-lg); }
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+
+.gap-md {
+  gap: var(--spacing-md);
+}
+
+.gap-lg {
+  gap: var(--spacing-lg);
+}
 
 .text-center {
   text-align: center;
 }
 
-.text-sm { font-size: var(--font-size-sm); }
-.text-lg { font-size: var(--font-size-lg); }
-.text-xl { font-size: var(--font-size-xl); }
+.text-sm {
+  font-size: var(--font-size-sm);
+}
 
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
+.text-lg {
+  font-size: var(--font-size-lg);
+}
 
-.mb-sm { margin-bottom: var(--spacing-sm); }
-.mb-md { margin-bottom: var(--spacing-md); }
-.mb-lg { margin-bottom: var(--spacing-lg); }
-.mb-xl { margin-bottom: var(--spacing-xl); }
+.text-xl {
+  font-size: var(--font-size-xl);
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.mb-sm {
+  margin-bottom: var(--spacing-sm);
+}
+
+.mb-md {
+  margin-bottom: var(--spacing-md);
+}
+
+.mb-lg {
+  margin-bottom: var(--spacing-lg);
+}
+
+.mb-xl {
+  margin-bottom: var(--spacing-xl);
+}
 
 /* ===================================
    GLASSMORPHISM CARD
@@ -243,6 +298,7 @@ a:hover {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -253,15 +309,19 @@ a:hover {
   from {
     transform: translateX(-100%);
   }
+
   to {
     transform: translateX(0);
   }
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: 0.5;
   }
@@ -271,6 +331,7 @@ a:hover {
   0% {
     background-position: -1000px 0;
   }
+
   100% {
     background-position: 1000px 0;
   }
@@ -320,7 +381,7 @@ a:hover {
     --font-size-3xl: 1.5rem;
     --font-size-2xl: 1.25rem;
   }
-  
+
   .container {
     padding: 0 var(--spacing-md);
   }
@@ -346,12 +407,10 @@ a:focus-visible {
    =================================== */
 
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-bg-secondary) 0%,
-    var(--color-border) 50%,
-    var(--color-bg-secondary) 100%
-  );
+  background: linear-gradient(90deg,
+      var(--color-bg-secondary) 0%,
+      var(--color-border) 50%,
+      var(--color-bg-secondary) 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
   border-radius: var(--radius-md);
@@ -366,7 +425,7 @@ a:focus-visible {
     background: white;
     color: black;
   }
-  
+
   .no-print {
     display: none !important;
   }

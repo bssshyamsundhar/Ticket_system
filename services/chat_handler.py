@@ -227,7 +227,7 @@ class ChatHandler:
         
         return {
             "success": True,
-            "response": f"Hi {user_name}! 👋\n\nI'm **Eve**, your IT Support Assistant. I'm here to help you with any technical issues or requests.\n\nPlease select an option to get started:",
+            "response": f"Hi {user_name}! 👋\n\nI'm **Flex Assist**, your IT Support Assistant. I'm here to help you with any technical issues or requests.\n\nPlease select an option to get started:",
             "buttons": self.data_service.get_ticket_types(),
             "state": self.STATE_AWAITING_TICKET_TYPE,
             "show_text_input": False

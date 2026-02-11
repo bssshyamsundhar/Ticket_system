@@ -15,7 +15,7 @@ function Login({ onLogin }) {
 
     try {
       const response = await authAPI.login({ email, password });
-      
+
       if (response.data.token && response.data.user) {
         // Check if user is admin
         if (response.data.user.role !== 'admin') {
@@ -26,7 +26,7 @@ function Login({ onLogin }) {
           setLoading(false);
           return;
         }
-        
+
         onLogin(response.data.user);
       } else {
         setError('Login failed. Please try again.');
@@ -43,13 +43,20 @@ function Login({ onLogin }) {
     <div className="login-container">
       <div className="login-card">
         <div className="login-header">
-          <h1>🎛️ Admin Dashboard</h1>
+          <div className="header-icon-container">
+            <img
+              src="/admin.svg"
+              alt="Admin Dashboard"
+              className="admin-icon"
+            />
+          </div>
+          <h1>Admin Dashboard</h1>
           <p>IT Support System</p>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="login-form">
           {error && <div className="error-message">{error}</div>}
-          
+
           <div className="form-group">
             <label htmlFor="email">Email</label>
             <input
@@ -62,7 +69,7 @@ function Login({ onLogin }) {
               disabled={loading}
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="password">Password</label>
             <input
@@ -75,12 +82,12 @@ function Login({ onLogin }) {
               disabled={loading}
             />
           </div>
-          
+
           <button type="submit" className="login-btn" disabled={loading}>
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-        
+
         <div className="login-footer">
           <p>Admin access only</p>
         </div>

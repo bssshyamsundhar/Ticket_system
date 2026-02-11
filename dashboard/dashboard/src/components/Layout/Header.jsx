@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, User, Search, LogOut } from 'lucide-react';
+import { Moon, Sun, User, LogOut } from 'lucide-react';
 import './Header.css';
 
 const Header = ({ user, onLogout }) => {
@@ -29,15 +29,12 @@ const Header = ({ user, onLogout }) => {
 
     return (
         <header className="header">
-            <div className="header-search">
-                <Search size={18} className="search-icon" />
-                <input
-                    type="text"
-                    placeholder="Search tickets, users, articles..."
-                    className="search-input"
-                />
+            {/* Logo Section - Left Side */}
+            <div className="header-logo">
+                <span className="header-logo-text">IT Support Admin</span>
             </div>
 
+            {/* Actions Section - Right Side */}
             <div className="header-actions">
                 <button
                     className="header-action-btn"
@@ -58,8 +55,8 @@ const Header = ({ user, onLogout }) => {
                 </div>
 
                 {onLogout && (
-                    <button 
-                        className="header-action-btn logout-btn" 
+                    <button
+                        className="header-action-btn logout-btn"
                         onClick={onLogout}
                         aria-label="Logout"
                         title="Logout"

@@ -57,7 +57,7 @@ const extractData = (response) => {
 const toCamelCase = (obj) => {
     if (obj === null || typeof obj !== 'object') return obj;
     if (Array.isArray(obj)) return obj.map(toCamelCase);
-    
+
     const result = {};
     for (const [key, value] of Object.entries(obj)) {
         const camelKey = key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -137,8 +137,8 @@ export const ticketsAPI = {
 
     // Assign ticket to technician
     assign: async (ticketId, technicianId) => {
-        const response = await apiClient.put(`/api/tickets/${ticketId}/assign`, { 
-            technician_id: technicianId 
+        const response = await apiClient.put(`/api/tickets/${ticketId}/assign`, {
+            technician_id: technicianId
         });
         const data = extractData(response);
         return { data: transformTicket(data.ticket) };
@@ -313,8 +313,8 @@ export const auditLogsAPI = {
     },
 
     export: async (format = 'csv') => {
-        const response = await apiClient.get('/api/audit-logs', { 
-            params: { format, limit: 1000 } 
+        const response = await apiClient.get('/api/audit-logs', {
+            params: { format, limit: 1000 }
         });
         const data = extractData(response);
         return { data: (data.logs || []).map(toCamelCase) };
@@ -351,10 +351,10 @@ export const analyticsAPI = {
     getDashboardStats: async () => {
         const response = await apiClient.get('/api/analytics/tickets');
         const data = extractData(response);
-        
+
         // Transform backend stats to frontend format
         const stats = data.stats || {};
-        return { 
+        return {
             data: {
                 totalTickets: stats.total || 0,
                 openTickets: stats.open || 0,
@@ -396,30 +396,30 @@ export const analyticsAPI = {
                 apiClient.get('/api/analytics/tickets'),
                 apiClient.get('/api/analytics/trend')
             ]);
-            
+
             const ticketData = extractData(ticketRes);
             const trendData = extractData(trendRes);
-            
+
             // Transform by_category array to object format
             const ticketsByCategory = {};
             (ticketData.by_category || []).forEach(item => {
                 ticketsByCategory[item.category || 'Unknown'] = item.count || 0;
             });
-            
+
             // Transform by_priority array to object format
             const ticketsByPriority = {};
             (ticketData.by_priority || []).forEach(item => {
                 ticketsByPriority[item.priority || 'Unknown'] = item.count || 0;
             });
-            
+
             // Transform trend data
             const trend = trendData.trend || [];
             const monthlyTrend = {
                 labels: trend.map(t => t.date || t.month || ''),
                 data: trend.map(t => t.count || 0)
             };
-            
-            return { 
+
+            return {
                 data: {
                     ticketsByCategory,
                     ticketsByPriority,
@@ -439,8 +439,8 @@ export const analyticsAPI = {
         }
     },
 
-    getTrend: async () => {
-        const response = await apiClient.get('/api/analytics/trend');
+    getTrend: async (days = 30) => {
+        const response = await apiClient.get('/api/analytics/trend', { params: { days } });
         const data = extractData(response);
         return { data: data.trend || [] };
     },
@@ -496,7 +496,7 @@ export const authAPI = {
     login: async (credentials) => {
         const response = await apiClient.post('/api/auth/login', credentials);
         const data = extractData(response);
-        
+
         // Store token
         if (data.token) {
             localStorage.setItem('authToken', data.token);
@@ -505,14 +505,14 @@ export const authAPI = {
         if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user));
         }
-        
+
         return { data };
     },
 
     register: async (userData) => {
         const response = await apiClient.post('/api/auth/register', userData);
         const data = extractData(response);
-        
+
         if (data.token) {
             localStorage.setItem('authToken', data.token);
             localStorage.setItem('token', data.token);
@@ -520,7 +520,7 @@ export const authAPI = {
         if (data.user) {
             localStorage.setItem('user', JSON.stringify(data.user));
         }
-        
+
         return { data };
     },
 

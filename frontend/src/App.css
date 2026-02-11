@@ -6,31 +6,52 @@
 }
 
 .App-header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #005486;
   color: white;
-  padding: 16px 0;
+  padding: 0;
+  height: 70px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
   position: sticky;
   top: 0;
   z-index: 100;
-}
-
-.header-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
 }
 
-.App-header h1 {
+.header-content {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+}
+
+/* Logo Styling */
+.header-logo {
+  display: flex;
+  align-items: center;
+  gap: 130px;
+  height: 100%;
+}
+
+.header-logo-img {
+  height: 45px;
+  width: auto;
+  object-fit: contain;
+}
+
+.header-title {
   font-size: 24px;
   font-weight: 700;
   margin: 0;
+  color: white;
   letter-spacing: -0.5px;
 }
 
+/* User Info Section */
 .user-info {
   display: flex;
   align-items: center;
@@ -38,15 +59,27 @@
 }
 
 .username {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 14px;
   font-weight: 600;
+  background-color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  padding: 8px 14px;
+  color: #005486;
+}
+
+.user-icon {
+  font-size: 16px;
 }
 
 .logout-button {
   padding: 6px 14px;
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: white;
   border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
+  color: #005486;
   border-radius: 6px;
   cursor: pointer;
   font-size: 13px;
@@ -55,14 +88,15 @@
 }
 
 .logout-button:hover {
-  background-color: rgba(255, 255, 255, 0.25);
+  background-color: #105174;
   border-color: rgba(255, 255, 255, 0.5);
+  color: white;
   transform: translateY(-1px);
 }
 
 .admin-dashboard-button {
   padding: 6px 14px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #0154B2 0%, #003548 100%);
   border: none;
   color: white;
   border-radius: 6px;
@@ -70,13 +104,13 @@
   font-size: 13px;
   font-weight: 600;
   transition: all 0.2s;
-  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 4px rgba(1, 84, 178, 0.3);
 }
 
 .admin-dashboard-button:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  background: linear-gradient(135deg, #003548 0%, #0154B2 100%);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 8px rgba(1, 84, 178, 0.4);
 }
 
 .role-badge {
@@ -95,8 +129,12 @@
 }
 
 .role-badge.user {
-  background: linear-gradient(135deg, #4ecdc4 0%, #44a3a0 100%);
-  color: white;
+  padding: 8px 14px;
+  background-color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #005486;
+  border-radius: 6px;
+
 }
 
 .nav-tabs {
@@ -126,7 +164,7 @@
 
 .nav-tab.active {
   background-color: #f8f9fa;
-  color: #667eea;
+  color: #0154B2;
   box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
 }
 

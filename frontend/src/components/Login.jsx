@@ -17,7 +17,7 @@ function Login({ onLoginSuccess }) {
 
     try {
       const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const data = isLogin 
+      const data = isLogin
         ? { email, password }
         : { username, email, password };
 
@@ -27,14 +27,14 @@ function Login({ onLoginSuccess }) {
         // Store token and user info in localStorage
         localStorage.setItem('token', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
-        
+
         // Check if user is admin - redirect to admin dashboard
         if (response.data.user.role === 'admin') {
           // Open admin dashboard in current window and don't call parent callback
           window.location.href = 'http://localhost:3001';
           return;
         }
-        
+
         // Call parent callback for regular users
         onLoginSuccess(response.data.user, response.data.token);
       } else {
@@ -55,7 +55,7 @@ function Login({ onLoginSuccess }) {
     <div className="login-container">
       <div className="login-box">
         <div className="login-header">
-          <h1>🎫 IT Support System</h1>
+          <h1>FlexAssist</h1>
           <p>{isLogin ? 'Sign In' : 'Create Account'}</p>
         </div>
 
@@ -126,12 +126,6 @@ function Login({ onLoginSuccess }) {
               {isLogin ? 'Sign Up' : 'Sign In'}
             </button>
           </p>
-        </div>
-
-        <div className="demo-credentials">
-          <p className="demo-title">Demo Account:</p>
-          <p>📧 Email: <code>admin@company.com</code></p>
-          <p>🔑 Password: <code>admin123</code></p>
         </div>
       </div>
     </div>

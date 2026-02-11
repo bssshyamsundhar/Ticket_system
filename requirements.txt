@@ -9,8 +9,8 @@ google-adk==1.0.0
 litellm==1.66.3
 
 # Database
-psycopg2-binary==2.9.9
-sqlalchemy==2.0.23
+psycopg2-binary
+sqlalchemy==2.0.36
 
 # Vector Database & Embeddings
 chromadb==0.4.22
@@ -21,12 +21,12 @@ sentence-transformers==2.2.2
 torch>=2.0.0
 
 # Authentication
-PyJWT==2.8.1
+PyJWT==2.8.0
 bcrypt==4.1.1
 
 # Utilities
 python-dotenv==1.0.0
-pydantic==2.5.0
+pydantic==2.10.5
 
 # Cloudinary for image uploads
 cloudinary==1.36.0

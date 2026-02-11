@@ -4,7 +4,6 @@ import {
     LayoutDashboard,
     Ticket,
     Users,
-    Settings,
     BarChart3,
     Shield,
     FileText
@@ -23,13 +22,13 @@ const Sidebar = ({ isCollapsed, onToggle }) => {
 
     return (
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-            <div className="sidebar-header">
-                <div className="sidebar-logo">
-                    <div className="logo-icon">
-                        <Settings size={24} />
-                    </div>
-                    {!isCollapsed && <span className="logo-text">IT Support Admin</span>}
-                </div>
+            {/* Logo at top */}
+            <div className="sidebar-logo-container">
+                <img
+                    src="/flexWhite.png"
+                    alt="IT Support"
+                    className="sidebar-logo-image"
+                />
             </div>
 
             <nav className="sidebar-nav">

@@ -61,7 +61,7 @@ const Analytics = () => {
                 analyticsAPI.getResolutionTimeDistribution(),
                 analyticsAPI.getStatusBreakdown(),
                 analyticsAPI.getWorkload(),
-                analyticsAPI.getTrend(),
+                analyticsAPI.getTrend(trendDays), // ✅ Now passes trendDays parameter
                 analyticsAPI.getResolutionTrend(trendDays),
             ]);
             setData({

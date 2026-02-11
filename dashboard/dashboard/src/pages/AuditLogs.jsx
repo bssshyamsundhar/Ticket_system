@@ -43,6 +43,52 @@ const AuditLogs = () => {
         return variants[action] || 'default';
     };
 
+    const handleExportLogs = () => {
+        if (filteredLogs.length === 0) {
+            alert('No logs to export');
+            return;
+        }
+
+        // CSV Headers
+        const headers = ['Log ID', 'Action', 'Ticket ID', 'User', 'Details', 'Timestamp'];
+
+        // Helper to escape CSV values
+        const escapeCSV = (val) => {
+            if (val === null || val === undefined) return '';
+            const str = String(val);
+            if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+                return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+        };
+
+        // Convert logs to CSV rows
+        const rows = filteredLogs.map(log => [
+            log.id || '',
+            log.action || '',
+            log.ticketId || '',
+            log.user || '',
+            log.details || '',
+            log.timestamp ? new Date(log.timestamp).toLocaleString() : ''
+        ].map(escapeCSV));
+
+        // Create CSV content
+        const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+
+        // Create and download file
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        const dateStr = new Date().toISOString().split('T')[0];
+        const filterText = filterAction === 'all' ? 'all' : filterAction.replace(/\s+/g, '_').toLowerCase();
+        link.download = `audit_logs_${filterText}_${dateStr}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
     const columns = [
         { key: 'id', label: 'Log ID', sortable: true },
         {
@@ -69,7 +115,12 @@ const AuditLogs = () => {
                     <h1>Audit Logs</h1>
                     <p className="page-subtitle">Track all system activities and changes</p>
                 </div>
-                <Button variant="primary" icon={<Download size={18} />}>
+                <Button
+                    variant="primary"
+                    icon={<Download size={18} />}
+                    onClick={handleExportLogs}
+                    disabled={filteredLogs.length === 0}
+                >
                     Export Logs
                 </Button>
             </div>

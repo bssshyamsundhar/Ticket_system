@@ -1,7 +1,10 @@
 .tickets-page {
     padding: var(--spacing-xl);
-    max-width: 1600px;
+    max-width: 1250px;
+    /* Reduced from 1600px for better visual match with Dashboard */
     margin: 0 auto;
+    width: 100%;
+    /* Page controls its own width */
 }
 
 .page-header {
@@ -9,10 +12,13 @@
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: var(--spacing-xl);
+    width: 100%;
+    /* Header fills parent width, doesn't control it */
 }
 
 .page-header h1 {
     margin-bottom: var(--spacing-xs);
+    color: #005486;
 }
 
 .page-subtitle {
@@ -89,7 +95,9 @@
 
 .table-card {
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
+    /* Allow table to scroll within card */
+    position: relative;
 }
 
 .table-header h3 {

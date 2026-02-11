@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import Login from './components/Login';
 import Chat from './components/Chat';
+import flexLogo from './assets/flexWhite.png';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -12,7 +13,7 @@ function App() {
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    
+
     if (storedToken && storedUser) {
       try {
         setToken(storedToken);
@@ -23,7 +24,7 @@ function App() {
         localStorage.removeItem('user');
       }
     }
-    
+
     setLoading(false);
   }, []);
 
@@ -67,9 +68,18 @@ function App() {
     <div className="App">
       <header className="App-header">
         <div className="header-content">
-          <h1>🎫 IT Support System</h1>
+          {/* Logo on Left */}
+          <div className="header-logo">
+            <img src={flexLogo} alt="FlexAssist" className="header-logo-img" />
+            <h1 className="header-title">FlexAssist</h1>
+          </div>
+
+          {/* User Info on Right */}
           <div className="user-info">
-            <span className="username">👤 {currentUser.username || currentUser.name}</span>
+            <span className="username">
+              <span className="user-icon">👤</span>
+              {currentUser.username || currentUser.name}
+            </span>
             <span className={`role-badge ${currentUser.role}`}>
               {currentUser.role}
             </span>
